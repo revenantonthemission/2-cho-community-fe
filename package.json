@@ -1,0 +1,23 @@
+{
+  "name": "2-cho-community-fe",
+  "version": "1.0.0",
+  "description": "aws ai school week 5 project",
+  "homepage": "https://github.com/revenantonthemission/2-cho-community-fe#readme",
+  "bugs": {
+    "url": "https://github.com/revenantonthemission/2-cho-community-fe/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/revenantonthemission/2-cho-community-fe.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
