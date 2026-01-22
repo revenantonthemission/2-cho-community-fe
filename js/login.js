@@ -71,16 +71,13 @@ loginForm.addEventListener("submit", async (event) => {
                 }
             } catch (e) {
                 console.warn("JSON 파싱 실패 (백엔드 데이터 형식을 확인하세요):", e);
-                // 파싱에 실패하면 위에서 설정한 기본 errorMsg("이메일 또는...")가 유지됩니다.
             }
             showUserError("password", errorMsg);
             resetButton();
-            //alert(`로그인 실패: ${errorData.detail || "아이디 또는 비밀번호가 일치하지 않습니다."}`);
         }
     } catch (error) {
         console.error("로그인 에러: ", error);
         showUserError("password", "서버와 통신할 수 없습니다.");
         resetButton();
-        //alert("서버와 통신할 수 없습니다.");
     }
 });
