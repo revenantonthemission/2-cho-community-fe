@@ -1,0 +1,426 @@
+/* style.css */
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    border: 4px;
+    border-radius: 0 8px 8px 8px;
+    font-family: 'Pretendard', sans-serif;
+    background-color: #f4f5f7;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 104px;
+    z-index: 1000;
+    background-color: #f4f5f7;
+
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    justify-content: flex-start;
+    border-bottom: 1px solid #000;
+}
+
+.header-title-wrapper {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    align-items: center;
+    position: relative;
+    /* 내부 버튼의 절대 위치 기준점 */
+}
+
+/* 제목 스타일 */
+header h2 {
+
+    position: static;
+
+    /* 폰트 스타일 */
+    font-family: "Noto Sans KR", sans-serif;
+    font-weight: 400;
+    font-size: 32px;
+    /* 헤더 높이에 맞춰 폰트 사이즈 조정 */
+    margin: 0;
+    /* 기본 마진 제거 */
+    white-space: nowrap;
+    /* 줄바꿈 방지 */
+}
+
+/* 뒤로 가기 버튼 스타일 */
+.header-title-wrapper .back-button {
+
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-right: 20px;
+
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+}
+
+/* 마우스 올렸을 때 효과 */
+.back-button:hover svg path {
+    stroke: #555;
+    /* 회색으로 변경 */
+}
+
+.header-auth {
+    position: absolute;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #ddd;
+    border: 1px solid #ccc;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+}
+
+/* 게시글 목록 */
+.main-container {
+    margin-top: 80px;
+    /* 화면 상단에 고정된 헤더를 위한 공간*/
+    width: 100%;
+    max-width: 600px;
+    padding: 0 20px;
+    box-sizing: border-box;
+    padding-bottom: 40px;
+}
+
+/* 환영인사와 업로드 버튼 */
+.welcome-section {
+    margin-bottom: 24px;
+    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.welcome-section h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.action-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    /* Southeast alignment */
+    width: 100%;
+}
+
+.write-btn {
+    padding: 10px 20px;
+    background-color: #ACA0EB;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.write-btn:hover {
+    background-color: #9286d8;
+}
+
+/* Post List */
+#post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Post Card Style */
+.post-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #eee;
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.post-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+/* Post Meta Info (Likes, Comments, Views, Date) */
+.post-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.post-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Author Info */
+.post-author {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #f4f5f7;
+    padding-top: 16px;
+}
+
+.author-profile-img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #ddd;
+    object-fit: cover;
+    margin-right: 12px;
+    border: 1px solid #eee;
+}
+
+.author-nickname {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.author-date {
+    margin-left: auto;
+    /* Push date to the right if desired, or keep in meta */
+    font-size: 12px;
+    color: #888;
+}
+
+/* Loading Sentinel */
+#loading-sentinel {
+    height: 20px;
+    margin: 20px 0;
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+    display: none;
+    /* Hidden by default */
+}
+
+#loading-sentinel.visible {
+    display: block;
+}
+
+/* Login Page Specifics (Compatibility) */
+.login-container {
+    background: #fff;
+    /* Ensure login container is white */
+    padding: 40px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.input-group label {
+    margin-bottom: 8px;
+}
+
+/* 프로필 업로드 컨테이너 */
+.profile-upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 24px;
+    /* 이메일 입력란과의 간격 */
+}
+
+/* 원형 미리보기 영역 */
+.profile-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    /* 기본 배경색 (회색) */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    overflow: hidden;
+    /* 이미지가 원을 넘치지 않게 자름 */
+    border: 1px solid #ccc;
+    position: relative;
+    transition: background-color 0.2s;
+}
+
+.profile-preview:hover {
+    background-color: #d0d0d0;
+    /* 마우스 올렸을 때 살짝 진하게 */
+}
+
+/* 실제 이미지 스타일 */
+#preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* 비율 유지하며 꽉 채우기 */
+    display: block;
+}
+
+/* 숨김 처리를 위한 클래스 */
+.hidden {
+    display: none !important;
+}
+
+/* 파일 인풋 숨기기 (라벨을 클릭해서 실행하므로) */
+.hidden-input {
+    display: none;
+}
+
+/* 플레이스홀더 아이콘 스타일 */
+.placeholder-icon svg {
+    stroke: #666;
+    width: 32px;
+    height: 32px;
+}
+
+/* 헬퍼 텍스트 스타일 (기존 스타일과 통일감 유지) */
+.profile-upload-container .helper-text {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #FF3333;
+    /* 기존 에러/헬퍼 텍스트 색상 */
+    font-family: 'Inter', sans-serif;
+}
+
+.login-container {
+    background: #f4f5f7;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+}
+
+h2 {
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 32px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.input-group {
+    margin-bottom: 1rem;
+    font-size: 15px;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 700;
+    font-style: bold;
+    line-height: 100%;
+    letter-spacing: 0%;
+    margin-bottom: 0.5rem;
+    color: #000;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #000;
+    border-radius: 4px;
+    box-sizing: border-box;
+    /* 패딩 포함 너비 계산 */
+}
+
+.input-group input::placeholder {
+    color: #000;
+    font-weight: 400;
+    line-height: 100%;
+    font-style: normal;
+    font-size: 14px;
+}
+
+.error-border {
+    border-color: #FF3333;
+}
+
+.input-group span {
+    color: #FF3333;
+    font-family: 'Inter', sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 100%;
+    border: 4px;
+    border-radius: 8px 8px 8px;
+    padding: 4px;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 1rem;
+    background-color: #ACA0EB;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 14px;
+    font-style: bold;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.login-btn:hover {
+    background-color: #0056b3;
+}
+
+.links {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.links a {
+    text-decoration: none;
+    color: #000;
+    font-weight: 400;
+}
