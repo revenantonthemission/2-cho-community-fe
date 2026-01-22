@@ -4,27 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>커뮤니티 메인</title>
+    <title>아무 말 대잔치</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+KR:wght@100..900&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
     <header>
-        <h1><a href="index.html">My Community</a></h1>
-        <div id="auth-section">
-            <a href="login.html">로그인</a> | <a href="signup.html">회원가입</a>
+        <div class="header-title-wrapper">
+            <h2>아무 말 대잔치</h2>
+        </div>
+        <div id="auth-section" class="header-auth">
+            <!-- Profile circle will be injected here or handled by auth logic -->
+            <div class="profile-circle" id="header-profile"></div>
         </div>
     </header>
 
-    <main>
-        <div class="actions" style="margin: 20px 0; text-align: right;">
-            <button id="write-btn" onclick="location.href='write.html'">글쓰기</button>
-        </div>
+    <main class="main-container">
+        <section class="welcome-section">
+            <h3 id="welcome-message">환영합니다!</h3>
+            <div class="action-wrapper">
+                <button id="write-btn" class="write-btn" onclick="location.href='write.html'">게시글 작성</button>
+            </div>
+        </section>
 
-        <h2>게시글 목록</h2>
-        <ul id="post-list">
-            <li>로딩 중...</li>
-        </ul>
+        <section class="post-feed">
+            <ul id="post-list">
+            </ul>
+            <div id="loading-sentinel">loading...</div>
+        </section>
     </main>
 
     <script src="js/config.js"></script>

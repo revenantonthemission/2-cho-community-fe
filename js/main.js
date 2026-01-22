@@ -1,15 +1,29 @@
+let currentOffset = 0;
+const LIMIT = 10;
+let isLoading = false;
+let hasMore = true;
+
 document.addEventListener("DOMContentLoaded", () => {
     checkLoginStatus();
     loadPosts();
+    setupInfinityScroll();
 });
 
+function setupInfinityScroll() {
+    const sentinel = document.getElementById("loading-sentinel");
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !isLoading && hasMore) {
+            loadPosts();
+        }
+    }, { threshold: 0.1 });
+    observer.observe(sentinel);
+}
+
 async function checkLoginStatus() {
-    const authSection = document.getElementById("auth-section");
-    const writeBtn = document.getElementById("write-btn");
+    const profileCircle = document.getElementById("header-profile");
+    // const authSection = document.getElementById("auth-section"); // Optional: if we want to add logout btn inside
 
     try {
-        // 백엔드에 현재 로그인한 사용자 정보를 묻는 엔드포인트가 있다고 가정 (예: /users/me)
-        // 만약 없다면 이 요청은 생략하고, 글쓰기 버튼 클릭 시 401 에러로 처리해야 함.
         const response = await fetch(`${API_BASE_URL}/v1/users/me`, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -17,14 +31,31 @@ async function checkLoginStatus() {
         });
 
         if (response.ok) {
-            const user = await response.json();
-            authSection.innerHTML = `
-            <span><b>${user.data.user.nickname || "사용자"}</b>님 환영합니다.</span>
-            <button id="logout-btn">로그아웃</button>`;
-            document.getElementById("logout-btn").addEventListener("click", handleLogout);
+            const result = await response.json();
+            const user = result.data.user;
+            // Update profile circle
+            if (user.profile_image) {
+                profileCircle.style.backgroundImage = `url(${user.profile_image})`;
+            } else {
+                profileCircle.style.backgroundColor = "#555"; // Default color
+            }
+
+            // Handle click on profile circle -> dropdown or navigate to profile?
+            // Requirement says "handles the user's profile". 
+            // For now, let's assume it goes to a profile page or toggles a menu. 
+            // Since we don't have a profile page spec, maybe just log out or basic info?
+            // Let's add a simple click listener for now.
+            profileCircle.addEventListener("click", () => {
+                const logout = confirm("로그아웃 하시겠습니까?");
+                if (logout) handleLogout();
+            });
+
         } else {
-            // 비로그인 상태 UI
-            console.log("로그인되지 않음");
+            // Not logged in. 
+            // Maybe show a generic icon or redirect to login on click?
+            profileCircle.addEventListener("click", () => {
+                location.href = "login.html";
+            });
         }
     } catch (error) {
         console.error("인증 확인 실패: ", error);
@@ -32,58 +63,121 @@ async function checkLoginStatus() {
 }
 
 async function loadPosts() {
+    if (isLoading || !hasMore) return;
+    isLoading = true;
     const listElement = document.getElementById("post-list");
+    const sentinel = document.getElementById("loading-sentinel");
+    sentinel.style.display = 'block';
 
     try {
-        const response = await fetch(`${API_BASE_URL}/v1/posts/`, {
+        const response = await fetch(`${API_BASE_URL}/v1/posts/?offset=${currentOffset}&limit=${LIMIT}`, {
             method: "GET",
             credentials: "include"
         });
 
         if (!response.ok) throw new Error("게시글 목록을 불러오지 못했습니다.");
 
-        const posts = await response.json().data?.posts || [];
+        const result = await response.json();
+        const posts = result.data?.posts || [];
 
-        // 로딩 메시지 제거
-        listElement.innerHTML = "";
-
-        if (posts.length === 0) {
-            listElement.innerHTML = "<li>게시글이 없습니다.</li>";
-            return;
+        if (posts.length < LIMIT) {
+            hasMore = false;
+            sentinel.style.display = 'none';
         }
 
-        // https://haenny.tistory.com/86#google_vignette
-        posts.forEach.call(posts, (post) => {
-            const li = document.createElement("li");
-            li.innerHTML = `
-                <h3>${post.title}</h3>
-                <p>작성자: ${post.author.nickname} | 날짜: ${new Date(post.created_at).toLocaleDateString()}</p>
-            `;
-            li.addEventListener("click", () => {
-                location.href = `detail.html?id=${post.id}`;
-            })
+        posts.forEach(post => {
+            const li = createPostElement(post);
             listElement.appendChild(li);
         });
+
+        currentOffset += LIMIT;
+
     } catch (error) {
         console.error("게시글 목록 로딩 실패: ", error);
-        listElement.innerHTML = "<li>게시글을 불러오는 중 오류가 발생했습니다.</li>";
+        sentinel.innerText = "오류 발생";
+    } finally {
+        isLoading = false;
     }
+}
+
+function createPostElement(post) {
+    const li = document.createElement("li");
+    li.className = "post-card";
+
+    // Title truncation (max 26 letters)
+    let title = post.title;
+    if (title.length > 26) {
+        title = title.substring(0, 26) + "...";
+    }
+
+    // Date formatting (yyyy-mm-dd hh:mm:ss)
+    const dateObj = new Date(post.created_at);
+    const dateStr = formatDate(dateObj);
+
+    // Placeholder stats (Backend might not return these yet, assuming 0 if missing)
+    const likes = post.likes_count || 0;
+    const comments = post.comments_count || 0;
+    const views = post.views_count || 0;
+
+    // Author profile image
+    const profileImg = post.author.profileImageUrl || '';
+
+    li.innerHTML = `
+        <div class="post-card-header">
+            <h3 class="post-title">${title}</h3>
+            <span class="post-date">${dateStr}</span>
+        </div>
+        <div class="post-stats">
+            <span>좋아요 ${formatCount(likes)}</span>
+            <span>댓글 ${formatCount(comments)}</span>
+            <span>조회수 ${formatCount(views)}</span>
+        </div>
+        <div class="post-divider"></div>
+        <div class="post-author">
+            <div class="author-profile-img" style="background-image: url('${profileImg}'); background-size: cover;"></div>
+            <span class="author-nickname">${post.author.nickname}</span>
+        </div>
+    `;
+
+    li.addEventListener("click", () => {
+        location.href = `detail.html?id=${post.post_id}`;
+    });
+
+    return li;
+}
+
+function formatDate(date) {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const hh = String(date.getHours()).padStart(2, '0');
+    const min = String(date.getMinutes()).padStart(2, '0');
+    const ss = String(date.getSeconds()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+}
+
+function formatCount(num) {
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+    return num;
 }
 
 async function handleLogout() {
     try {
-        const response = await fetch(`${API_BASE_URL}/v1/auth/session`, {
-            method: "DELETE",
+        const response = await fetch(`${API_BASE_URL}/v1/auth/logout`, { // Assuming /logout endpoint exists or based on backend spec
+            method: "POST", // Usually POST for logout
             credentials: "include"
         });
-
-        if (response.ok) {
-            alert("로그아웃 되었습니다.");
-            location.reload();
-        } else {
-            alert("로그아웃 실패");
+        // Or if it was DELETE /auth/session as before
+        if (response.status === 404) {
+            // Fallback to previous usage if need be
+            await fetch(`${API_BASE_URL}/v1/auth/session`, { method: "DELETE", credentials: "include" });
         }
+
+        alert("로그아웃 되었습니다.");
+        location.reload();
+
     } catch (error) {
         console.error("로그아웃 에러: ", error);
+        location.reload(); // Just reload to clear state visually
     }
 }
