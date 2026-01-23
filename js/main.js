@@ -3,12 +3,14 @@ const LIMIT = 10;
 let isLoading = false;
 let hasMore = true;
 
+// DOM 구조가 완전히 만들어진 다음에 DOM에 접근하도록 함
 document.addEventListener("DOMContentLoaded", () => {
     checkLoginStatus();
     loadPosts();
     setupInfinityScroll();
 });
 
+// 스크롤이 맨 아래로 내려가면 자동으로 게시글을 불러오는 기능
 function setupInfinityScroll() {
     const sentinel = document.getElementById("loading-sentinel");
     const observer = new IntersectionObserver((entries) => {
@@ -19,6 +21,7 @@ function setupInfinityScroll() {
     observer.observe(sentinel);
 }
 
+// 로그인 상태를 확인하고 프로필 원을 업데이트하는 함수
 async function checkLoginStatus() {
     const profileCircle = document.getElementById("header-profile");
     // const authSection = document.getElementById("auth-section"); // Optional: if we want to add logout btn inside
@@ -33,26 +36,22 @@ async function checkLoginStatus() {
         if (response.ok) {
             const result = await response.json();
             const user = result.data.user;
-            // Update profile circle
+            // 프로필 원 업데이트
             if (user.profile_image) {
                 profileCircle.style.backgroundImage = `url(${user.profile_image})`;
             } else {
                 profileCircle.style.backgroundColor = "#555"; // Default color
             }
 
-            // Handle click on profile circle -> dropdown or navigate to profile?
-            // Requirement says "handles the user's profile". 
-            // For now, let's assume it goes to a profile page or toggles a menu. 
-            // Since we don't have a profile page spec, maybe just log out or basic info?
-            // Let's add a simple click listener for now.
+            // 프로필 원 클릭 시 로그아웃
             profileCircle.addEventListener("click", () => {
                 const logout = confirm("로그아웃 하시겠습니까?");
                 if (logout) handleLogout();
             });
 
         } else {
-            // Not logged in. 
-            // Maybe show a generic icon or redirect to login on click?
+            // 로그인 안됨. 
+            // 프로필 원 클릭 시 로그인 페이지로 이동
             profileCircle.addEventListener("click", () => {
                 location.href = "login.html";
             });
@@ -62,6 +61,7 @@ async function checkLoginStatus() {
     }
 }
 
+// 게시글 목록을 불러오는 함수
 async function loadPosts() {
     if (isLoading || !hasMore) return;
     isLoading = true;
@@ -100,26 +100,28 @@ async function loadPosts() {
     }
 }
 
+// 게시글 카드를 생성하는 함수
 function createPostElement(post) {
     const li = document.createElement("li");
     li.className = "post-card";
 
-    // Title truncation (max 26 letters)
+    // 제목 자르기 (최대 26글자)
     let title = post.title;
     if (title.length > 26) {
         title = title.substring(0, 26) + "...";
     }
 
-    // Date formatting (yyyy-mm-dd hh:mm:ss)
+    // 날짜 포맷팅 (yyyy-mm-dd hh:mm:ss)
     const dateObj = new Date(post.created_at);
     const dateStr = formatDate(dateObj);
 
-    // Placeholder stats (Backend might not return these yet, assuming 0 if missing)
+    // 좋아요, 댓글, 조회수
+    // 백엔드에서 반환하지 않을 수 있는 통계 (없으면 0으로 가정)
     const likes = post.likes_count || 0;
     const comments = post.comments_count || 0;
     const views = post.views_count || 0;
 
-    // Author profile image
+    // 작성자 프로필 이미지
     const profileImg = post.author.profileImageUrl || '';
 
     li.innerHTML = `
@@ -146,6 +148,7 @@ function createPostElement(post) {
     return li;
 }
 
+// 날짜 포맷팅
 function formatDate(date) {
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, '0');
@@ -156,11 +159,14 @@ function formatDate(date) {
     return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
 }
 
+// 숫자를 k 단위로 포맷팅
+// 예: 1000 -> 1k, 10000 -> 10k, 12345 -> 12.3k
 function formatCount(num) {
     if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
     return num;
 }
 
+// 로그아웃 함수 (DELETE /v1/auth/session)
 async function handleLogout() {
     try {
         const response = await fetch(`${API_BASE_URL}/v1/auth/session`, {

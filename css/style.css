@@ -129,7 +129,6 @@ header h2 {
 .action-wrapper {
     display: flex;
     justify-content: flex-end;
-    /* Southeast alignment */
     width: 100%;
 }
 
@@ -146,7 +145,7 @@ header h2 {
 }
 
 .write-btn:hover {
-    background-color: #9286d8;
+    background-color: #7F6AEE;
 }
 
 /* Post List */
@@ -183,7 +182,7 @@ header h2 {
     word-break: break-word;
 }
 
-/* Post Meta Info (Likes, Comments, Views, Date) */
+/* 게시글 정보 (좋아요, 댓글, 조회수, 날짜) */
 .post-meta {
     display: flex;
     gap: 16px;
@@ -199,7 +198,7 @@ header h2 {
     gap: 4px;
 }
 
-/* Author Info */
+/* 작성자 정보 */
 .post-author {
     display: flex;
     align-items: center;
@@ -225,12 +224,11 @@ header h2 {
 
 .author-date {
     margin-left: auto;
-    /* Push date to the right if desired, or keep in meta */
     font-size: 12px;
     color: #888;
 }
 
-/* Loading Sentinel */
+/* 로딩 표시 */
 #loading-sentinel {
     height: 20px;
     margin: 20px 0;
@@ -238,17 +236,15 @@ header h2 {
     color: #888;
     font-size: 14px;
     display: none;
-    /* Hidden by default */
 }
 
 #loading-sentinel.visible {
     display: block;
 }
 
-/* Login Page Specifics (Compatibility) */
+/* 로그인 페이지 */
 .login-container {
     background: #fff;
-    /* Ensure login container is white */
     padding: 40px;
     border-radius: 16px;
     width: 100%;
@@ -266,7 +262,6 @@ header h2 {
     flex-direction: column;
     align-items: center;
     margin-bottom: 24px;
-    /* 이메일 입력란과의 간격 */
 }
 
 /* 원형 미리보기 영역 */
@@ -275,13 +270,11 @@ header h2 {
     height: 100px;
     border-radius: 50%;
     background-color: #e0e0e0;
-    /* 기본 배경색 (회색) */
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     overflow: hidden;
-    /* 이미지가 원을 넘치지 않게 자름 */
     border: 1px solid #ccc;
     position: relative;
     transition: background-color 0.2s;
@@ -289,7 +282,6 @@ header h2 {
 
 .profile-preview:hover {
     background-color: #d0d0d0;
-    /* 마우스 올렸을 때 살짝 진하게 */
 }
 
 /* 실제 이미지 스타일 */
@@ -297,7 +289,6 @@ header h2 {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* 비율 유지하며 꽉 채우기 */
     display: block;
 }
 
@@ -323,7 +314,6 @@ header h2 {
     margin-top: 8px;
     font-size: 12px;
     color: #FF3333;
-    /* 기존 에러/헬퍼 텍스트 색상 */
     font-family: 'Inter', sans-serif;
 }
 
