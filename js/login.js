@@ -1,46 +1,121 @@
 // login.js: 로그인 기능을 담당하는 핵심 파일.
 const loginForm = document.getElementById("login-form");
 const loginBtn = document.querySelector(".login-btn");
-const inputFields = document.querySelectorAll(".input-group input");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const emailHelper = document.getElementById("email-helper");
+const passwordHelper = document.getElementById("password-helper");
 
-const showUserError = (fieldId, message) => {
-    const input = document.getElementById(fieldId);
-    const span = input.nextElementSibling;
-    span.textContent = message;
-    input.classList.add("error-border");
+// Validation regex patterns
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,20}$/;
+
+// Validation state
+const state = {
+    email: { valid: false, touched: false },
+    password: { valid: false, touched: false }
+};
+
+// Helper functions
+const showError = (helperEl, message) => {
+    helperEl.textContent = message;
+    helperEl.style.display = "block";
+    helperEl.style.color = "#FF3333";
+};
+
+const hideError = (helperEl) => {
+    helperEl.textContent = "";
+    helperEl.style.display = "none";
+};
+
+// Validate email
+function validateEmail() {
+    const value = emailInput.value.trim();
+
+    if (!value) {
+        showError(emailHelper, "* 이메일을 입력해주세요.");
+        state.email.valid = false;
+    } else if (!emailRegex.test(value)) {
+        showError(emailHelper, "* 올바른 이메일 주소 형식을 입력해주세요. (예: example@adapterz.kr)");
+        state.email.valid = false;
+    } else {
+        hideError(emailHelper);
+        state.email.valid = true;
+    }
 }
 
-const clearUserError = () => {
-    document.querySelectorAll(".input-group span").forEach(span => span.textContent = "");
+// Validate password
+function validatePassword() {
+    const value = passwordInput.value;
+
+    if (!value) {
+        showError(passwordHelper, "* 비밀번호를 입력해주세요");
+        state.password.valid = false;
+    } else if (!passwordRegex.test(value)) {
+        showError(passwordHelper, "* 비밀번호는 8자 이상 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 포함해야 합니다");
+        state.password.valid = false;
+    } else {
+        hideError(passwordHelper);
+        state.password.valid = true;
+    }
 }
 
-const resetButton = () => {
-    loginBtn.disabled = false;
-    loginBtn.textContent = "로그인";
+// Update button state
+function updateButtonState() {
+    const isValid = state.email.valid && state.password.valid;
+
+    if (isValid) {
+        loginBtn.disabled = false;
+        loginBtn.style.backgroundColor = "#7F6AEE";
+    } else {
+        loginBtn.disabled = true;
+        loginBtn.style.backgroundColor = "#ACA0EB";
+    }
 }
 
-inputFields.forEach((input) => {
-    if (input.classList.contains("error-border"))
-        input.classList.remove("error-border");
-    const span = input.nextElementSibling;
-    if (span && span.textContent)
-        span.textContent = "";
-})
+// Input event handlers
+emailInput.addEventListener("input", () => {
+    state.email.touched = true;
+    validateEmail();
+    updateButtonState();
+});
 
+emailInput.addEventListener("blur", () => {
+    state.email.touched = true;
+    validateEmail();
+    updateButtonState();
+});
+
+passwordInput.addEventListener("input", () => {
+    state.password.touched = true;
+    validatePassword();
+    updateButtonState();
+});
+
+passwordInput.addEventListener("blur", () => {
+    state.password.touched = true;
+    validatePassword();
+    updateButtonState();
+});
+
+// Initialize button state
+loginBtn.disabled = true;
+loginBtn.style.backgroundColor = "#ACA0EB";
+
+// Form submission
 loginForm.addEventListener("submit", async (event) => {
-    // 이벤트를 명시적으로 처리하지 않을 때도 기본 액션을 수행하지 않도록 함.
     event.preventDefault();
-    clearUserError();
 
-    const emailStr = document.getElementById("email").value;
-    const passwordStr = document.getElementById("password").value;
+    // Validate all fields
+    validateEmail();
+    validatePassword();
 
-    // 이메일과 비밀번호의 포맷을 검사
-    if (!emailStr || !passwordStr) {
-        if (!emailStr) showError(emailInput, "이메일을 입력해주세요.");
-        if (!passwordStr) showError(passwordInput, "비밀번호를 입력해주세요.");
+    if (!state.email.valid || !state.password.valid) {
         return;
     }
+
+    const emailStr = emailInput.value.trim();
+    const passwordStr = passwordInput.value;
 
     loginBtn.disabled = true;
     loginBtn.textContent = "로그인 중...";
@@ -51,33 +126,22 @@ loginForm.addEventListener("submit", async (event) => {
             headers: {
                 "Content-Type": "application/json",
             },
-            // FastAPI는 JSON을 받기 때문에 JSON.stringify()를 사용하여 DOM에서 긁어온 username과 password를 JSON으로 변환.
             body: JSON.stringify({ email: emailStr, password: passwordStr }),
-            // 서로 다른 서버 간에 쿠키를 공유하기 위한 필수 요소
-            // https://developer.mozilla.org/ko/docs/Web/API/Request/credentials
             credentials: "include",
         });
 
         if (response.ok) {
-            // 로그인에 성공했으며 브라우저가 자동으로 'Set-Cookie' 헤더를 보고 세션 ID를 저장했다.
-            // 이제부터 모든 요청에 이 쿠키가 자동으로 포함된다.
             window.location.href = "/index.html";
         } else {
-            let errorMsg = "이메일 또는 비밀번호가 일치하지 않습니다.";
-            try {
-                const errorData = await response.json();
-                if (errorData && errorData.detail) {
-                    errorMsg = errorData.detail.error;
-                }
-            } catch (e) {
-                console.warn("JSON 파싱 실패 (백엔드 데이터 형식을 확인하세요):", e);
-            }
-            showUserError("password", errorMsg);
-            resetButton();
+            showError(passwordHelper, "* 아이디 또는 비밀번호를 확인해주세요");
+            loginBtn.disabled = false;
+            loginBtn.textContent = "로그인";
+            loginBtn.style.backgroundColor = "#7F6AEE";
         }
     } catch (error) {
         console.error("로그인 에러: ", error);
-        showUserError("password", "서버와 통신할 수 없습니다.");
-        resetButton();
+        showError(passwordHelper, "* 서버와 통신할 수 없습니다.");
+        loginBtn.disabled = false;
+        loginBtn.textContent = "로그인";
     }
 });
