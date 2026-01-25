@@ -155,7 +155,7 @@ class DetailController {
         let count = parseInt(countEl.innerText) || 0;
         const isLiked = likeBox.classList.contains('active');
 
-        // Optimistic UI update
+        // 낙관적 UI 업데이트 (Optimistic UI Update)
         if (isLiked) {
             PostDetailView.updateLikeState(false, count > 0 ? count - 1 : 0);
             await PostModel.unlikePost(this.currentPostId);

@@ -2,7 +2,7 @@
 /* 프로필 수정 페이지 전용 스타일 */
 
 /* ============================= */
-/* Profile Edit Section          */
+/* 프로필 수정 섹션 (Profile Edit Section) */
 /* ============================= */
 .profile-edit-section {
     text-align: center;
@@ -16,7 +16,7 @@
 
 .profile-img-wrapper {
     display: flex;
-    /* Enable Flexbox for centering */
+    /* 중앙 정렬을 위한 Flexbox 활성화 */
     justify-content: center;
     align-items: center;
     width: 140px;
@@ -33,23 +33,23 @@
 
 .profile-img-overlay {
     background-color: rgba(50, 50, 50, 0.8);
-    /* Darker background */
+    /* 더 어두운 배경 */
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 999px;
     width: max-content;
-    /* Prevent full width stretching */
+    /* 전체 너비 늘어짐 방지 */
     height: auto;
     padding: 6px 16px;
-    /* Pill shape padding */
+    /* 알약 모양 패딩 */
     display: flex;
     justify-content: center;
     align-items: center;
     opacity: 1;
-    /* Always visible for clarity */
+    /* 명확성을 위해 항상 표시 */
     pointer-events: none;
     transition: background-color 0.2s;
 
-    /* Let clicks pass through to wrapper */
+    /* 클릭이 래퍼로 전달되도록 설정 */
 }
 
 .change-btn-text {

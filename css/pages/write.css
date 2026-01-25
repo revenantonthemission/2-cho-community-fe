@@ -2,14 +2,14 @@
 /* 게시글 작성/수정 페이지 전용 스타일 */
 
 /* ============================= */
-/* Write Container               */
+/* 글쓰기 컨테이너 (Write Container) */
 /* ============================= */
 .write-container {
     max-width: 800px;
 }
 
 /* ============================= */
-/* Password Container            */
+/* 비밀번호 컨테이너 (Password Container) */
 /* ============================= */
 .password-container {
     max-width: 600px;

@@ -2,7 +2,7 @@
 /* 모달 스타일 */
 
 /* ============================= */
-/* Modal Overlay                 */
+/* 모달 오버레이 (Modal Overlay) */
 /* ============================= */
 .modal {
     position: fixed;
@@ -22,7 +22,7 @@
 }
 
 /* ============================= */
-/* Modal Content                 */
+/* 모달 내용 (Modal Content) */
 /* ============================= */
 .modal-content {
     background: #fff;
@@ -41,7 +41,7 @@
 }
 
 /* ============================= */
-/* Modal Buttons                 */
+/* 모달 버튼 (Modal Buttons) */
 /* ============================= */
 .modal-buttons {
     margin-top: 30px;
@@ -59,7 +59,7 @@
     transition: background-color 0.2s;
 }
 
-/* 취소 Button - Dark/Black */
+/* 취소 버튼 - 어두운색/검정 (Cancel Button - Dark/Black) */
 .modal-buttons .secondary-btn {
     background-color: #333;
     color: #fff;
@@ -69,7 +69,7 @@
     background-color: #555;
 }
 
-/* 확인 Button - Purple */
+/* 확인 버튼 - 보라색 (Confirm Button - Purple) */
 .modal-buttons .primary-btn {
     background-color: #ACA0EB;
     color: #fff;
@@ -80,7 +80,7 @@
 }
 
 /* ============================= */
-/* Modal Input                   */
+/* 모달 입력 (Modal Input) */
 /* ============================= */
 .modal-input {
     width: 80%;
@@ -91,7 +91,7 @@
 }
 
 /* ============================= */
-/* Toast Notification            */
+/* 토스트 알림 (Toast Notification) */
 /* ============================= */
 .toast {
     position: fixed;
