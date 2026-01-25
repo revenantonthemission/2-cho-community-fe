@@ -1,0 +1,38 @@
+/* css/pages/login.css */
+/* 로그인/회원가입 페이지 전용 스타일 */
+
+/* ============================= */
+/* Login Container               */
+/* ============================= */
+.login-container {
+    background: #fff;
+    padding: 40px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.login-container h2 {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+/* ============================= */
+/* Links                         */
+/* ============================= */
+.links {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.links a {
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.links a:hover {
+    color: #ACA0EB;
+    text-decoration: underline;
+}
