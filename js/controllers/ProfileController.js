@@ -210,11 +210,11 @@ class ProfileController {
                 showToast();
             } else {
                 const detail = result.data?.detail;
-                // Check for duplicate nickname error
+                // 닉네임 중복 오류 확인
                 if (result.status === 409 || (typeof detail === 'string' && detail.includes('exists'))) {
                     showError(helper, '*중복되는 닉네임입니다.');
                 } else {
-                    // Start: Fix for [Error] TypeError: result.data.detail.includes is not a function
+                    // 시작: [Error] TypeError: result.data.detail.includes is not a function 수정
                     let msg = '알 수 없는 오류';
                     if (typeof detail === 'string') {
                         msg = detail;
@@ -222,7 +222,7 @@ class ProfileController {
                         msg = JSON.stringify(detail);
                     }
                     alert('수정 실패: ' + msg);
-                    // End: Fix
+                    // 끝: 수정
                 }
             }
         } catch (e) {

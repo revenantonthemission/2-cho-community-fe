@@ -2,7 +2,7 @@
 /* 폼 및 입력 관련 스타일 */
 
 /* ============================= */
-/* Input Group                   */
+/* 입력 그룹 (Input Group) */
 /* ============================= */
 .input-group {
     display: flex;
@@ -17,7 +17,7 @@
     margin-bottom: 8px;
 }
 
-/* Form Divider - Gray horizontal line */
+/* 폼 구분선 - 회색 가로선 (Form Divider - Gray horizontal line) */
 .form-divider {
     width: 100%;
     height: 1px;
@@ -47,7 +47,7 @@
 }
 
 /* ============================= */
-/* Profile Upload                */
+/* 프로필 업로드 (Profile Upload) */
 /* ============================= */
 .profile-upload-container {
     margin-bottom: 20px;
@@ -104,7 +104,7 @@
 }
 
 /* ============================= */
-/* Profile Form Group            */
+/* 프로필 폼 그룹 (Profile Form Group) */
 /* ============================= */
 .profile-form-group {
     margin-bottom: 20px;
@@ -136,7 +136,7 @@
 }
 
 /* ============================= */
-/* Image Upload                  */
+/* 이미지 업로드 (Image Upload) */
 /* ============================= */
 .image-upload-section {
     margin-top: 20px;
@@ -181,7 +181,7 @@
 }
 
 /* ============================= */
-/* Submit Section                */
+/* 제출 섹션 (Submit Section) */
 /* ============================= */
 .submit-section {
     margin-top: 30px;
@@ -194,7 +194,7 @@
 }
 
 /* ============================= */
-/* Title & Content Inputs        */
+/* 제목 및 내용 입력 (Title & Content Inputs) */
 /* ============================= */
 #post-title {
     width: 100%;
@@ -230,14 +230,14 @@
 }
 
 /* ============================= */
-/* Form Group                    */
+/* 폼 그룹 (Form Group) */
 /* ============================= */
 .form-group {
     width: 100%;
 }
 
 /* ============================= */
-/* Content Textarea              */
+/* 내용 텍스트 영역 (Content Textarea) */
 /* ============================= */
 .content-textarea {
     width: 100%;
@@ -257,7 +257,7 @@
 }
 
 /* ============================= */
-/* File Upload Section           */
+/* 파일 업로드 섹션 (File Upload Section) */
 /* ============================= */
 .file-upload-section {
     margin-top: 20px;

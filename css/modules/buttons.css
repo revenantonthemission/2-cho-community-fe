@@ -2,7 +2,7 @@
 /* 버튼 공통 스타일 */
 
 /* ============================= */
-/* Primary Buttons               */
+/* 기본 버튼 (Primary Buttons) */
 /* ============================= */
 .write-btn {
     padding: 10px 20px;
@@ -21,7 +21,7 @@
 }
 
 /* ============================= */
-/* Action Buttons                */
+/* 액션 버튼 (Action Buttons) */
 /* ============================= */
 .action-btn {
     padding: 6px 12px;
@@ -38,7 +38,7 @@
 }
 
 /* ============================= */
-/* Small Buttons                 */
+/* 작은 버튼 (Small Buttons) */
 /* ============================= */
 .small-btn {
     font-size: 11px;
@@ -50,7 +50,7 @@
 }
 
 /* ============================= */
-/* Submit Button                 */
+/* 제출 버튼 (Submit Button) */
 /* ============================= */
 .submit-btn {
     width: 100%;
@@ -82,7 +82,7 @@
 }
 
 /* ============================= */
-/* Login Button                  */
+/* 로그인 버튼 (Login Button) */
 /* ============================= */
 .login-btn {
     width: 100%;
@@ -103,7 +103,7 @@
 }
 
 /* ============================= */
-/* Secondary/Primary Buttons     */
+/* 보조/기본 버튼 (Secondary/Primary Buttons) */
 /* ============================= */
 .secondary-btn {
     background: #f0f0f0;
@@ -120,7 +120,7 @@
 }
 
 /* ============================= */
-/* Withdraw Button               */
+/* 탈퇴 버튼 (Withdraw Button) */
 /* ============================= */
 .withdraw-btn {
     margin-top: 10px;
