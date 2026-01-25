@@ -11,6 +11,17 @@ document.addEventListener("DOMContentLoaded", () => {
 let originalNickname = "";
 let currentProfileFile = null;
 
+// Toast notification function
+function showToast() {
+    const toast = document.getElementById('toast');
+    if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+}
+
 async function loadProfileData() {
     try {
         const response = await fetch(`${API_BASE_URL}/v1/users/me`, {
@@ -208,8 +219,7 @@ async function handleProfileUpdate() {
         });
 
         if (response.ok) {
-            alert("수정되었습니다.");
-            location.reload();
+            showToast();
         } else {
             // Check for duplication error
             const err = await response.json();

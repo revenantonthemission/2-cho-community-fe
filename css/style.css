@@ -49,12 +49,12 @@ header h2 {
 
     /* 폰트 스타일 */
     font-family: "Noto Sans KR", sans-serif;
-    font-weight: 400;
+    font-weight: 700;
     font-size: 32px;
     /* 헤더 높이에 맞춰 폰트 사이즈 조정 */
     margin: 0;
     /* 기본 마진 제거 */
-    white-space: nowrap;
+    /*white-space: nowrap;*/
     /* 줄바꿈 방지 */
 }
 
@@ -751,6 +751,79 @@ header h2 {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
+.login-container h2 {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+.input-group label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #ACA0EB;
+}
+
+.input-group span {
+    font-size: 12px;
+    color: #FF3333;
+    margin-top: 4px;
+    min-height: 16px;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #ACA0EB;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: background-color 0.2s;
+}
+
+.login-btn:hover {
+    background-color: #7F6AEE;
+}
+
+.links {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.links a {
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.links a:hover {
+    color: #ACA0EB;
+    text-decoration: underline;
+}
+
 /* ... Keep existing login styles if they are unique ... */
 /* Merging previous login styles logic into general where possible */
 
@@ -816,6 +889,26 @@ header h2 {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+}
+
+.profile-section-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.profile-section-header .profile-label {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.profile-section-header .helper-text {
+    font-size: 12px;
+    color: #FF3333;
 }
 
 .profile-label {
