@@ -1,12 +1,12 @@
-// js/models/api.js
-// HTTP 클라이언트 추상화 - 공통 API 호출 로직
+// js/services/ApiService.js
+// HTTP 클라이언트 서비스 - 공통 API 호출 로직
 
 import { API_BASE_URL } from '../config.js';
 
 /**
- * HTTP 요청을 처리하는 API 클래스
+ * HTTP 요청을 처리하는 API 서비스 클래스
  */
-class Api {
+class ApiService {
     /**
      * GET 요청
      * @param {string} endpoint - API 엔드포인트 (예: '/v1/users/me')
@@ -18,7 +18,7 @@ class Api {
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include'
         });
-        return Api._handleResponse(response);
+        return ApiService._handleResponse(response);
     }
 
     /**
@@ -34,7 +34,7 @@ class Api {
             body: JSON.stringify(data),
             credentials: 'include'
         });
-        return Api._handleResponse(response);
+        return ApiService._handleResponse(response);
     }
 
     /**
@@ -49,7 +49,7 @@ class Api {
             body: formData,
             credentials: 'include'
         });
-        return Api._handleResponse(response);
+        return ApiService._handleResponse(response);
     }
 
     /**
@@ -65,7 +65,7 @@ class Api {
             body: JSON.stringify(data),
             credentials: 'include'
         });
-        return Api._handleResponse(response);
+        return ApiService._handleResponse(response);
     }
 
     /**
@@ -81,7 +81,7 @@ class Api {
             body: JSON.stringify(data),
             credentials: 'include'
         });
-        return Api._handleResponse(response);
+        return ApiService._handleResponse(response);
     }
 
     /**
@@ -100,7 +100,7 @@ class Api {
             options.body = JSON.stringify(data);
         }
         const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
-        return Api._handleResponse(response);
+        return ApiService._handleResponse(response);
     }
 
     /**
@@ -129,4 +129,4 @@ class Api {
     }
 }
 
-export default Api;
+export default ApiService;

@@ -1,7 +1,7 @@
 // js/views/CommentListView.js
 // 댓글 목록 렌더링 관련 로직
 
-import { formatDate } from './helpers.js';
+import { formatDate } from '../utils/formatters.js';
 
 /**
  * 댓글 목록 View 클래스

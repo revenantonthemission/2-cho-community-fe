@@ -1,7 +1,7 @@
 // js/views/PostDetailView.js
 // 게시글 상세 렌더링 관련 로직
 
-import { formatDate, formatCount } from './helpers.js';
+import { formatDate, formatCount } from '../utils/formatters.js';
 
 /**
  * 게시글 상세 View 클래스

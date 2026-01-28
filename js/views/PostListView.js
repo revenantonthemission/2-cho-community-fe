@@ -1,7 +1,7 @@
 // js/views/PostListView.js
 // 게시글 목록 렌더링 관련 로직
 
-import { formatDate, formatCount, truncateTitle } from './helpers.js';
+import { formatDate, formatCount, truncateTitle } from '../utils/formatters.js';
 
 /**
  * 게시글 목록 View 클래스
