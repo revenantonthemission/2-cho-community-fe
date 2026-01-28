@@ -1,7 +1,7 @@
 // js/views/ProfileView.js
 // 프로필 수정 페이지 View - DOM 조작 담당
 
-import { showError, hideError, showToast } from './helpers.js';
+import { showError, hideError, showToast, getImageUrl } from './helpers.js';
 
 /**
  * 프로필 수정 페이지 View 클래스
@@ -72,7 +72,8 @@ class ProfileView {
         if (!this.imgWrapper) return;
 
         if (imageUrl) {
-            this.imgWrapper.style.backgroundImage = `url(${imageUrl})`;
+            const fullUrl = getImageUrl(imageUrl);
+            this.imgWrapper.style.backgroundImage = `url(${fullUrl})`;
         } else {
             this.imgWrapper.style.backgroundColor = '#555';
         }

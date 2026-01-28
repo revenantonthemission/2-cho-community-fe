@@ -2,6 +2,7 @@
 // 게시글 상세 렌더링 관련 로직
 
 import { formatDate, formatCount } from '../utils/formatters.js';
+import { getImageUrl } from './helpers.js';
 
 /**
  * 게시글 상세 View 클래스
@@ -26,7 +27,8 @@ class PostDetailView {
 
         const authorImg = document.getElementById('post-author-img');
         if (authorImg) {
-            authorImg.style.backgroundImage = `url('${post.author.profileImageUrl || ''}')`;
+            const profileUrl = getImageUrl(post.author.profileImageUrl);
+            authorImg.style.backgroundImage = `url('${profileUrl}')`;
             authorImg.style.backgroundSize = 'cover';
         }
 
@@ -37,7 +39,7 @@ class PostDetailView {
         // 이미지
         const imgEl = document.getElementById('post-image');
         if (imgEl && post.image_urls && post.image_urls.length > 0) {
-            imgEl.src = post.image_urls[0];
+            imgEl.src = getImageUrl(post.image_urls[0]);
             imgEl.classList.remove('hidden');
         }
 

@@ -58,7 +58,7 @@ class UserModel {
     static async uploadProfileImage(file) {
         const formData = new FormData();
         formData.append('file', file);
-        return ApiService.postFormData('/v1/posts/image', formData);
+        return ApiService.postFormData('/v1/users/profile/image', formData);
     }
 }
 

@@ -1,6 +1,21 @@
 // js/views/helpers.js
 // DOM 조작 관련 헬퍼 함수 (View 전용)
 
+import { API_BASE_URL } from '../config.js';
+
+/**
+ * 이미지 URL 처리 (상대 경로인 경우 API_BASE_URL 추가)
+ * @param {string|null} url - 이미지 URL
+ * @returns {string} - 처리된 URL
+ */
+export function getImageUrl(url) {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+        return url;
+    }
+    return `${API_BASE_URL}${url}`;
+}
+
 /**
  * 헬퍼 텍스트에 에러 메시지 표시
  * @param {HTMLElement} helperEl - 헬퍼 텍스트 요소
