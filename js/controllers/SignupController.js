@@ -192,6 +192,8 @@ class SignupController {
             this.state.passwordConfirm.valid &&
             this.state.nickname.valid;
 
+        this.state.nickname.valid;
+
         this.view.updateButtonState(isValid);
     }
 

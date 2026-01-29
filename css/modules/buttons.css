@@ -84,7 +84,8 @@
 /* ============================= */
 /* 로그인 버튼 (Login Button) */
 /* ============================= */
-.login-btn {
+.login-btn,
+.signup-btn {
     width: 100%;
     padding: 14px;
     background-color: #ACA0EB;
@@ -98,8 +99,17 @@
     transition: background-color 0.2s;
 }
 
-.login-btn:hover {
+.login-btn:hover,
+.signup-btn:hover {
     background-color: #7F6AEE;
+}
+
+.login-btn:disabled,
+.signup-btn:disabled {
+    background-color: #ACA0EB;
+    cursor: not-allowed;
+    opacity: 1;
+    /* Color handles the state visual */
 }
 
 /* ============================= */

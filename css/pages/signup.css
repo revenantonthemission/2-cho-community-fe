@@ -1,0 +1,156 @@
+/* css/pages/signup.css */
+/* 회원가입 페이지 전용 스타일 */
+
+/* 컨테이너 스타일 */
+.signup-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 16px;
+    /* Match login container radius if applicable, login.css had it */
+}
+
+.signup-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 40px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* 프로필 업로드 섹션 */
+.profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.profile-label-group {
+    margin-bottom: 10px;
+}
+
+.profile-label {
+    font-weight: 700;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.helper-text {
+    font-size: 11px;
+    color: #FF3333;
+    display: block;
+}
+
+.profile-upload-area {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.profile-circle {
+    width: 120px;
+    height: 120px;
+    background-color: #d9d9d9;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+}
+
+.plus-icon {
+    font-size: 40px;
+    color: #777;
+    font-weight: 300;
+}
+
+.profile-preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+}
+
+/* 폼 스타일 */
+#signup-form {
+    width: 100%;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-label {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.input-field {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background-color: #f5f5f5;
+}
+
+.input-field::placeholder {
+    color: #999;
+}
+
+.error-msg {
+    color: #FF3333;
+    font-size: 11px;
+    margin-top: 4px;
+    min-height: 16px;
+    display: block;
+}
+
+/* 버튼 스타일 */
+.signup-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #ACA0EB;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.signup-btn:disabled {
+    background-color: #dccaff;
+    /* 가이드에 없는 경우 임의 설정, 필요시 수정 */
+    cursor: not-allowed;
+}
+
+.login-link-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.login-link {
+    color: #333;
+    font-size: 14px;
+    text-decoration: none;
+    font-weight: 400;
+}
+
+.login-link:hover {
+    text-decoration: underline;
+}
