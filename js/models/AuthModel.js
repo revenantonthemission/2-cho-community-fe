@@ -3,6 +3,9 @@
 
 import ApiService from '../services/ApiService.js';
 import { API_ENDPOINTS } from '../constants.js';
+import Logger from '../utils/Logger.js';
+
+const logger = Logger.createLogger('AuthModel');
 
 /**
  * 인증 관련 Model
@@ -49,7 +52,7 @@ class AuthModel {
             }
             return { isAuthenticated: false, user: null };
         } catch (error) {
-            console.error('인증 확인 실패:', error);
+            logger.warn('인증 확인 실패:', error);
             return { isAuthenticated: false, user: null };
         }
     }

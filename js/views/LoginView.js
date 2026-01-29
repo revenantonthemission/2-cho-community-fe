@@ -1,7 +1,7 @@
 // js/views/LoginView.js
 // 로그인 페이지 View - DOM 조작 담당
 
-import { showError, hideError } from './helpers.js';
+import { showError, hideError, showToast } from './helpers.js';
 
 /**
  * 로그인 페이지 View 클래스
@@ -135,6 +135,14 @@ class LoginView {
         if (this.form) {
             this.form.addEventListener('submit', handlers.onSubmit);
         }
+    }
+
+    /**
+     * 토스트 메시지 표시
+     * @param {string} message - 메시지
+     */
+    showToast(message) {
+        showToast(message);
     }
 }
 
