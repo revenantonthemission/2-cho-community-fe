@@ -84,10 +84,19 @@ class DetailController {
                 throw new Error('게시글을 불러오지 못했습니다.');
             }
 
-            const post = result.data?.data?.post || result.data?.data;
+            const data = result.data?.data;
+            const post = data?.post || result.data?.data;
 
             if (!post) {
                 throw new Error('게시글 데이터가 없습니다.');
+            }
+
+            // 댓글 별도 추출 (백엔드 응답 구조: data: { post: {...}, comments: [...] })
+            const comments = data?.comments || post.comments || [];
+
+            // 댓글 수 동기화 (post.comments_count가 0이어도 실제 댓글이 있으면 업데이트)
+            if (comments.length > 0) {
+                post.comments_count = comments.length;
             }
 
             // 게시글 렌더링
@@ -98,8 +107,7 @@ class DetailController {
                 (this.currentUserId === post.author.user_id || this.currentUserId === post.author.id);
             PostDetailView.toggleActionButtons(isOwner);
 
-            // 댓글 렌더링
-            const comments = post.comments || [];
+            // 댓글 렌더링 (이미 위에서 선언됨)
             this._renderComments(comments);
 
         } catch (error) {
