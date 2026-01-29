@@ -111,6 +111,17 @@ class PostListView {
             sentinel.innerText = message;
         }
     }
+    /**
+     * 빈 목록 메시지 표시
+     * @param {HTMLElement} container - 목록 컨테이너
+     */
+    static showEmptyState(container) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <p>등록된 게시글이 없습니다.</p>
+            </div>
+        `;
+    }
 }
 
 export default PostListView;

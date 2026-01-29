@@ -104,6 +104,13 @@ class MainController {
                 PostListView.toggleLoadingSentinel(sentinel, false);
             }
 
+            if (posts.length === 0 && this.currentOffset === 0) {
+                PostListView.showEmptyState(listElement);
+                this.hasMore = false;
+                PostListView.toggleLoadingSentinel(sentinel, false);
+                return;
+            }
+
             PostListView.renderPosts(listElement, posts, (postId) => {
                 location.href = `/detail?id=${postId}`;
             });
