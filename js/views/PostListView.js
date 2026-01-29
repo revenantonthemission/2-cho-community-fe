@@ -76,7 +76,10 @@ class PostListView {
      */
     static toggleLoadingSentinel(sentinel, show) {
         if (sentinel) {
-            sentinel.style.display = show ? 'block' : 'none';
+            // display: none 대신 visibility를 사용하여 IntersectionObserver가 계속 감지할 수 있도록 함
+            sentinel.style.visibility = show ? 'visible' : 'hidden';
+            sentinel.style.display = 'block';
+            sentinel.innerText = show ? 'loading...' : '';
         }
     }
 

@@ -31,14 +31,14 @@ class SignupView {
      */
     initialize() {
         this.form = document.getElementById('signup-form');
-        this.signupBtn = document.querySelector('.login-btn');
+        this.signupBtn = document.querySelector('.signup-btn');
         this.emailInput = document.getElementById('email');
         this.passwordInput = document.getElementById('password');
         this.passwordConfirmInput = document.getElementById('password-confirm');
         this.nicknameInput = document.getElementById('nickname');
         this.profileInput = document.getElementById('profile-upload');
-        this.previewImg = document.getElementById('preview-img');
-        this.placeholder = document.getElementById('preview-placeholder');
+        this.previewImg = document.getElementById('profile-preview');
+        this.placeholder = document.querySelector('.plus-icon');
         this.profileHelper = document.getElementById('profile-helper');
         this.emailHelper = document.getElementById('email-helper');
         this.passwordHelper = document.getElementById('password-helper');
@@ -170,10 +170,10 @@ class SignupView {
     showProfilePreview(dataUrl) {
         if (this.previewImg) {
             this.previewImg.src = dataUrl;
-            this.previewImg.classList.remove('hidden');
+            this.previewImg.style.display = 'block';
         }
         if (this.placeholder) {
-            this.placeholder.classList.add('hidden');
+            this.placeholder.style.display = 'none';
         }
     }
 
@@ -183,10 +183,10 @@ class SignupView {
     hideProfilePreview() {
         if (this.previewImg) {
             this.previewImg.src = '';
-            this.previewImg.classList.add('hidden');
+            this.previewImg.style.display = 'none';
         }
         if (this.placeholder) {
-            this.placeholder.classList.remove('hidden');
+            this.placeholder.style.display = 'block'; // Or 'inline' depend on CSS, but block usually fine for span if flex container
         }
     }
 

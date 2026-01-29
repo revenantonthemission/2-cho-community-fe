@@ -106,9 +106,5 @@
     text-align: center;
     color: #888;
     font-size: 14px;
-    display: none;
-}
-
-#loading-sentinel.visible {
     display: block;
 }
