@@ -27,8 +27,10 @@ class EditController {
         this.postId = urlParams.get('id');
 
         if (!this.postId) {
-            alert('잘못된 접근입니다.');
-            location.href = '/main';
+            this.view.showToast('잘못된 접근입니다.');
+            setTimeout(() => {
+                location.href = '/main';
+            }, 1000);
             return;
         }
 
@@ -76,8 +78,10 @@ class EditController {
 
         } catch (error) {
             logger.error('게시글 데이터 로드 실패', error);
-            alert(error.message);
-            location.href = '/main';
+            this.view.showToast(error.message);
+            setTimeout(() => {
+                location.href = '/main';
+            }, 1000);
         }
     }
 

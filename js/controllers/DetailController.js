@@ -30,10 +30,10 @@ class DetailController {
         const postId = urlParams.get('id');
 
         if (!postId) {
-            alert('잘못된 접근입니다.'); // Keep alert here as view might not be ready/toast element not found if not rendered?
-            // Actually, HTML is static, so element exists.
-            // But let's check.
-            location.href = '/main';
+            PostDetailView.showToast('잘못된 접근입니다.');
+            setTimeout(() => {
+                location.href = '/main';
+            }, 1000);
             return;
         }
 
@@ -50,7 +50,9 @@ class DetailController {
         } catch (error) {
             logger.error('게시글 로드 실패', error);
             PostDetailView.showToast(error.message);
-            // location.href = '/main'; // Maybe delay redirect?
+            setTimeout(() => {
+                location.href = '/main';
+            }, 1500);
         }
     }
 
