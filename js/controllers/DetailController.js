@@ -43,10 +43,65 @@ class DetailController {
         await this._loadPostDetail();
         this._setupEventListeners();
     }
-    // ...
+
+    /**
+     * 로그인 상태 확인
+     * @private
+     */
+    async _checkLoginStatus() {
+        try {
+            const authStatus = await AuthModel.checkAuthStatus();
+            if (authStatus.isAuthenticated) {
+                // user object structure depends on backend. Usually it has id or userId.
+                // Based on previous code analysis or standard, let's assume userId or id.
+                // Looking at AuthModel it just returns the user object.
+                // Let's console log or check logic used elsewhere.
+                // In HeaderController it uses user to create profile.
+                // In CommentListView it uses currentUserId vs comment.author.id.
+                // So we need to ensure we get the ID.
+                // Let's assume the user object has `userId` or just `id`.
+                // Checking previous ViewFile of UserModel or typical response...
+                // AuthModel.checkAuthStatus returns `result.data.data.user`.
+                this.currentUserId = authStatus.user.user_id || authStatus.user.id;
+            } else {
+                this.currentUserId = null;
+            }
+        } catch (error) {
+            logger.warn('로그인 확인 실패', error);
+            this.currentUserId = null;
+        }
+    }
+
+    /**
+     * 게시글 상세 로드
+     * @private
+     */
     async _loadPostDetail() {
         try {
-            // ...
+            const result = await PostModel.getPost(this.currentPostId);
+
+            if (!result.ok) {
+                throw new Error('게시글을 불러오지 못했습니다.');
+            }
+
+            const post = result.data?.data?.post || result.data?.data;
+
+            if (!post) {
+                throw new Error('게시글 데이터가 없습니다.');
+            }
+
+            // 게시글 렌더링
+            PostDetailView.renderPost(post);
+
+            // 작성자 액션 버튼 표시/숨기기
+            const isOwner = this.currentUserId && post.author &&
+                (this.currentUserId === post.author.user_id || this.currentUserId === post.author.id);
+            PostDetailView.toggleActionButtons(isOwner);
+
+            // 댓글 렌더링
+            const comments = post.comments || [];
+            this._renderComments(comments);
+
         } catch (error) {
             logger.error('게시글 로드 실패', error);
             PostDetailView.showToast(error.message);

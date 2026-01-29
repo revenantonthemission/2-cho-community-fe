@@ -202,18 +202,55 @@ class ProfileController {
             this.view.showToast('오류 발생');
         }
     }
-    // ...
+
+    /**
+     * 탈퇴 모달 설정
+     * @private
+     */
+    _setupWithdrawModal() {
+        const modal = document.getElementById('withdraw-modal');
+        const cancelBtn = document.getElementById('modal-cancel-btn');
+        const confirmBtn = document.getElementById('modal-confirm-btn');
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                if (modal) modal.classList.add('hidden');
+            });
+        }
+
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', () => this._handleWithdrawal());
+        }
+    }
+
+    /**
+     * 탈퇴 버튼 클릭 처리
+     * @private
+     */
+    _handleWithdrawClick() {
+        const modal = document.getElementById('withdraw-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
+    }
+
+    /**
+     * 회원 탈퇴 처리
+     * @private
+     */
     async _handleWithdrawal() {
-        // ...
+        const passwordInput = document.getElementById('withdraw-password');
+        const password = passwordInput?.value.trim();
+
+        if (!password) {
+            this.view.showToast('비밀번호를 입력해주세요.');
+            return;
+        }
+
         try {
             const result = await UserModel.withdraw(password);
 
             if (result.ok) {
-                // To display toast before redirect, we need to ensure toast is visible.
-                // However, withdrawal redirects to login.
-                // Alert is blocking, Toast is non-blocking.
-                // Using alert for withdrawal success might be better to force user acknowledgement before redirect?
-                // Or show toast then delay redirect.
                 this.view.showToast('회원탈퇴가 완료되었습니다.');
                 setTimeout(() => {
                     location.href = '/login';
