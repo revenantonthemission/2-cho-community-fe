@@ -74,44 +74,25 @@ class SignupController {
     }
 
     /**
-     * 이메일 입력 처리
+     * 공통 입력 처리 핸들러
+     * @param {string} field - 상태 필드명 (email, password, etc)
+     * @param {Function} validator - 유효성 검사 메서드
      * @private
+     * 
+     * 반복되는 입력 처리 로직(상태 업데이트 -> 유효성 검사 -> 버튼 상태 업데이트)을 일반화하여
+     * 코드 중복을 줄이고 유지보수성을 높임. `call(this)`를 사용하여 validator 내부의 `this` 컨텍스트를 유지함.
      */
-    _handleEmailInput() {
-        this.state.email.touched = true;
-        this._validateEmail();
+    _handleInput(field, validator) {
+        this.state[field].touched = true;
+        validator.call(this);
         this._updateButtonState();
     }
 
-    /**
-     * 비밀번호 입력 처리
-     * @private
-     */
-    _handlePasswordInput() {
-        this.state.password.touched = true;
-        this._validatePassword();
-        this._updateButtonState();
-    }
-
-    /**
-     * 비밀번호 확인 입력 처리
-     * @private
-     */
-    _handlePasswordConfirmInput() {
-        this.state.passwordConfirm.touched = true;
-        this._validatePasswordConfirm();
-        this._updateButtonState();
-    }
-
-    /**
-     * 닉네임 입력 처리
-     * @private
-     */
-    _handleNicknameInput() {
-        this.state.nickname.touched = true;
-        this._validateNickname();
-        this._updateButtonState();
-    }
+    /* 이벤트 핸들러 - 공통 메서드 사용 */
+    _handleEmailInput() { this._handleInput('email', this._validateEmail); }
+    _handlePasswordInput() { this._handleInput('password', this._validatePassword); }
+    _handlePasswordConfirmInput() { this._handleInput('passwordConfirm', this._validatePasswordConfirm); }
+    _handleNicknameInput() { this._handleInput('nickname', this._validateNickname); }
 
     /**
      * 프로필 유효성 검사
@@ -236,8 +217,10 @@ class SignupController {
             const result = await UserModel.signup(formData);
 
             if (result.ok) {
-                alert('회원가입이 완료되었습니다!');
-                window.location.href = '/login';
+                this.view.showToast('회원가입이 완료되었습니다!');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500); // 토스트 보일 시간 확보
             } else {
                 const errorData = result.data;
 
@@ -247,15 +230,15 @@ class SignupController {
                     } else if (errorData.detail.includes('nickname') || errorData.detail.includes('닉네임')) {
                         this.view.showNicknameError('* 중복된 닉네임입니다');
                     } else {
-                        alert(`회원가입 실패: ${errorData.detail}`);
+                        this.view.showToast(`회원가입 실패: ${errorData.detail}`);
                     }
                 } else {
-                    alert(`회원가입 실패: ${errorData?.message || '알 수 없는 오류'}`);
+                    this.view.showToast(`회원가입 실패: ${errorData?.message || '알 수 없는 오류'}`);
                 }
             }
         } catch (error) {
             logger.error('회원가입 실패', error);
-            alert('서버 통신 중 오류가 발생했습니다.');
+            this.view.showToast('서버 통신 중 오류가 발생했습니다.');
         }
     }
 }

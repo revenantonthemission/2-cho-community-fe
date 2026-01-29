@@ -156,7 +156,7 @@ class ProfileController {
                     // 객체인 경우 url 프로퍼티 사용, 아니면 값 자체 사용
                     newImageUrl = (data && typeof data === 'object' && data.url) ? data.url : data;
                 } else {
-                    alert('이미지 업로드 실패');
+                    this.view.showToast('이미지 업로드 실패');
                     return;
                 }
             } catch (e) {
@@ -170,7 +170,7 @@ class ProfileController {
         if (newImageUrl) payload.profileImageUrl = newImageUrl;
 
         if (Object.keys(payload).length === 0) {
-            alert('수정할 내용이 없습니다.');
+            this.view.showToast('수정할 내용이 없습니다.');
             return;
         }
 
@@ -194,21 +194,13 @@ class ProfileController {
                     } else if (typeof detail === 'object') {
                         msg = JSON.stringify(detail);
                     }
-                    alert('수정 실패: ' + msg);
+                    this.view.showToast('수정 실패: ' + msg);
                 }
             }
         } catch (e) {
             logger.error('프로필 수정 실패', e);
-            alert('오류 발생');
+            this.view.showToast('오류 발생');
         }
-    }
-
-    /**
-     * 회원 탈퇴 클릭 처리
-     * @private
-     */
-    _handleWithdrawClick() {
-        ModalView.openWithdrawModal('withdraw-modal');
     }
 
     /**
@@ -216,17 +208,29 @@ class ProfileController {
      * @private
      */
     _setupWithdrawModal() {
-        const modalCancelBtn = document.getElementById('modal-cancel-btn');
-        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+        const modal = document.getElementById('withdraw-modal');
+        const cancelBtn = document.getElementById('modal-cancel-btn');
+        const confirmBtn = document.getElementById('modal-confirm-btn');
 
-        if (modalCancelBtn) {
-            modalCancelBtn.addEventListener('click', () => {
-                ModalView.closeModal('withdraw-modal');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                if (modal) modal.classList.add('hidden');
             });
         }
 
-        if (modalConfirmBtn) {
-            modalConfirmBtn.addEventListener('click', () => this._handleWithdrawal());
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', () => this._handleWithdrawal());
+        }
+    }
+
+    /**
+     * 탈퇴 버튼 클릭 처리
+     * @private
+     */
+    _handleWithdrawClick() {
+        const modal = document.getElementById('withdraw-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
         }
     }
 
@@ -235,26 +239,28 @@ class ProfileController {
      * @private
      */
     async _handleWithdrawal() {
-        const password = document.getElementById('withdraw-password').value;
+        const passwordInput = document.getElementById('withdraw-password');
+        const password = passwordInput?.value.trim();
 
         if (!password) {
-            ModalView.toggleWithdrawHelper('withdraw-helper', true);
+            this.view.showToast('비밀번호를 입력해주세요.');
             return;
         }
-        ModalView.toggleWithdrawHelper('withdraw-helper', false);
 
         try {
             const result = await UserModel.withdraw(password);
 
             if (result.ok) {
-                alert('회원탈퇴가 완료되었습니다.');
-                location.href = '/login';
+                this.view.showToast('회원탈퇴가 완료되었습니다.');
+                setTimeout(() => {
+                    location.href = '/login';
+                }, 1000);
             } else {
-                alert('탈퇴 실패. 비밀번호를 확인해주세요.');
+                this.view.showToast('탈퇴 실패. 비밀번호를 확인해주세요.');
             }
         } catch (e) {
             logger.error('회원 탈퇴 실패', e);
-            alert('오류 발생');
+            this.view.showToast('오류 발생');
         }
     }
 }

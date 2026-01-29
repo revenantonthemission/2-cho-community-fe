@@ -1,7 +1,7 @@
 // js/views/SignupView.js
 // 회원가입 페이지 View - DOM 조작 담당
 
-import { showError, hideError } from './helpers.js';
+import { showError, hideError, showToast } from './helpers.js';
 
 /**
  * 회원가입 페이지 View 클래스
@@ -270,6 +270,13 @@ class SignupView {
                 }
             });
         }
+    }
+    /**
+     * 토스트 메시지 표시
+     * @param {string} message - 표시할 메시지
+     */
+    showToast(message) {
+        showToast(message);
     }
 }
 

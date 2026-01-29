@@ -122,15 +122,25 @@ class ApiService {
     static async _handleResponse(response, method = '', endpoint = '') {
         let data = null;
 
-        // 응답 본문이 있는 경우에만 JSON 파싱
+        // 응답 본문이 있는 경우에만 처리
+        // 응답 본문이 있는 경우에만 처리
         const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            try {
+        try {
+            if (contentType && contentType.includes('application/json')) {
                 data = await response.json();
-            } catch (e) {
-                logger.warn(`JSON 파싱 실패: ${method} ${endpoint}`);
-                data = null;
+            } else {
+                // JSON이 아닌 경우 (예: 500 HTML 에러 페이지) 텍스트로 읽음
+                // 백엔드 프레임워크나 프록시(Nginx 등)가 JSON이 아닌 HTML 에러 페이지를 반환하는 경우가 많으므로
+                // 무조건 JSON 파싱을 시도하면 SyntaxError가 발생하여 에러 내용을 확인할 수 없게 됨.
+                // 따라서 Content-Type을 확인하여 유연하게 처리함.
+                const text = await response.text();
+                if (text) {
+                    data = { message: text, _isText: true };
+                }
             }
+        } catch (e) {
+            logger.warn(`응답 처리 실패: ${method} ${endpoint}`, e);
+            data = { message: '응답을 처리할 수 없습니다.' };
         }
 
         // 응답 로깅
@@ -138,6 +148,22 @@ class ApiService {
             logger.info(`${method} ${endpoint} 성공 (${response.status})`);
         } else {
             logger.error(`${method} ${endpoint} 실패 (${response.status})`, data);
+        }
+
+        // 인증 만료 (401) 전역 처리
+        // 로그인/조회 등 일부 API는 제외해야 할 수 있으나, 일반적으로 브라우저 세션 기반이므로
+        // 401은 세션 만료를 의미함.
+        if (response.status === 401 && !endpoint.includes('check-email') && !endpoint.includes('check-nickname') && !endpoint.includes('login')) {
+            // 사용자에게 알림을 줄 수 있다면 좋겠지만, Service 레벨에서 View를 건드리는 것은 의존성 위반.
+            // 일단 로그인 페이지로 리다이렉트 ( SPA가 아니므로 location.href 사용 )
+            // 무한 루프 방지를 위해 현재 페이지가 login이 아닐 때만
+            if (!location.pathname.includes('/login')) {
+                // 토스트 표시를 위해 URL 파라미터 전달?
+                // location.href = '/login?expired=true';
+                // 로거로 남기고 리다이렉트
+                logger.warn('세션 만료 감지 - 로그인 페이지로 이동');
+                location.href = '/login?session=expired';
+            }
         }
 
         return {

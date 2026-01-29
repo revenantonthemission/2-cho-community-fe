@@ -3,6 +3,7 @@
 
 import AuthModel from '../models/AuthModel.js';
 import HeaderView from '../views/HeaderView.js';
+import { showToast } from '../views/helpers.js';
 import Logger from '../utils/Logger.js';
 
 const logger = Logger.createLogger('HeaderController');
@@ -97,10 +98,12 @@ class HeaderController {
         try {
             const result = await AuthModel.logout();
             if (result.ok) {
-                alert('로그아웃 되었습니다.');
-                location.href = '/login';
+                showToast('로그아웃 되었습니다.');
+                setTimeout(() => {
+                    location.href = '/login';
+                }, 1000);
             } else {
-                alert('로그아웃 실패');
+                showToast('로그아웃 실패');
             }
         } catch (error) {
             logger.error('로그아웃 실패', error);

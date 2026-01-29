@@ -44,6 +44,12 @@ class LoginController {
 
         this._setupEventListeners();
         this.view.updateButtonState(false);
+
+        // 세션 만료 메시지 확인
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('session') === 'expired') {
+            this.view.showToast('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');
+        }
     }
 
     /**
@@ -59,24 +65,20 @@ class LoginController {
     }
 
     /**
-     * 이메일 입력 처리
+     * 공통 입력 처리 핸들러
+     * @param {string} field - 상태 필드명
+     * @param {Function} validator - 유효성 검사 메서드
      * @private
      */
-    _handleEmailInput() {
-        this.state.email.touched = true;
-        this._validateEmail();
+    _handleInput(field, validator) {
+        this.state[field].touched = true;
+        validator.call(this);
         this._updateButtonState();
     }
 
-    /**
-     * 비밀번호 입력 처리
-     * @private
-     */
-    _handlePasswordInput() {
-        this.state.password.touched = true;
-        this._validatePassword();
-        this._updateButtonState();
-    }
+    /* 이벤트 핸들러 */
+    _handleEmailInput() { this._handleInput('email', this._validateEmail); }
+    _handlePasswordInput() { this._handleInput('password', this._validatePassword); }
 
     /**
      * 이메일 유효성 검사

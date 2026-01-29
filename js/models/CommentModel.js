@@ -8,6 +8,15 @@ import ApiService from '../services/ApiService.js';
  */
 class CommentModel {
     /**
+     * 댓글 목록 조회
+     * @param {string|number} postId - 게시글 ID
+     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     */
+    static async getComments(postId) {
+        return ApiService.get(`/v1/posts/${postId}/comments`);
+    }
+
+    /**
      * 댓글 작성
      * @param {string|number} postId - 게시글 ID
      * @param {string} content - 댓글 내용
