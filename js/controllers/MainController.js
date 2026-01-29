@@ -19,6 +19,8 @@ class MainController {
         this.isLoading = false;
         this.hasMore = true;
         this.currentUser = null;
+        // 중복 게시물 감지를 위한 Set
+        this.loadedPostIds = new Set();
     }
 
     /**
@@ -97,8 +99,26 @@ class MainController {
             if (!result.ok) throw new Error('게시글 목록을 불러오지 못했습니다.');
 
             const posts = result.data?.data?.posts || [];
+            const pagination = result.data?.data?.pagination;
 
-            if (posts.length < this.LIMIT) {
+            // 중복 게시물 감지 (백엔드 버그 방어)
+            const fetchedIds = posts.map(p => p.post_id);
+            const hasDuplicates = fetchedIds.some(id => this.loadedPostIds.has(id));
+
+            if (hasDuplicates) {
+                logger.warn('중복 게시물 감지 - 더 이상 로드하지 않음');
+                this.hasMore = false;
+                PostListView.toggleLoadingSentinel(sentinel, false);
+                return;
+            }
+
+            // 로드된 게시물 ID 저장
+            fetchedIds.forEach(id => this.loadedPostIds.add(id));
+
+            // API 응답의 pagination 정보 또는 반환 개수로 hasMore 결정
+            if (posts.length < this.LIMIT ||
+                (pagination && !pagination.has_more) ||
+                (pagination && this.currentOffset + posts.length >= pagination.total_count)) {
                 this.hasMore = false;
                 PostListView.toggleLoadingSentinel(sentinel, false);
             }
