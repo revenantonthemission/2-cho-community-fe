@@ -45,9 +45,10 @@ export function hideError(helperEl) {
  * @param {string} [toastId='toast'] - 토스트 요소 ID
  * @param {number} [duration=3000] - 표시 지속 시간 (ms)
  */
-export function showToast(toastId = 'toast', duration = 3000) {
+export function showToast(message, toastId = 'toast', duration = 3000) {
     const toast = document.getElementById(toastId);
     if (toast) {
+        toast.textContent = message;
         toast.classList.add('show');
         setTimeout(() => {
             toast.classList.remove('show');

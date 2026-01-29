@@ -122,15 +122,21 @@ class ApiService {
     static async _handleResponse(response, method = '', endpoint = '') {
         let data = null;
 
-        // 응답 본문이 있는 경우에만 JSON 파싱
+        // 응답 본문이 있는 경우에만 처리
         const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            try {
+        try {
+            if (contentType && contentType.includes('application/json')) {
                 data = await response.json();
-            } catch (e) {
-                logger.warn(`JSON 파싱 실패: ${method} ${endpoint}`);
-                data = null;
+            } else {
+                // JSON이 아닌 경우 (예: 500 HTML 에러 페이지) 텍스트로 읽음
+                const text = await response.text();
+                if (text) {
+                    data = { message: text, _isText: true };
+                }
             }
+        } catch (e) {
+            logger.warn(`응답 처리 실패: ${method} ${endpoint}`, e);
+            data = { message: '응답을 처리할 수 없습니다.' };
         }
 
         // 응답 로깅
