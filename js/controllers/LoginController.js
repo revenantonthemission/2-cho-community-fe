@@ -44,6 +44,12 @@ class LoginController {
 
         this._setupEventListeners();
         this.view.updateButtonState(false);
+
+        // 세션 만료 메시지 확인
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('session') === 'expired') {
+            this.view.showToast('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');
+        }
     }
 
     /**
