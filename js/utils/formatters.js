@@ -7,6 +7,9 @@
  * @returns {string} - 포맷팅된 날짜 문자열
  */
 export function formatDate(date) {
+    if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+        return '';
+    }
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     const dd = String(date.getDate()).padStart(2, '0');
@@ -23,7 +26,6 @@ export function formatDate(date) {
  */
 export function formatCount(num) {
     if (!num) return 0;
-    if (num >= 100000) return Math.floor(num / 1000) + 'k';
     if (num >= 10000) return Math.floor(num / 1000) + 'k';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
     return num;
@@ -55,4 +57,24 @@ export function escapeHtml(text) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+}
+
+/**
+ * CSS url() 내에서 사용할 URL 이스케이프 함수
+ * style="background-image: url('...')" 에서 인젝션 방지
+ * @param {string} url - 원본 URL
+ * @returns {string} - 이스케이프된 URL
+ */
+export function escapeCssUrl(url) {
+    if (!url) return '';
+    // CSS url() 컨텍스트에서 위험한 문자들 이스케이프
+    // 괄호, 따옴표, 백슬래시, 개행문자 등
+    return url
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\(/g, '\\(')
+        .replace(/\)/g, '\\)')
+        .replace(/\n/g, '')
+        .replace(/\r/g, '');
 }

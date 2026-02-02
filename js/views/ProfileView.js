@@ -1,7 +1,7 @@
 // js/views/ProfileView.js
 // 프로필 수정 페이지 View - DOM 조작 담당
 
-import { showError, hideError, showToast, getImageUrl } from './helpers.js';
+import { showError, hideError, showToast, getImageUrl, updateButtonState as updateBtnState } from './helpers.js';
 
 /**
  * 프로필 수정 페이지 View 클래스
@@ -111,20 +111,9 @@ class ProfileView {
      * @param {boolean} isValid - 유효 여부
      */
     updateButtonState(isValid) {
-        if (!this.submitBtn) return;
-
-        if (isValid) {
-            this.submitBtn.disabled = false;
-            this.submitBtn.classList.add('active');
-        } else {
-            this.submitBtn.disabled = true;
-            this.submitBtn.classList.remove('active');
-        }
+        updateBtnState(this.submitBtn, isValid);
     }
 
-    /**
-     * 성공 토스트 표시
-     */
     /**
      * 성공 토스트 표시
      */

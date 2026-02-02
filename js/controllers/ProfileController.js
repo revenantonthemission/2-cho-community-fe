@@ -5,6 +5,7 @@ import AuthModel from '../models/AuthModel.js';
 import UserModel from '../models/UserModel.js';
 import ProfileView from '../views/ProfileView.js';
 import ModalView from '../views/ModalView.js';
+import { extractUploadedImageUrl, readFileAsDataURL } from '../views/helpers.js';
 import Logger from '../utils/Logger.js';
 
 const logger = Logger.createLogger('ProfileController');
@@ -88,11 +89,9 @@ class ProfileController {
         const file = event.target.files[0];
         if (file) {
             this.currentProfileFile = file;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.view.showProfilePreview(e.target.result);
-            };
-            reader.readAsDataURL(file);
+            readFileAsDataURL(file, (dataUrl) => {
+                this.view.showProfilePreview(dataUrl);
+            });
         }
         this._checkFormValidity();
     }
@@ -151,11 +150,9 @@ class ProfileController {
         if (this.currentProfileFile) {
             try {
                 const uploadResult = await UserModel.uploadProfileImage(this.currentProfileFile);
-                if (uploadResult.ok) {
-                    const data = uploadResult.data?.data;
-                    // 객체인 경우 url 프로퍼티 사용, 아니면 값 자체 사용
-                    newImageUrl = (data && typeof data === 'object' && data.url) ? data.url : data;
-                } else {
+                newImageUrl = extractUploadedImageUrl(uploadResult);
+
+                if (!newImageUrl) {
                     this.view.showToast('이미지 업로드 실패');
                     return;
                 }

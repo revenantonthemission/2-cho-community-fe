@@ -1,7 +1,7 @@
 // js/views/PostDetailView.js
 // 게시글 상세 렌더링 관련 로직
 
-import { formatDate, formatCount } from '../utils/formatters.js';
+import { formatDate, formatCount, escapeCssUrl } from '../utils/formatters.js';
 import { getImageUrl, showToast } from './helpers.js';
 
 /**
@@ -27,7 +27,7 @@ class PostDetailView {
 
         const authorImg = document.getElementById('post-author-img');
         if (authorImg) {
-            const profileUrl = getImageUrl(post.author.profileImageUrl);
+            const profileUrl = escapeCssUrl(getImageUrl(post.author.profileImageUrl));
             authorImg.style.backgroundImage = `url('${profileUrl}')`;
             authorImg.style.backgroundSize = 'cover';
         }

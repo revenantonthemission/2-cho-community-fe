@@ -1,7 +1,7 @@
 // js/views/PostListView.js
 // 게시글 목록 렌더링 관련 로직
 
-import { formatDate, formatCount, truncateTitle, escapeHtml } from '../utils/formatters.js';
+import { formatDate, formatCount, truncateTitle, escapeHtml, escapeCssUrl } from '../utils/formatters.js';
 import { getImageUrl } from './helpers.js';
 
 /**
@@ -48,7 +48,7 @@ class PostListView {
         const views = post.views_count || 0;
 
         // 작성자 프로필 이미지
-        const profileImg = getImageUrl(post.author?.profileImageUrl);
+        const profileImg = escapeCssUrl(getImageUrl(post.author?.profileImageUrl));
 
         li.innerHTML = `
             <div class="post-card-header">
@@ -81,10 +81,12 @@ class PostListView {
      * @param {Function} onPostClick - 게시글 클릭 핸들러
      */
     static renderPosts(container, posts, onPostClick) {
+        const fragment = document.createDocumentFragment();
         posts.forEach(post => {
             const card = PostListView.createPostCard(post, onPostClick);
-            container.appendChild(card);
+            fragment.appendChild(card);
         });
+        container.appendChild(fragment);
     }
 
     /**

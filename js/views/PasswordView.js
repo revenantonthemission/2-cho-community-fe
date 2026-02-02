@@ -1,7 +1,7 @@
 // js/views/PasswordView.js
 // 비밀번호 변경 페이지 View - DOM 조작 담당
 
-import { showError, hideError, showToast } from './helpers.js';
+import { showError, hideError, showToast, updateButtonState as updateBtnState } from './helpers.js';
 
 /**
  * 비밀번호 변경 페이지 View 클래스
@@ -85,21 +85,9 @@ class PasswordView {
      * @param {string} [inactiveColor='#ACA0EB'] - 비활성 색상
      */
     updateButtonState(isValid, activeColor = '#7F6AEE', inactiveColor = '#ACA0EB') {
-        if (!this.submitBtn) return;
-
-        this.submitBtn.disabled = !isValid;
-        this.submitBtn.style.backgroundColor = isValid ? activeColor : inactiveColor;
-
-        if (isValid) {
-            this.submitBtn.classList.add('active');
-        } else {
-            this.submitBtn.classList.remove('active');
-        }
+        updateBtnState(this.submitBtn, isValid, activeColor, inactiveColor);
     }
 
-    /**
-     * 성공 토스트 표시
-     */
     /**
      * 성공 토스트 표시
      */

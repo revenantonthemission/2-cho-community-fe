@@ -17,12 +17,16 @@ class ApiService {
      */
     static async get(endpoint) {
         logger.debug(`GET 요청: ${endpoint}`);
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include'
-        });
-        return ApiService._handleResponse(response, 'GET', endpoint);
+        try {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            });
+            return ApiService._handleResponse(response, 'GET', endpoint);
+        } catch (error) {
+            return ApiService._handleNetworkError(error, 'GET', endpoint);
+        }
     }
 
     /**
@@ -33,13 +37,17 @@ class ApiService {
      */
     static async post(endpoint, data) {
         logger.debug(`POST 요청: ${endpoint}`);
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-            credentials: 'include'
-        });
-        return ApiService._handleResponse(response, 'POST', endpoint);
+        try {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+                credentials: 'include'
+            });
+            return ApiService._handleResponse(response, 'POST', endpoint);
+        } catch (error) {
+            return ApiService._handleNetworkError(error, 'POST', endpoint);
+        }
     }
 
     /**
@@ -50,12 +58,16 @@ class ApiService {
      */
     static async postFormData(endpoint, formData) {
         logger.debug(`POST FormData 요청: ${endpoint}`);
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            method: 'POST',
-            body: formData,
-            credentials: 'include'
-        });
-        return ApiService._handleResponse(response, 'POST', endpoint);
+        try {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            });
+            return ApiService._handleResponse(response, 'POST', endpoint);
+        } catch (error) {
+            return ApiService._handleNetworkError(error, 'POST', endpoint);
+        }
     }
 
     /**
@@ -66,13 +78,17 @@ class ApiService {
      */
     static async patch(endpoint, data) {
         logger.debug(`PATCH 요청: ${endpoint}`);
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-            credentials: 'include'
-        });
-        return ApiService._handleResponse(response, 'PATCH', endpoint);
+        try {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+                credentials: 'include'
+            });
+            return ApiService._handleResponse(response, 'PATCH', endpoint);
+        } catch (error) {
+            return ApiService._handleNetworkError(error, 'PATCH', endpoint);
+        }
     }
 
     /**
@@ -83,13 +99,17 @@ class ApiService {
      */
     static async put(endpoint, data) {
         logger.debug(`PUT 요청: ${endpoint}`);
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-            credentials: 'include'
-        });
-        return ApiService._handleResponse(response, 'PUT', endpoint);
+        try {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+                credentials: 'include'
+            });
+            return ApiService._handleResponse(response, 'PUT', endpoint);
+        } catch (error) {
+            return ApiService._handleNetworkError(error, 'PUT', endpoint);
+        }
     }
 
     /**
@@ -100,16 +120,20 @@ class ApiService {
      */
     static async delete(endpoint, data = null) {
         logger.debug(`DELETE 요청: ${endpoint}`);
-        const options = {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include'
-        };
-        if (data) {
-            options.body = JSON.stringify(data);
+        try {
+            const options = {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            };
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+            return ApiService._handleResponse(response, 'DELETE', endpoint);
+        } catch (error) {
+            return ApiService._handleNetworkError(error, 'DELETE', endpoint);
         }
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
-        return ApiService._handleResponse(response, 'DELETE', endpoint);
     }
 
     /**
@@ -122,7 +146,6 @@ class ApiService {
     static async _handleResponse(response, method = '', endpoint = '') {
         let data = null;
 
-        // 응답 본문이 있는 경우에만 처리
         // 응답 본문이 있는 경우에만 처리
         const contentType = response.headers.get('content-type');
         try {
@@ -154,22 +177,34 @@ class ApiService {
         // 로그인/조회 등 일부 API는 제외해야 할 수 있으나, 일반적으로 브라우저 세션 기반이므로
         // 401은 세션 만료를 의미함.
         if (response.status === 401 && !endpoint.includes('check-email') && !endpoint.includes('check-nickname') && !endpoint.includes('login')) {
-            // 사용자에게 알림을 줄 수 있다면 좋겠지만, Service 레벨에서 View를 건드리는 것은 의존성 위반.
-            // 일단 로그인 페이지로 리다이렉트 ( SPA가 아니므로 location.href 사용 )
-            // 무한 루프 방지를 위해 현재 페이지가 login이 아닐 때만
-            if (!location.pathname.includes('/login')) {
-                // 토스트 표시를 위해 URL 파라미터 전달?
-                // location.href = '/login?expired=true';
-                // 로거로 남기고 리다이렉트
-                logger.warn('세션 만료 감지 - 로그인 페이지로 이동');
-                location.href = '/login?session=expired';
-            }
+            // Service 레벨에서 View를 직접 제어하지 않고 이벤트 발생
+            logger.warn('세션 만료 감지 - 이벤트 발생');
+            window.dispatchEvent(new CustomEvent('auth:session-expired'));
         }
 
         return {
             ok: response.ok,
             status: response.status,
             data: data
+        };
+    }
+
+    /**
+     * 네트워크 에러 처리
+     * @param {Error} error - 에러 객체
+     * @param {string} method - HTTP 메서드
+     * @param {string} endpoint - API 엔드포인트
+     * @returns {{ok: boolean, status: number, data: {message: string, _isNetworkError: boolean}}}
+     */
+    static _handleNetworkError(error, method, endpoint) {
+        logger.error(`${method} ${endpoint} 네트워크 에러`, error);
+        return {
+            ok: false,
+            status: 0,
+            data: {
+                message: '네트워크 연결을 확인해주세요.',
+                _isNetworkError: true
+            }
         };
     }
 }

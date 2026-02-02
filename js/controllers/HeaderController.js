@@ -14,6 +14,20 @@ const logger = Logger.createLogger('HeaderController');
 class HeaderController {
     constructor() {
         this.currentUser = null;
+        this._setupGlobalEvents();
+    }
+
+    /**
+     * 전역 이벤트 설정
+     * @private
+     */
+    _setupGlobalEvents() {
+        window.addEventListener('auth:session-expired', () => {
+            logger.warn('세션 만료 이벤트 수신 - 로그인 페이지로 이동');
+            if (!this._isAuthPage()) {
+                location.href = '/login?session=expired';
+            }
+        });
     }
 
     /**

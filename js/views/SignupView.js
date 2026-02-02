@@ -1,7 +1,7 @@
 // js/views/SignupView.js
 // 회원가입 페이지 View - DOM 조작 담당
 
-import { showError, hideError, showToast } from './helpers.js';
+import { showError, hideError, showToast, updateButtonState as updateBtnState } from './helpers.js';
 
 /**
  * 회원가입 페이지 View 클래스
@@ -197,16 +197,7 @@ class SignupView {
      * @param {string} [inactiveColor='#ACA0EB'] - 비활성 색상
      */
     updateButtonState(isValid, activeColor = '#7F6AEE', inactiveColor = '#ACA0EB') {
-        if (!this.signupBtn) return;
-
-        this.signupBtn.disabled = !isValid;
-        this.signupBtn.style.backgroundColor = isValid ? activeColor : inactiveColor;
-
-        if (isValid) {
-            this.signupBtn.classList.add('active');
-        } else {
-            this.signupBtn.classList.remove('active');
-        }
+        updateBtnState(this.signupBtn, isValid, activeColor, inactiveColor);
     }
 
     /**
