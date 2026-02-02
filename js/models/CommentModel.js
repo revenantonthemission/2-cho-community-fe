@@ -2,6 +2,7 @@
 // 댓글 관련 API 호출 관리
 
 import ApiService from '../services/ApiService.js';
+import { API_ENDPOINTS } from '../constants.js';
 
 /**
  * 댓글 관련 Model
@@ -13,7 +14,7 @@ class CommentModel {
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
      */
     static async getComments(postId) {
-        return ApiService.get(`/v1/posts/${postId}/comments`);
+        return ApiService.get(API_ENDPOINTS.COMMENTS.ROOT(postId));
     }
 
     /**
@@ -23,7 +24,7 @@ class CommentModel {
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
      */
     static async createComment(postId, content) {
-        return ApiService.post(`/v1/posts/${postId}/comments`, { content });
+        return ApiService.post(API_ENDPOINTS.COMMENTS.ROOT(postId), { content });
     }
 
     /**
@@ -34,7 +35,7 @@ class CommentModel {
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
      */
     static async updateComment(postId, commentId, content) {
-        return ApiService.put(`/v1/posts/${postId}/comments/${commentId}`, { content });
+        return ApiService.put(API_ENDPOINTS.COMMENTS.DETAIL(postId, commentId), { content });
     }
 
     /**
@@ -44,7 +45,7 @@ class CommentModel {
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
      */
     static async deleteComment(postId, commentId) {
-        return ApiService.delete(`/v1/posts/${postId}/comments/${commentId}`);
+        return ApiService.delete(API_ENDPOINTS.COMMENTS.DETAIL(postId, commentId));
     }
 }
 
