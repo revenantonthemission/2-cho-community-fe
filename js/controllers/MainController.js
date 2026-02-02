@@ -39,6 +39,10 @@ class MainController {
 
         this.loadedPostIds = new Set();
 
+        // IntersectionObserver 참조 (cleanup용)
+
+        this.scrollObserver = null;
+
     }
 
 
@@ -93,7 +97,17 @@ class MainController {
 
 
 
-        const observer = new IntersectionObserver((entries) => {
+        // 기존 observer가 있으면 정리
+
+        if (this.scrollObserver) {
+
+            this.scrollObserver.disconnect();
+
+        }
+
+
+
+        this.scrollObserver = new IntersectionObserver((entries) => {
 
             if (entries[0].isIntersecting && !this.isLoading && this.hasMore) {
 
@@ -105,7 +119,27 @@ class MainController {
 
 
 
-        observer.observe(sentinel);
+        this.scrollObserver.observe(sentinel);
+
+    }
+
+
+
+    /**
+
+     * 컨트롤러 정리 (페이지 이탈 시 호출)
+
+     */
+
+    destroy() {
+
+        if (this.scrollObserver) {
+
+            this.scrollObserver.disconnect();
+
+            this.scrollObserver = null;
+
+        }
 
     }
 
