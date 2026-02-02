@@ -3,10 +3,9 @@
 
 import AuthModel from '../models/AuthModel.js';
 import PostModel from '../models/PostModel.js';
-import CommentModel from '../models/CommentModel.js';
 import PostDetailView from '../views/PostDetailView.js';
-import CommentListView from '../views/CommentListView.js';
 import ModalView from '../views/ModalView.js';
+import CommentController from './CommentController.js';
 import Logger from '../utils/Logger.js';
 import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
 
@@ -19,9 +18,9 @@ class DetailController {
     constructor() {
         this.currentPostId = null;
         this.currentUserId = null;
-        this.editingCommentId = null;
-        this.deleteTarget = { type: null, id: null };
+        this.deleteTargetId = null; // 오직 게시글 삭제 대상 ID만 저장
         this.isLiking = false;
+        this.commentController = null;
     }
 
     /**
@@ -99,8 +98,20 @@ class DetailController {
                 (this.currentUserId === post.author.user_id || this.currentUserId === post.author.id);
             PostDetailView.toggleActionButtons(isOwner);
 
-            // 댓글 렌더링 (이미 위에서 선언됨)
-            this._renderComments(comments);
+            // 댓글 컨트롤러 초기화 및 렌더링 위임
+            if (!this.commentController) {
+                this.commentController = new CommentController(
+                    this.currentPostId,
+                    this.currentUserId,
+                    {
+                        onCommentChange: () => this._loadPostDetail() // 댓글 변경 시 전체 새로고침 (간단한 동기화)
+                    }
+                );
+                // 입력창 이벤트는 DOM이 그려진 후 한 번만 설정
+                this.commentController.setupInputEvents();
+            }
+            
+            this.commentController.render(comments);
 
         } catch (error) {
             logger.error('게시글 로드 실패', error);
@@ -109,18 +120,6 @@ class DetailController {
                 location.href = NAV_PATHS.MAIN;
             }, 1500);
         }
-    }
-
-    /**
-     * 댓글 렌더링
-     * @private
-     */
-    _renderComments(comments) {
-        const listEl = document.getElementById('comment-list');
-        CommentListView.renderComments(listEl, comments, this.currentUserId, {
-            onEdit: (comment) => this._startEditComment(comment),
-            onDelete: (commentId) => this._openDeleteModal('comment', commentId)
-        });
     }
 
     /**
@@ -148,7 +147,7 @@ class DetailController {
         const deleteBtn = document.getElementById('delete-post-btn');
         if (deleteBtn) {
             deleteBtn.addEventListener('click', () => {
-                this._openDeleteModal('post', this.currentPostId);
+                this._openDeleteModal();
             });
         }
 
@@ -158,31 +157,13 @@ class DetailController {
             likeBox.addEventListener('click', () => this._handleLike());
         }
 
-        // 댓글 입력
-        const commentInput = document.getElementById('comment-input');
-        const commentSubmitBtn = document.getElementById('comment-submit-btn');
+        // 댓글 관련 이벤트는 CommentController에서 처리함
 
-        if (commentInput) {
-            commentInput.addEventListener('input', () => {
-                PostDetailView.updateCommentButtonState(
-                    commentInput.value,
-                    commentSubmitBtn,
-                    !!this.editingCommentId
-                );
-            });
-        }
-
-        if (commentSubmitBtn) {
-            commentSubmitBtn.addEventListener('click', () => this._submitComment());
-        }
-
-        // 모달 설정
-        ModalView.setupDeleteModal({
-            modalId: 'confirm-modal',
-            cancelBtnId: 'modal-cancel-btn',
-            confirmBtnId: 'modal-confirm-btn',
-            onConfirm: () => this._executeDelete()
-        });
+        // 게시글 삭제 모달 설정
+        // 주의: 댓글 삭제 모달은 CommentController에서 별도로 설정함
+        // 여기서는 'confirm-modal' ID를 공유하더라도 콜백이 덮어씌워지는 구조임.
+        // 따라서 모달을 열 때마다 콜백을 재설정하는 것이 안전함.
+        // _openDeleteModal 에서 설정하도록 변경.
     }
 
     /**
@@ -224,101 +205,47 @@ class DetailController {
     }
 
     /**
-     * 삭제 모달 열기
+     * 게시글 삭제 모달 열기
      * @private
      */
-    _openDeleteModal(type, id) {
-        this.deleteTarget = { type, id };
-        const title = type === 'post' ? '게시글을 삭제하시겠습니까?' : '댓글을 삭제하시겠습니까?';
-        ModalView.openConfirmModal('confirm-modal', title);
+    _openDeleteModal() {
+        this.deleteTargetId = this.currentPostId;
+        
+        // 모달 콜백 설정 (게시글 삭제용)
+        ModalView.setupDeleteModal({
+            modalId: 'confirm-modal',
+            cancelBtnId: 'modal-cancel-btn',
+            confirmBtnId: 'modal-confirm-btn',
+            onConfirm: () => this._executeDelete()
+        });
+
+        ModalView.openConfirmModal('confirm-modal', '게시글을 삭제하시겠습니까?');
     }
 
     /**
-     * 삭제 실행
+     * 게시글 삭제 실행
      * @private
      */
     async _executeDelete() {
-        if (!this.deleteTarget.id) return;
+        if (!this.deleteTargetId) return;
 
-        if (this.deleteTarget.type === 'post') {
-            try {
-                const result = await PostModel.deletePost(this.deleteTarget.id);
-                if (result.ok) {
-                    PostDetailView.showToast(UI_MESSAGES.POST_DELETE_SUCCESS);
-                    setTimeout(() => {
-                        location.href = NAV_PATHS.MAIN;
-                    }, 1000);
-                } else {
-                    PostDetailView.showToast(UI_MESSAGES.DELETE_FAIL);
-                }
-            } catch (e) {
-                logger.error('게시글 삭제 실패', e);
-                PostDetailView.showToast(UI_MESSAGES.UNKNOWN_ERROR);
+        try {
+            const result = await PostModel.deletePost(this.deleteTargetId);
+            if (result.ok) {
+                PostDetailView.showToast(UI_MESSAGES.POST_DELETE_SUCCESS);
+                setTimeout(() => {
+                    location.href = NAV_PATHS.MAIN;
+                }, 1000);
+            } else {
+                PostDetailView.showToast(UI_MESSAGES.DELETE_FAIL);
             }
-        } else if (this.deleteTarget.type === 'comment') {
-            try {
-                const result = await CommentModel.deleteComment(this.currentPostId, this.deleteTarget.id);
-                if (result.ok) {
-                    await this._loadPostDetail();
-                } else {
-                    PostDetailView.showToast(UI_MESSAGES.DELETE_FAIL);
-                }
-            } catch (e) {
-                logger.error('댓글 삭제 실패', e);
-                PostDetailView.showToast(UI_MESSAGES.UNKNOWN_ERROR);
-            }
+        } catch (e) {
+            logger.error('게시글 삭제 실패', e);
+            PostDetailView.showToast(UI_MESSAGES.UNKNOWN_ERROR);
         }
 
         ModalView.closeModal('confirm-modal');
-        this.deleteTarget = { type: null, id: null };
-    }
-
-    /**
-     * 댓글 수정 시작
-     * @private
-     */
-    _startEditComment(comment) {
-        const commentInput = document.getElementById('comment-input');
-        const commentSubmitBtn = document.getElementById('comment-submit-btn');
-
-        if (commentInput) {
-            commentInput.value = comment.content;
-            commentInput.focus();
-        }
-
-        this.editingCommentId = comment.comment_id;
-        PostDetailView.updateCommentButtonState(comment.content, commentSubmitBtn, true);
-    }
-
-    /**
-     * 댓글 제출
-     * @private
-     */
-    async _submitComment() {
-        const input = document.getElementById('comment-input');
-        const content = input.value.trim();
-        if (!content) return;
-
-        try {
-            let result;
-
-            if (this.editingCommentId) {
-                result = await CommentModel.updateComment(this.currentPostId, this.editingCommentId, content);
-            } else {
-                result = await CommentModel.createComment(this.currentPostId, content);
-            }
-
-            if (result.ok) {
-                PostDetailView.resetCommentInput();
-                this.editingCommentId = null;
-                await this._loadPostDetail();
-            } else {
-                PostDetailView.showToast(this.editingCommentId ? UI_MESSAGES.COMMENT_UPDATE_FAIL : UI_MESSAGES.COMMENT_CREATE_FAIL);
-            }
-        } catch (e) {
-            logger.error('댓글 제출 실패', e);
-            PostDetailView.showToast(UI_MESSAGES.UNKNOWN_ERROR);
-        }
+        this.deleteTargetId = null;
     }
 }
 
