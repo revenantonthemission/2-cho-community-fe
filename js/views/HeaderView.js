@@ -80,27 +80,38 @@ class HeaderView {
             dropdown.classList.toggle('hidden');
         });
 
-        // 외부 클릭 시 닫기
-        document.addEventListener('click', (e) => {
-            if (!profileBtn.contains(e.target) && !dropdown.contains(e.target)) {
+        // 외부 클릭 시 닫기 (기존 리스너 제거 후 재등록)
+        if (HeaderView._documentClickListener) {
+            document.removeEventListener('click', HeaderView._documentClickListener);
+        }
+
+        HeaderView._documentClickListener = (e) => {
+            if (profileBtn && !profileBtn.contains(e.target) && dropdown && !dropdown.contains(e.target)) {
                 dropdown.classList.add('hidden');
             }
-        });
+        };
+        document.addEventListener('click', HeaderView._documentClickListener);
 
-        // 메뉴 액션
-        const editInfoBtn = document.getElementById('menu-edit-info');
-        const changePwBtn = document.getElementById('menu-change-pw');
-        const logoutBtn = document.getElementById('menu-logout');
+        // 메뉴 액션 (드롭다운이 새로 생성되었을 때만 바인딩됨)
+        // 주의: 드롭다운이 기존에 존재했다면 이 부분이 중복 바인딩 될 수 있음.
+        // 하지만 createDropdown에서 dropdown이 없으면 생성하고, 있으면 재사용함.
+        // dropdown이 재사용될 때 핸들러가 바뀌었다면?
+        // 안전하게 cloneNode로 리스너 초기화 혹은 핸들러 업데이트 방식이 필요하나,
+        // 현재 구조상 dropdown이 DOM에서 제거되었다가 다시 생성되는 구조일 가능성이 높으므로 일단 단순화.
+        
+        const bindMenuBtn = (id, handler) => {
+            const btn = document.getElementById(id);
+            if (btn && handler) {
+                // 기존 리스너 제거를 위해 cloneNode 사용
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                newBtn.addEventListener('click', handler);
+            }
+        };
 
-        if (editInfoBtn && handlers.onEditInfo) {
-            editInfoBtn.addEventListener('click', handlers.onEditInfo);
-        }
-        if (changePwBtn && handlers.onChangePassword) {
-            changePwBtn.addEventListener('click', handlers.onChangePassword);
-        }
-        if (logoutBtn && handlers.onLogout) {
-            logoutBtn.addEventListener('click', handlers.onLogout);
-        }
+        bindMenuBtn('menu-edit-info', handlers.onEditInfo);
+        bindMenuBtn('menu-change-pw', handlers.onChangePassword);
+        bindMenuBtn('menu-logout', handlers.onLogout);
     }
 
     /**
