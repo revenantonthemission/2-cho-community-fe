@@ -1,7 +1,7 @@
 // js/views/CommentListView.js
 // 댓글 목록 렌더링 관련 로직
 
-import { formatDate, escapeHtml } from '../utils/formatters.js';
+import { formatDate, escapeHtml, escapeCssUrl } from '../utils/formatters.js';
 import { getImageUrl } from './helpers.js';
 
 /**
@@ -24,9 +24,10 @@ class CommentListView {
         const isOwner = currentUserId && currentUserId === comment.author.user_id;
         const safeContent = escapeHtml(comment.content);
         const safeNickname = escapeHtml(comment.author.nickname);
+        const safeProfileImg = escapeCssUrl(getImageUrl(comment.author.profileImageUrl));
 
         li.innerHTML = `
-            <div class="comment-author-img" style="background-image: url('${getImageUrl(comment.author.profileImageUrl)}'); background-size: cover;"></div>
+            <div class="comment-author-img" style="background-image: url('${safeProfileImg}'); background-size: cover;"></div>
             <div class="comment-content-wrapper">
                 <div class="comment-header">
                     <span class="comment-author-name">${safeNickname}</span>
