@@ -1,7 +1,7 @@
 // js/views/EditView.js
 // 게시글 수정 페이지 View - DOM 조작 담당
 
-import { showToast } from './helpers.js';
+import { showToast, updateButtonState as updateBtnState } from './helpers.js';
 
 /**
  * 게시글 수정 페이지 View 클래스
@@ -117,15 +117,7 @@ class EditView {
      * @param {boolean} isValid - 유효 여부
      */
     updateButtonState(isValid) {
-        if (!this.submitBtn) return;
-
-        if (isValid) {
-            this.submitBtn.disabled = false;
-            this.submitBtn.classList.add('active');
-        } else {
-            this.submitBtn.disabled = true;
-            this.submitBtn.classList.remove('active');
-        }
+        updateBtnState(this.submitBtn, isValid);
     }
 
     /**

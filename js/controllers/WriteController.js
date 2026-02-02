@@ -3,6 +3,7 @@
 
 import PostModel from '../models/PostModel.js';
 import WriteView from '../views/WriteView.js';
+import { extractUploadedImageUrl, readFileAsDataURL } from '../views/helpers.js';
 import Logger from '../utils/Logger.js';
 
 const logger = Logger.createLogger('WriteController');
@@ -74,11 +75,9 @@ class WriteController {
         if (file) {
             this.selectedFile = file;
             this.view.setFileName(file.name);
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.view.showImagePreview(e.target.result);
-            };
-            reader.readAsDataURL(file);
+            readFileAsDataURL(file, (dataUrl) => {
+                this.view.showImagePreview(dataUrl);
+            });
         } else {
             this.selectedFile = null;
             this.view.setFileName('파일을 선택해주세요.');
@@ -118,11 +117,9 @@ class WriteController {
             // 이미지 업로드
             if (this.selectedFile) {
                 const uploadResult = await PostModel.uploadImage(this.selectedFile);
+                imageUrl = extractUploadedImageUrl(uploadResult);
 
-                if (uploadResult.ok) {
-                    const data = uploadResult.data?.data;
-                    imageUrl = (data && typeof data === 'object' && data.url) ? data.url : data;
-                } else {
+                if (!imageUrl && this.selectedFile) {
                     this.view.showToast('이미지 업로드 실패');
                     return;
                 }

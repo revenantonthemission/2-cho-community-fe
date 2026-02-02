@@ -55,3 +55,61 @@ export function showToast(message, toastId = 'toast', duration = 3000) {
         }, duration);
     }
 }
+
+/**
+ * 업로드 응답에서 이미지 URL 추출
+ * 백엔드 응답 구조가 다양할 수 있어 여러 케이스 처리
+ * @param {object} uploadResult - API 응답 객체
+ * @returns {string|null} - 추출된 URL 또는 null
+ */
+export function extractUploadedImageUrl(uploadResult) {
+    if (!uploadResult?.ok) return null;
+
+    const data = uploadResult.data?.data;
+    if (!data) return null;
+
+    // data가 객체이고 url 프로퍼티가 있는 경우
+    if (typeof data === 'object' && data.url) {
+        return data.url;
+    }
+    // data가 문자열인 경우 (URL 자체)
+    if (typeof data === 'string') {
+        return data;
+    }
+    return null;
+}
+
+/**
+ * 파일을 DataURL로 읽어서 콜백 호출 (이미지 미리보기용)
+ * @param {File} file - 파일 객체
+ * @param {Function} onLoad - 로드 완료 시 콜백 (dataUrl을 인자로 받음)
+ * @param {Function} [onError] - 에러 발생 시 콜백
+ */
+export function readFileAsDataURL(file, onLoad, onError) {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => onLoad(e.target.result);
+    reader.onerror = (e) => onError?.(e);
+    reader.readAsDataURL(file);
+}
+
+/**
+ * 버튼 상태 업데이트 (활성/비활성)
+ * @param {HTMLButtonElement} button - 버튼 요소
+ * @param {boolean} isValid - 유효 여부
+ * @param {string} [activeColor='#7F6AEE'] - 활성 색상
+ * @param {string} [inactiveColor='#ACA0EB'] - 비활성 색상
+ */
+export function updateButtonState(button, isValid, activeColor = '#7F6AEE', inactiveColor = '#ACA0EB') {
+    if (!button) return;
+
+    button.disabled = !isValid;
+    button.style.backgroundColor = isValid ? activeColor : inactiveColor;
+
+    if (isValid) {
+        button.classList.add('active');
+    } else {
+        button.classList.remove('active');
+    }
+}

@@ -109,17 +109,22 @@ class Validators {
      * @returns {{valid: boolean, message: string|null}}
      */
     static validateNickname(value) {
+        if (!value) {
+            return { valid: false, message: VALIDATION_MESSAGES.nickname.required };
+        }
+
         const trimmed = value.trim();
 
         if (!trimmed) {
             return { valid: false, message: VALIDATION_MESSAGES.nickname.required };
         }
 
-        if (value.includes(' ')) {
+        // 원본 값에 공백이 있는지 체크 (앞뒤 공백 포함)
+        if (trimmed !== value || trimmed.includes(' ')) {
             return { valid: false, message: VALIDATION_MESSAGES.nickname.hasSpace };
         }
 
-        if (value.length > 10) {
+        if (trimmed.length > 10) {
             return { valid: false, message: VALIDATION_MESSAGES.nickname.tooLong };
         }
 

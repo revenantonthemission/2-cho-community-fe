@@ -1,7 +1,7 @@
 // js/views/WriteView.js
 // 게시글 작성 페이지 View - DOM 조작 담당
 
-import { showToast } from './helpers.js';
+import { showToast, updateButtonState as updateBtnState } from './helpers.js';
 
 /**
  * 게시글 작성 페이지 View 클래스
@@ -105,15 +105,7 @@ class WriteView {
      * @param {boolean} isValid - 유효 여부
      */
     updateButtonState(isValid) {
-        if (!this.submitBtn) return;
-
-        if (isValid) {
-            this.submitBtn.disabled = false;
-            this.submitBtn.classList.add('active');
-        } else {
-            this.submitBtn.disabled = true;
-            this.submitBtn.classList.remove('active');
-        }
+        updateBtnState(this.submitBtn, isValid);
     }
 
     /**

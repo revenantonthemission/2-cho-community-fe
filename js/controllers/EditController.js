@@ -3,6 +3,7 @@
 
 import PostModel from '../models/PostModel.js';
 import EditView from '../views/EditView.js';
+import { extractUploadedImageUrl, readFileAsDataURL } from '../views/helpers.js';
 import Logger from '../utils/Logger.js';
 
 const logger = Logger.createLogger('EditController');
@@ -132,11 +133,9 @@ class EditController {
         if (file) {
             this.currentData.image_file = file;
             this.view.setFileName(file.name);
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.view.showImagePreview(e.target.result);
-            };
-            reader.readAsDataURL(file);
+            readFileAsDataURL(file, (dataUrl) => {
+                this.view.showImagePreview(dataUrl);
+            });
         }
         this._checkChanges();
     }
@@ -175,11 +174,9 @@ class EditController {
 
             if (this.currentData.image_file) {
                 const uploadResult = await PostModel.uploadImage(this.currentData.image_file);
+                newImageUrl = extractUploadedImageUrl(uploadResult);
 
-                if (uploadResult.ok) {
-                    const data = uploadResult.data?.data;
-                    newImageUrl = (data && typeof data === 'object' && data.url) ? data.url : data;
-                } else {
+                if (!newImageUrl) {
                     this.view.showToast('이미지 업로드 실패');
                     return;
                 }

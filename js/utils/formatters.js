@@ -7,6 +7,9 @@
  * @returns {string} - 포맷팅된 날짜 문자열
  */
 export function formatDate(date) {
+    if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+        return '';
+    }
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     const dd = String(date.getDate()).padStart(2, '0');
