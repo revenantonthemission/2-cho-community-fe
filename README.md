@@ -286,6 +286,14 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 
 ## changelog
 
+- 2026-02-04 (4차) - 컴포넌트 개선
+  - 에러 바운더리 및 재시도 로직 도입 (`js/utils/ErrorBoundary.js`)
+    - 지수 백오프(Exponential Backoff) 기반 재시도
+    - 네트워크 에러 및 5xx/429 에러 자동 복구
+  - `ApiService` 안정성 강화
+    - GET 요청에 대해 자동 재시도 적용 (최대 2회)
+    - 에러/로딩 UI 스타일 추가 (`css/modules/animations.css`)
+
 - 2026-02-04 (3차) - UX 개선
   - 애니메이션 모듈 추가 (`css/modules/animations.css`)
     - 페이지 전환 fade 효과 (body fadeIn)
