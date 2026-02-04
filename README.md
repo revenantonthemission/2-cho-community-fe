@@ -38,24 +38,24 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                         Client (Browser)                        │
-│                    Vanilla JS SPA (Port 8080)                   │
+│                    Vanilla JS MPA (Port 8080)                   │
 └─────────────────────────────────┬───────────────────────────────┘
                                   │ HTTP (JSON/FormData)
                                   │ credentials: include (Cookie)
                                   ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      FastAPI Backend (Port 8000)                │
-│  ┌──────────┐  ┌────────────┐  ┌──────────┐  ┌──────────────┐  │
-│  │ Routers  │→ │Controllers │→ │  Models  │→ │ aiomysql Pool│  │
-│  └──────────┘  └────────────┘  └──────────┘  └──────────────┘  │
-│                                                                 │
-│  Middleware: CORS → Session → Logging → Timing                  │
-└─────────────────────────────────┬───────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      FastAPI Backend (Port 8000)                             │
+│  ┌──────────┐  ┌────────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐  │
+│  │ Routers  │→ │Controllers │→ │ Services │→ │  Models  │→ │ aiomysql Pool│  │
+│  └──────────┘  └────────────┘  └──────────┘  └──────────┘  └──────────────┘  │
+│                                                                              │
+│  Middleware: CORS → Session → Logging → Timing                               │
+└─────────────────────────────────┬────────────────────────────────────────────┘
                                   │ Async Connection Pool
                                   ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                        MySQL Database                           │
-│   Tables: user, user_session, post, comment, post_like      │
+│   Tables: user, user_session, post, comment, post_like          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -130,8 +130,10 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 |--------|----------|------|------|
 | POST | `/v1/users` | 회원가입 | X |
 | GET | `/v1/users/{user_id}` | 사용자 프로필 조회 | X |
-| PATCH | `/v1/users/{user_id}` | 프로필 수정 | O |
-| DELETE | `/v1/users/{user_id}` | 회원 탈퇴 | O |
+| PATCH | `/v1/users/me` | 프로필 수정 (본인) | O |
+| DELETE | `/v1/users/me` | 회원 탈퇴 (본인) | O |
+| PUT | `/v1/users/me/password` | 비밀번호 변경 | O |
+| POST | `/v1/users/profile/image` | 프로필 이미지 업로드 | O |
 
 #### 게시글 API (`/v1/posts`)
 
@@ -147,6 +149,7 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 | POST | `/v1/posts/{post_id}/comments` | 댓글 작성 | O |
 | PUT | `/v1/posts/{post_id}/comments/{comment_id}` | 댓글 수정 | O (작성자) |
 | DELETE | `/v1/posts/{post_id}/comments/{comment_id}` | 댓글 삭제 | O (작성자) |
+| POST | `/v1/posts/image` | 게시글 이미지 업로드 | O |
 
 #### 응답 형식
 
@@ -249,17 +252,21 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 - **IntersectionObserver**: 무한 스크롤 구현
 - **Custom Event**: `auth:session-expired` 이벤트로 401 처리
 - **XSS 방지**: `escapeHtml()` 유틸리티로 사용자 입력 이스케이프
+- **성능 최적화**: 
+  - **Lazy Loading**: `loading="lazy"` 속성으로 이미지 로딩 지연
+  - **Debounce**: 입력 이벤트(회원가입 등) 제어로 불필요한 연산 방지
+- **에러 처리**: `ErrorBoundary`를 통한 재시도 로직 및 에러 복구 전략
 
 ### 6. 보안 고려사항
 
 | 항목 | 구현 방식 |
 |------|-----------|
-| 비밀번호 해싱 | bcrypt (cost factor 기본값) |
+| 비밀번호 해싱 | `bcrypt` (cost factor 12) |
 | 세션 관리 | HTTP-Only Cookie, 24시간 만료 |
-| CORS | 허용 출처 명시적 설정 (localhost:8080) |
-| SQL Injection | Parameterized queries (aiomysql) |
-| XSS | 프론트엔드에서 escapeHtml() 적용 |
-| Timing Attack | 로그인 시 존재하지 않는 사용자도 bcrypt 검증 수행 |
+| CORS | 허용 출처 명시적 설정 (`localhost:8080`) |
+| SQL Injection | Parameterized queries (`aiomysql`) |
+| XSS | 프론트엔드에서 `escapeHtml()` 적용 |
+| Timing Attack | 로그인 시 존재하지 않는 사용자도 `bcrypt` 검증 수행 |
 
 ### 7. 비밀번호 정책
 
@@ -304,13 +311,13 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 - 2026-02-04 (3차) - UX 개선
   - 애니메이션 모듈 추가 (`css/modules/animations.css`)
     - 페이지 전환 fade 효과 (body fadeIn)
-    - 로딩 스켈레톤 스타일 (.skeleton, .skeleton-post, .skeleton-avatar)
-    - 버튼 hover/active 애니메이션 (translateY, box-shadow)
-    - 스피너 컴포넌트 (.spinner, .btn-loading)
-    - 입력 필드 포커스 효과 (border-color, box-shadow)
-    - 좋아요 버튼 heartPop 애니메이션
-    - 토스트 slideUp 애니메이션
-    - 모달 scale 전환 효과
+    - 로딩 스켈레톤 스타일 (`.skeleton`, `.skeleton-post`, `.skeleton-avatar`)
+    - 버튼 hover/active 애니메이션 (`translateY`, `box-shadow`)
+    - 스피너 컴포넌트 (`.spinner`, .`btn-loading`)
+    - 입력 필드 포커스 효과 (`border-color`, `box-shadow`)
+    - 좋아요 버튼 `heartPop` 애니메이션
+    - 토스트 `slideUp` 애니메이션
+    - 모달 `scale` 전환 효과
 
 - 2026-02-04 (2차)
   - 코드 리팩토링
