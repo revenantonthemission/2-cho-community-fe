@@ -62,8 +62,12 @@ class DetailController {
     }
 
     /**
-     * 게시글 상세 로드
+     * 게시글 상세 정보를 로드하고 화면에 렌더링합니다.
+     * 댓글 데이터도 함께 처리하며, 현재 사용자가 작성자인지 확인하여 
+     * 수정/삭제 버튼의 노출 여부를 결정합니다.
+     * 
      * @private
+     * @returns {Promise<void>}
      */
     async _loadPostDetail() {
         try {
@@ -183,8 +187,14 @@ class DetailController {
     }
 
     /**
-     * 좋아요 처리
+     * 좋아요 토글 처리를 수행합니다.
+     * 
+     * 낙관적 UI 업데이트(Optimistic UI Update)를 적용하여
+     * API 응답을 기다리지 않고 즉시 UI를 변경한 후,
+     * 실패 시 원래 상태로 롤백합니다.
+     * 
      * @private
+     * @returns {Promise<void>}
      */
     async _handleLike() {
         if (this.isLiking) return;

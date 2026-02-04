@@ -73,8 +73,14 @@ class MainController {
     }
 
     /**
-     * 게시글 목록 로드
+     * 게시글 목록을 API로부터 로드하고 화면에 렌더링합니다.
+     * 
+     * 중복 게시글 처리 전략:
+     * 무한 스크롤 도중 새로운 게시글이 작성되면 오프셋이 밀려 이미 로드된 게시글이 중복되어 내려올 수 있습니다.
+     * 이를 방지하기 위해 `this.loadedPostIds` Set을 사용하여 이미 화면에 표시된 게시글은 제외(필터링)합니다.
+     * 
      * @private
+     * @returns {Promise<void>}
      */
     async _loadPosts() {
         if (this.isLoading || !this.hasMore) return;

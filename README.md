@@ -241,7 +241,7 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 
 - **Model**: API 호출 담당. `AuthModel`, `PostModel`, `UserModel`, `CommentModel`
 - **View**: DOM 렌더링. 정적 메서드로 HTML 생성 및 이벤트 바인딩
-- **Controller**: 비즈니스 로직. Model과 View 조정, 상태 관리
+- **Controller**: 비즈니스 로직. Model과 View 조정, 상태 관리 (`MainController`, `DetailController`, `WriteController` 등)
 
 #### 주요 패턴
 
