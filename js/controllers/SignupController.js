@@ -5,6 +5,9 @@ import UserModel from '../models/UserModel.js';
 import SignupView from '../views/SignupView.js';
 import FormValidator from '../views/FormValidator.js';
 import Logger from '../utils/Logger.js';
+import { showToastAndRedirect } from '../views/helpers.js';
+import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
+import { debounce } from '../utils/debounce.js';
 
 const logger = Logger.createLogger('SignupController');
 
@@ -43,10 +46,10 @@ class SignupController {
     _setupEventListeners() {
         this.view.bindEvents({
             onProfileChange: (e) => this._handleProfileChange(e),
-            onEmailInput: () => this._handleEmailInput(),
+            onEmailInput: debounce(() => this._handleEmailInput(), 300),
             onPasswordInput: () => this._handlePasswordInput(),
             onPasswordConfirmInput: () => this._handlePasswordConfirmInput(),
-            onNicknameInput: () => this._handleNicknameInput(),
+            onNicknameInput: debounce(() => this._handleNicknameInput(), 300),
             onSubmit: (e) => this._handleSubmit(e)
         });
     }
@@ -215,10 +218,7 @@ class SignupController {
             const result = await UserModel.signup(formData);
 
             if (result.ok) {
-                this.view.showToast('회원가입이 완료되었습니다!');
-                setTimeout(() => {
-                    window.location.href = '/login';
-                }, 1500); // 토스트 보일 시간 확보
+                showToastAndRedirect(UI_MESSAGES.SIGNUP_SUCCESS, NAV_PATHS.LOGIN, 1500);
             } else {
                 const errorData = result.data;
 
@@ -236,7 +236,7 @@ class SignupController {
             }
         } catch (error) {
             logger.error('회원가입 실패', error);
-            this.view.showToast('서버 통신 중 오류가 발생했습니다.');
+            this.view.showToast(UI_MESSAGES.SERVER_ERROR);
         }
     }
 }

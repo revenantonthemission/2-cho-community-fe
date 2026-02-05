@@ -38,24 +38,24 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                         Client (Browser)                        │
-│                    Vanilla JS SPA (Port 8080)                   │
+│                    Vanilla JS MPA (Port 8080)                   │
 └─────────────────────────────────┬───────────────────────────────┘
                                   │ HTTP (JSON/FormData)
                                   │ credentials: include (Cookie)
                                   ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      FastAPI Backend (Port 8000)                │
-│  ┌──────────┐  ┌────────────┐  ┌──────────┐  ┌──────────────┐  │
-│  │ Routers  │→ │Controllers │→ │  Models  │→ │ aiomysql Pool│  │
-│  └──────────┘  └────────────┘  └──────────┘  └──────────────┘  │
-│                                                                 │
-│  Middleware: CORS → Session → Logging → Timing                  │
-└─────────────────────────────────┬───────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      FastAPI Backend (Port 8000)                             │
+│  ┌──────────┐  ┌────────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐  │
+│  │ Routers  │→ │Controllers │→ │ Services │→ │  Models  │→ │ aiomysql Pool│  │
+│  └──────────┘  └────────────┘  └──────────┘  └──────────┘  └──────────────┘  │
+│                                                                              │
+│  Middleware: CORS → Session → Logging → Timing                               │
+└─────────────────────────────────┬────────────────────────────────────────────┘
                                   │ Async Connection Pool
                                   ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                        MySQL Database                           │
-│   Tables: user, user_session, post, comment, post_like, image   │
+│   Tables: user, user_session, post, comment, post_like          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -130,8 +130,10 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 |--------|----------|------|------|
 | POST | `/v1/users` | 회원가입 | X |
 | GET | `/v1/users/{user_id}` | 사용자 프로필 조회 | X |
-| PATCH | `/v1/users/{user_id}` | 프로필 수정 | O |
-| DELETE | `/v1/users/{user_id}` | 회원 탈퇴 | O |
+| PATCH | `/v1/users/me` | 프로필 수정 (본인) | O |
+| DELETE | `/v1/users/me` | 회원 탈퇴 (본인) | O |
+| PUT | `/v1/users/me/password` | 비밀번호 변경 | O |
+| POST | `/v1/users/profile/image` | 프로필 이미지 업로드 | O |
 
 #### 게시글 API (`/v1/posts`)
 
@@ -147,6 +149,7 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 | POST | `/v1/posts/{post_id}/comments` | 댓글 작성 | O |
 | PUT | `/v1/posts/{post_id}/comments/{comment_id}` | 댓글 수정 | O (작성자) |
 | DELETE | `/v1/posts/{post_id}/comments/{comment_id}` | 댓글 삭제 | O (작성자) |
+| POST | `/v1/posts/image` | 게시글 이미지 업로드 | O |
 
 #### 응답 형식
 
@@ -241,7 +244,7 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 
 - **Model**: API 호출 담당. `AuthModel`, `PostModel`, `UserModel`, `CommentModel`
 - **View**: DOM 렌더링. 정적 메서드로 HTML 생성 및 이벤트 바인딩
-- **Controller**: 비즈니스 로직. Model과 View 조정, 상태 관리
+- **Controller**: 비즈니스 로직. Model과 View 조정, 상태 관리 (`MainController`, `DetailController`, `WriteController` 등)
 
 #### 주요 패턴
 
@@ -249,17 +252,21 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 - **IntersectionObserver**: 무한 스크롤 구현
 - **Custom Event**: `auth:session-expired` 이벤트로 401 처리
 - **XSS 방지**: `escapeHtml()` 유틸리티로 사용자 입력 이스케이프
+- **성능 최적화**: 
+  - **Lazy Loading**: `loading="lazy"` 속성으로 이미지 로딩 지연
+  - **Debounce**: 입력 이벤트(회원가입 등) 제어로 불필요한 연산 방지
+- **에러 처리**: `ErrorBoundary`를 통한 재시도 로직 및 에러 복구 전략
 
 ### 6. 보안 고려사항
 
 | 항목 | 구현 방식 |
 |------|-----------|
-| 비밀번호 해싱 | bcrypt (cost factor 기본값) |
+| 비밀번호 해싱 | `bcrypt` (cost factor 12) |
 | 세션 관리 | HTTP-Only Cookie, 24시간 만료 |
-| CORS | 허용 출처 명시적 설정 (localhost:8080) |
-| SQL Injection | Parameterized queries (aiomysql) |
-| XSS | 프론트엔드에서 escapeHtml() 적용 |
-| Timing Attack | 로그인 시 존재하지 않는 사용자도 bcrypt 검증 수행 |
+| CORS | 허용 출처 명시적 설정 (`localhost:8080`) |
+| SQL Injection | Parameterized queries (`aiomysql`) |
+| XSS | 프론트엔드에서 `escapeHtml()` 적용 |
+| Timing Attack | 로그인 시 존재하지 않는 사용자도 `bcrypt` 검증 수행 |
 
 ### 7. 비밀번호 정책
 
@@ -286,6 +293,52 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 
 ## changelog
 
+- 2026-02-04 (5차) - 성능 최적화
+  - 이미지 Lazy Loading 적용
+    - 게시글 상세 이미지에 `loading="lazy"` 속성 추가 (`PostDetailView.js`)
+  - 이벤트 성능 최적화
+    - `debounce` 유틸리티 추가 (`js/utils/debounce.js`)
+    - 회원가입 입력(닉네임, 이메일) 유효성 검사에 300ms 디바운스 적용
+
+- 2026-02-04 (4차) - 컴포넌트 개선
+  - 에러 바운더리 및 재시도 로직 도입 (`js/utils/ErrorBoundary.js`)
+    - 지수 백오프(Exponential Backoff) 기반 재시도
+    - 네트워크 에러 및 5xx/429 에러 자동 복구
+  - `ApiService` 안정성 강화
+    - GET 요청에 대해 자동 재시도 적용 (최대 2회)
+    - 에러/로딩 UI 스타일 추가 (`css/modules/animations.css`)
+
+- 2026-02-04 (3차) - UX 개선
+  - 애니메이션 모듈 추가 (`css/modules/animations.css`)
+    - 페이지 전환 fade 효과 (body fadeIn)
+    - 로딩 스켈레톤 스타일 (`.skeleton`, `.skeleton-post`, `.skeleton-avatar`)
+    - 버튼 hover/active 애니메이션 (`translateY`, `box-shadow`)
+    - 스피너 컴포넌트 (`.spinner`, .`btn-loading`)
+    - 입력 필드 포커스 효과 (`border-color`, `box-shadow`)
+    - 좋아요 버튼 `heartPop` 애니메이션
+    - 토스트 `slideUp` 애니메이션
+    - 모달 `scale` 전환 효과
+
+- 2026-02-04 (2차)
+  - 코드 리팩토링
+    - `SignupView.js`의 반복적인 에러 표시/숨기기 메서드를 `showFieldError`/`hideFieldError`로 통합
+    - `WriteController`, `EditController`, `DetailController`의 중복된 리다이렉트 로직을 `showToastAndRedirect` 헬퍼로 통합
+    - 하드코딩된 내비게이션 경로를 `NAV_PATHS` 상수로 통일 (`js/constants.js`)
+    - UI 메시지를 `UI_MESSAGES` 상수로 통합하고 `IMAGE_UPLOAD_FAIL`, `POST_CREATE_SUCCESS` 등 누락된 메시지 추가
+    - 이미지 업로드 결과 처리 로직(`extractUploadedImageUrl`)을 `helpers.js`로 캡슐화
+    - `SignupController.js` 리팩토링: `showToastAndRedirect`, `NAV_PATHS` 적용 및 코드 중복 제거
+
+- 2026-02-04 (1차)
+  - 보안 일관성 개선
+    - `PostListView`, `HeaderView`, `CommentListView`에 `escapeCssUrl` 적용
+    - `PostFormView`, `HeaderView`의 `innerHTML` 사용을 `createElement`/`textContent`로 교체
+    - `CommentListView`, `HeaderController`의 `innerHTML = ''`을 `textContent = ''`로 교체
+  - 프론트엔드 코드 품질 개선
+    - `MainController.js` 불필요한 빈 줄 정리 (357줄 → 141줄) 및 미사용 import 제거
+    - `DetailController`의 불필요한 응답 fallback 코드 제거
+  - 성능 개선
+    - 댓글 변경 시 전체 게시글 리로드 대신 댓글 목록만 부분 업데이트 (`_reloadComments`)
+
 - 2026-02-02
   - XSS 공격 방어를 위한 이스케이프 함수 추가
   - 좋아요 에러 핸들링 및 롤백
@@ -302,6 +355,7 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
   - AI 에이전트 도입
   - 인피니티 스크롤 로직 개선
   - CSS 로딩 최적화
+
 - 2026-01-30
   - 401 에러 발생 시 로그인 페이지로 리다이렉션
   - UI 개선

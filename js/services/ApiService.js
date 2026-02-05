@@ -3,6 +3,7 @@
 
 import { API_BASE_URL } from '../config.js';
 import Logger from '../utils/Logger.js';
+import ErrorBoundary from '../utils/ErrorBoundary.js';
 
 const logger = Logger.createLogger('ApiService');
 
@@ -11,19 +12,37 @@ const logger = Logger.createLogger('ApiService');
  */
 class ApiService {
     /**
-     * GET 요청
+     * GET 요청 (자동 재시도 적용)
      * @param {string} endpoint - API 엔드포인트 (예: '/v1/users/me')
      * @returns {Promise<any>} - 응답 데이터
      */
     static async get(endpoint) {
         logger.debug(`GET 요청: ${endpoint}`);
+
         try {
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include'
+            // ErrorBoundary.withRetry를 사용하여 네트워크 에러/5xx/429 시 재시도
+            return await ErrorBoundary.withRetry(async () => {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include'
+                });
+
+                // 5xx 서버 에러나 429 Too Many Requests는 재시도 대상
+                if (response.status >= 500 || response.status === 429) {
+                    const error = new Error(`Request failed with status ${response.status}`);
+                    error.status = response.status;
+                    throw error;
+                }
+
+                return ApiService._handleResponse(response, 'GET', endpoint);
+            }, {
+                maxRetries: 2, // GET은 안전하므로 2번 재시도
+                delay: 500,
+                onRetry: (attempt, max, error) => {
+                    logger.warn(`GET ${endpoint} 재시도 ${attempt}/${max}: ${error.message}`);
+                }
             });
-            return ApiService._handleResponse(response, 'GET', endpoint);
         } catch (error) {
             return ApiService._handleNetworkError(error, 'GET', endpoint);
         }

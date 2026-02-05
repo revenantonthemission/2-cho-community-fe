@@ -8,6 +8,7 @@ import ModalView from '../views/ModalView.js';
 import CommentController from './CommentController.js';
 import Logger from '../utils/Logger.js';
 import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
+import { showToastAndRedirect } from '../views/helpers.js';
 
 const logger = Logger.createLogger('DetailController');
 
@@ -31,10 +32,7 @@ class DetailController {
         const postId = urlParams.get('id');
 
         if (!postId) {
-            PostDetailView.showToast(UI_MESSAGES.INVALID_ACCESS);
-            setTimeout(() => {
-                location.href = NAV_PATHS.MAIN;
-            }, 1000);
+            showToastAndRedirect(UI_MESSAGES.INVALID_ACCESS, NAV_PATHS.MAIN);
             return;
         }
 
@@ -64,8 +62,12 @@ class DetailController {
     }
 
     /**
-     * 게시글 상세 로드
+     * 게시글 상세 정보를 로드하고 화면에 렌더링합니다.
+     * 댓글 데이터도 함께 처리하며, 현재 사용자가 작성자인지 확인하여 
+     * 수정/삭제 버튼의 노출 여부를 결정합니다.
+     * 
      * @private
+     * @returns {Promise<void>}
      */
     async _loadPostDetail() {
         try {
@@ -76,19 +78,17 @@ class DetailController {
             }
 
             const data = result.data?.data;
-            const post = data?.post || result.data?.data;
+            const post = data?.post;
 
             if (!post) {
                 throw new Error(UI_MESSAGES.POST_NOT_FOUND);
             }
 
             // 댓글 별도 추출 (백엔드 응답 구조: data: { post: {...}, comments: [...] })
-            const comments = data?.comments || post.comments || [];
+            const comments = data?.comments || [];
 
-            // 댓글 수 동기화 (post.comments_count가 0이어도 실제 댓글이 있으면 업데이트)
-            if (comments.length > 0) {
-                post.comments_count = comments.length;
-            }
+            // 댓글 수 동기화
+            post.comments_count = comments.length;
 
             // 게시글 렌더링
             PostDetailView.renderPost(post);
@@ -104,21 +104,41 @@ class DetailController {
                     this.currentPostId,
                     this.currentUserId,
                     {
-                        onCommentChange: () => this._loadPostDetail() // 댓글 변경 시 전체 새로고침 (간단한 동기화)
+                        onCommentChange: () => this._reloadComments()
                     }
                 );
                 // 입력창 이벤트는 DOM이 그려진 후 한 번만 설정
                 this.commentController.setupInputEvents();
             }
-            
+
             this.commentController.render(comments);
 
         } catch (error) {
             logger.error('게시글 로드 실패', error);
-            PostDetailView.showToast(error.message);
-            setTimeout(() => {
-                location.href = NAV_PATHS.MAIN;
-            }, 1500);
+            showToastAndRedirect(error.message, NAV_PATHS.MAIN, 1500);
+        }
+    }
+
+    /**
+     * 댓글 목록만 다시 로드 (게시글 전체를 다시 렌더링하지 않음)
+     * @private
+     */
+    async _reloadComments() {
+        try {
+            const result = await PostModel.getPost(this.currentPostId);
+            if (!result.ok) return;
+
+            const data = result.data?.data;
+            const comments = data?.comments || [];
+
+            // 댓글 수만 업데이트
+            const commentCount = document.getElementById('comment-count');
+            if (commentCount) commentCount.textContent = comments.length;
+
+            // 댓글 목록만 다시 렌더링
+            this.commentController.render(comments);
+        } catch (error) {
+            logger.error('댓글 목록 새로고침 실패', error);
         }
     }
 
@@ -167,8 +187,14 @@ class DetailController {
     }
 
     /**
-     * 좋아요 처리
+     * 좋아요 토글 처리를 수행합니다.
+     * 
+     * 낙관적 UI 업데이트(Optimistic UI Update)를 적용하여
+     * API 응답을 기다리지 않고 즉시 UI를 변경한 후,
+     * 실패 시 원래 상태로 롤백합니다.
+     * 
      * @private
+     * @returns {Promise<void>}
      */
     async _handleLike() {
         if (this.isLiking) return;
@@ -181,7 +207,7 @@ class DetailController {
         // 낙관적 UI 업데이트 (Optimistic UI Update)
         const newCount = wasLiked ? Math.max(0, originalCount - 1) : originalCount + 1;
         PostDetailView.updateLikeState(!wasLiked, newCount);
-        
+
         this.isLiking = true;
 
         try {
@@ -210,7 +236,7 @@ class DetailController {
      */
     _openDeleteModal() {
         this.deleteTargetId = this.currentPostId;
-        
+
         // 모달 콜백 설정 (게시글 삭제용)
         ModalView.setupDeleteModal({
             modalId: 'confirm-modal',
@@ -232,10 +258,7 @@ class DetailController {
         try {
             const result = await PostModel.deletePost(this.deleteTargetId);
             if (result.ok) {
-                PostDetailView.showToast(UI_MESSAGES.POST_DELETE_SUCCESS);
-                setTimeout(() => {
-                    location.href = NAV_PATHS.MAIN;
-                }, 1000);
+                showToastAndRedirect(UI_MESSAGES.POST_DELETE_SUCCESS, NAV_PATHS.MAIN);
             } else {
                 PostDetailView.showToast(UI_MESSAGES.DELETE_FAIL);
             }
