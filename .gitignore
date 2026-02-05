@@ -65,3 +65,5 @@ temp/
 .agent/
 .claude/
 .gemini/
+CLAUDE.md
+GEMINI.md
