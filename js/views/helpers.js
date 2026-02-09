@@ -19,7 +19,7 @@ export function getImageUrl(url) {
     const dangerousProtocols = ['javascript:', 'vbscript:', 'file:', 'about:'];
     for (const protocol of dangerousProtocols) {
         if (urlLower.startsWith(protocol)) {
-            console.warn('[XSS] Blocked dangerous protocol:', protocol);
+            // 보안: 프로덕션에서 상세 정보 노출 방지
             return ''; // 빈 문자열 반환으로 이미지 로드 차단
         }
     }
@@ -30,7 +30,7 @@ export function getImageUrl(url) {
         if (urlLower.startsWith('data:image/')) {
             return url;
         }
-        console.warn('[XSS] Blocked non-image data URL');
+        // 보안: 프로덕션에서 상세 정보 노출 방지
         return '';
     }
 
