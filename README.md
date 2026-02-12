@@ -157,17 +157,6 @@ server {
 }
 ```
 
-### 배포 체크리스트
-
-- [ ] Frontend 파일을 `/var/www/community-frontend`에 업로드
-- [ ] Nginx 설치 및 설정 파일 작성
-- [ ] `js/config.js`에서 `API_BASE_URL` 확인 (프로덕션: 빈 문자열)
-- [ ] Backend EC2의 Security Group에서 Frontend EC2 IP 허용 (Port 8000)
-- [ ] Backend `.env`에서 `HTTPS_ONLY` 설정 (HTTP: false, HTTPS: true)
-- [ ] Backend CORS origins에 Frontend 도메인/IP 추가
-- [ ] Nginx 테스트: `sudo nginx -t`
-- [ ] 브라우저에서 로그인 플로우 테스트
-
 ### 2. 데이터베이스 설계
 
 #### ERD
