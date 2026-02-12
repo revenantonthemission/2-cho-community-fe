@@ -1,0 +1,25 @@
+{
+  "public": ".",
+  "rewrites": [
+    { "source": "/", "destination": "/user_login.html" },
+    { "source": "/main", "destination": "/post_list.html" },
+    { "source": "/login", "destination": "/user_login.html" },
+    { "source": "/signup", "destination": "/user_signup.html" },
+    { "source": "/password", "destination": "/user_password.html" },
+    { "source": "/detail", "destination": "/post_detail.html" },
+    { "source": "/write", "destination": "/post_write.html" },
+    { "source": "/edit", "destination": "/post_edit.html" },
+    { "source": "/edit-profile", "destination": "/user_edit.html" }
+  ],
+  "headers": [
+    {
+      "source": "**/*",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
+  ]
+}

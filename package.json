@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "Frontend E2E Tests",
   "scripts": {
+    "dev": "serve -p 8080 -c serve.json",
     "test:e2e": "playwright test"
   },
   "devDependencies": {
-    "@playwright/test": "^1.41.1"
+    "@playwright/test": "^1.41.1",
+    "serve": "^14.2.0"
   }
 }
