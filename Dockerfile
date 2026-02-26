@@ -6,7 +6,7 @@ FROM nginx:alpine
 ARG APP_VERSION=1.0.0
 LABEL maintainer="corpseonthemission@icloud.com"
 LABEL version="${APP_VERSION}"
-LABEL description="my-community-fe: A community platform frontend built with React and served by Nginx"
+LABEL description="my-community-fe: A community platform frontend built with Vanilla JS and served by Nginx"
 
 # Copy static files to Nginx html directory
 COPY . /usr/share/nginx/html
