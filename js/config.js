@@ -7,25 +7,21 @@ import { HTML_PATHS } from './constants.js';
 const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
 // API Base URL
-// For same-origin deployment (frontend EC2 + nginx reverse proxy to backend EC2):
-// Use empty string "" to make requests to same domain, nginx will proxy to backend
+// 같은 오리진 배포 시 (nginx 리버스 프록시): 빈 문자열 사용
 export const API_BASE_URL = IS_LOCAL
-    ? "http://127.0.0.1:8000"  // Local development: direct backend connection
-    : "";  // Production: same-origin (nginx proxies /v1/* to backend EC2)
+    ? "http://127.0.0.1:8000"  // 로컬 개발: 백엔드 직접 연결
+    : "";  // 프로덕션: same-origin (nginx가 /v1/*를 백엔드로 프록시)
 
 /**
- * Resolve navigation path to actual file for S3 deployment
- * @param {string} path - Clean URL path (e.g., '/login')
- * @returns {string} - Actual HTML file path (e.g., '/user_login.html')
+ * 네비게이션 경로를 실제 HTML 파일 경로로 변환합니다.
+ * @param {string} path - 클린 URL 경로 (예: '/login')
+ * @returns {string} - 실제 HTML 파일 경로 (예: '/user_login.html')
  */
 export function resolveNavPath(path) {
-    // For local development with nginx or serve, use clean URLs
     if (IS_LOCAL) {
         return path;
     }
 
-    // For S3 production, map to actual HTML files
-    // Extract base path without query string
     const basePath = path.split('?')[0];
     const queryString = path.includes('?') ? path.substring(path.indexOf('?')) : '';
 

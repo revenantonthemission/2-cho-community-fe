@@ -81,66 +81,6 @@ flowchart TD
     end
 ```
 
-## 프로덕션 배포 (Production Deployment)
-
-프로덕션 환경에서는 **Docker Compose + 단일 EC2**로 운영합니다. nginx가 정적 파일 서빙과 API 리버스 프록시를 담당합니다.
-
-### Docker Compose Architecture
-
-```mermaid
-flowchart TD
-    Internet["Internet"]
-
-    Internet -->|"HTTPS (443)"| Nginx
-
-    subgraph EC2["EC2 Instance"]
-        subgraph Docker["Docker Compose"]
-            Nginx["nginx:alpine<br/>정적 파일 + 리버스 프록시"]
-            Backend["FastAPI + uvicorn<br/>Port 8000"]
-            MySQL["MySQL 9.6<br/>Port 3306"]
-        end
-    end
-
-    Nginx -->|"/*"| Static["정적 파일 서빙<br/>(HTML/CSS/JS)"]
-    Nginx -->|"/v1/*, /health"| Backend
-    Backend --> MySQL
-```
-
-### 주요 특징
-
-- **Same-Origin Architecture**: nginx가 단일 도메인에서 정적 파일과 API를 모두 서빙하여 CORS 이슈 없음
-- **Cookie Security**: `SameSite=Lax` (Refresh Token 쿠키, HttpOnly)
-- **Let's Encrypt SSL**: nginx에서 HTTPS 처리 (`/etc/letsencrypt/live/my-community.shop/`)
-- **Clean URLs**: nginx rewrite로 `/main` → `post_list.html` 등 지원
-
-### 배포 방법
-
-```bash
-# EC2에서 Docker Compose로 배포
-cd /path/to/my-community
-
-# 이미지 빌드 (최초 또는 변경 시)
-docker build -t my-community-db:latest ./2-cho-community-be/database
-docker build -t my-community-be:latest ./2-cho-community-be
-docker build -t my-community-fe:latest ./2-cho-community-fe
-
-# 컨테이너 실행
-docker compose -f docker-compose.prod.yml up -d --no-pull
-```
-
-### 핵심 설정
-
-**프론트엔드 API 설정** (`js/config.js`):
-
-```javascript
-const IS_LOCAL = window.location.hostname === 'localhost' ||
-                 window.location.hostname === '127.0.0.1';
-
-export const API_BASE_URL = IS_LOCAL
-    ? "http://127.0.0.1:8000"  // 로컬: 백엔드 직접 연결
-    : "";  // 프로덕션: same-origin (nginx가 /v1/* 를 backend:8000으로 프록시)
-```
-
 ### 2. 데이터베이스 설계
 
 #### ERD
@@ -400,12 +340,6 @@ sequenceDiagram
 
 ### 최근 변경사항 (Recent Changes)
 
-#### 2026-02-25: GitHub Actions CI/CD 추가
-
-- `.github/workflows/deploy.yml` 신규 생성
-- main 브랜치 push 시 자동 배포: Docker 이미지 빌드 → ECR 푸시 → EC2 SSH 배포
-- paths 필터: `.html`, `.css`, `.js`, `Dockerfile`, `nginx/**` 변경 시에만 실행
-
 #### 2026-02-25: JWT payload 최소화 + 코드 리뷰 수정
 
 - JWT payload에서 민감한 개인정보 제거: `email`, `nickname`, `role` 클레임 삭제, `sub`(user_id)만 유지
@@ -426,40 +360,7 @@ sequenceDiagram
 
 ---
 
-#### 2026-02-24: Docker Compose + 단일 EC2 배포로 전환
-
-**아키텍처 변경**:
-
-- CloudFront + S3 + ELB → Docker Compose + 단일 EC2
-- nginx 컨테이너: 정적 파일 서빙 + 리버스 프록시 (`/v1/*` → backend:8000)
-- 백엔드 컨테이너: FastAPI + uvicorn
-- 데이터베이스 컨테이너: MySQL 9.6
-
-**주요 변경 사항**:
-
-1. `docker-compose.prod.yml`로 전체 스택 통합 관리
-2. nginx가 Let's Encrypt SSL 처리 (`/etc/letsencrypt/`)
-3. Clean URL 지원 (`/main` → `post_list.html`)
-4. 이미지 저장소를 Docker 볼륨으로 변경 (`/app/uploads`)
-
----
-
-#### 2026-02-19: CloudFront + S3 배포 전환 (현재 미사용)
-
-**아키텍처 변경** (이전 방식):
-
-- Single-Origin Nginx (EC2) → CloudFront + S3 + ELB
-- 정적 파일: S3 버킷 (`my-community-s3-fe`) + CloudFront CDN
-- API 요청: CloudFront `/v1/*` behavior → ELB → EC2:8000 (uvicorn)
-
----
-
-#### 2026-02-12: Single-Origin Nginx Deployment 설정
-
-**아키텍처 변경**:
-
-- Cross-Domain (S3 + EC2) → **Single-Origin (Nginx Reverse Proxy)**
-- Frontend EC2 (nginx)가 정적 파일을 서빙하고 `/v1/*` 요청을 Backend EC2로 프록시
+#### 2026-02-12: 프론트엔드 개발 환경 변경
 
 **코드 변경**:
 

@@ -72,7 +72,7 @@ export const NAV_PATHS = {
     EDIT_PROFILE: '/edit-profile',
 };
 
-// S3 deployment: Map clean URLs to actual HTML filenames
+// 클린 URL → 실제 HTML 파일 매핑
 export const HTML_PATHS = {
     '/': '/user_login.html',
     '/main': '/post_list.html',

@@ -86,7 +86,7 @@ class HeaderController {
      */
     _isAuthPage() {
         const path = location.pathname;
-        // Support both clean URLs (Nginx) and HTML files (S3)
+        // 클린 URL과 HTML 파일 경로 모두 지원
         return path === '/login' || path === '/signup'
             || path === '/user_login.html' || path === '/user_signup.html';
     }
