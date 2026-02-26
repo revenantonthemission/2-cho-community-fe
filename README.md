@@ -121,8 +121,8 @@ cd /path/to/my-community
 
 # 이미지 빌드 (최초 또는 변경 시)
 docker build -t my-community-db:latest ./2-cho-community-be/database
-docker build -t my-community-backend:latest ./2-cho-community-be
-docker build -t my-community-frontend:latest ./2-cho-community-fe
+docker build -t my-community-be:latest ./2-cho-community-be
+docker build -t my-community-fe:latest ./2-cho-community-fe
 
 # 컨테이너 실행
 docker compose -f docker-compose.prod.yml up -d --no-pull
@@ -400,9 +400,15 @@ sequenceDiagram
 
 ### 최근 변경사항 (Recent Changes)
 
+#### 2026-02-25: GitHub Actions CI/CD 추가
+
+- `.github/workflows/deploy.yml` 신규 생성
+- main 브랜치 push 시 자동 배포: Docker 이미지 빌드 → ECR 푸시 → EC2 SSH 배포
+- paths 필터: `.html`, `.css`, `.js`, `Dockerfile`, `nginx/**` 변경 시에만 실행
+
 #### 2026-02-25: JWT payload 최소화 + 코드 리뷰 수정
 
-- JWT payload에서 PII 제거: `email`, `nickname`, `role` 클레임 삭제, `sub`(user_id)만 유지
+- JWT payload에서 민감한 개인정보 제거: `email`, `nickname`, `role` 클레임 삭제, `sub`(user_id)만 유지
 - 백엔드 파일명/변수명 개선, 주석 정리
 
 #### 2026-02-25: JWT 인증으로 전환 (세션 기반 → JWT)

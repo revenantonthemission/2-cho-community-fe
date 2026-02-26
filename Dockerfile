@@ -1,5 +1,5 @@
 # Frontend Docker Image
-# Build: docker build -t my-community-frontend:latest ./2-cho-community-fe
+# Build: docker build -t my-community-fe:latest ./2-cho-community-fe
 
 FROM nginx:alpine
 
