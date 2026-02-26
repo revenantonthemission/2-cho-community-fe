@@ -6,7 +6,7 @@ AWS AI School 2기 4주차 과제
 
 커뮤니티 포럼 "아무 말 대잔치"를 구축합니다. FastAPI를 기반으로 하는 비동기 백엔드와 Vanilla JavaScript 프론트엔드(순수 정적 파일)로 구성된 모노레포 구조이며, JWT 기반 인증(Access Token + Refresh Token)과 MySQL 데이터베이스를 사용합니다. 게시글 CRUD, 댓글, 좋아요, 회원 관리 기능을 제공합니다.
 
-**개발 환경**: 프론트엔드는 `npm serve`를 사용하여 정적 파일을 서빙하며, Python 의존성이 없습니다. 프로덕션에서는 Docker Compose + nginx를 사용합니다.
+**개발 환경**: 프론트엔드는 `npm serve`를 사용하여 정적 파일을 서빙하며, Python 의존성이 없습니다. 프로덕션에서는 S3 + CloudFront를 사용합니다.
 
 ## Quick Start (Development)
 
@@ -62,7 +62,7 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 ```mermaid
 flowchart TD
     subgraph Client["Client (Browser)"]
-        FE["Vanilla JS MPA<br/>정적 파일: HTML/CSS/JS<br/>개발: npm serve :8080 | 프로덕션: Docker + nginx"]
+        FE["Vanilla JS MPA<br/>정적 파일: HTML/CSS/JS<br/>개발: npm serve :8080 | 프로덕션: S3 + CloudFront"]
     end
 
     Client -->|"HTTP (JSON/FormData)<br/>Bearer Token + HttpOnly Cookie"| Backend
@@ -323,7 +323,7 @@ sequenceDiagram
 - **JWT 인증**: Access Token(HS256, 30분) + Refresh Token(opaque random, 7일) 이중 토큰 전략 사용. Access Token은 프론트엔드 in-memory(JS 변수)에 저장하여 XSS 노출 최소화, Refresh Token은 HttpOnly 쿠키로 전달하고 SHA-256 해시로 DB에 저장. 토큰 회전(rotation)을 통해 Refresh Token 탈취 시 자동 무효화. CSRF 미들웨어는 제거됨 (Bearer 토큰이 CSRF 방어 역할).
 - **ORM vs Raw SQL**: SQLAlchemy 등 ORM 사용을 고려했으나, 학습 목적으로 raw SQL을 직접 작성하여 쿼리 최적화 경험을 쌓기로 결정.
 - **Vanilla JS**: React, Vue 등 프레임워크 대신 Vanilla JS를 선택. 프레임워크 학습 비용 없이 JavaScript 기본기를 다지는 것이 목표.
-- **이미지 저장소**: Docker 환경에서는 `/app/uploads` 볼륨에 저장. 로컬 개발 시에도 로컬 파일시스템 사용.
+- **이미지 저장소**: 프로덕션에서는 EFS(`/mnt/uploads`)에 저장. 로컬 개발 시에도 로컬 파일시스템 사용.
 - **Soft Delete**: 물리적 삭제 대신 `deleted_at` 컬럼 사용. 데이터 복구 가능성 확보 및 FK 무결성 유지.
 
 ## 마일스톤 (Milestones)
@@ -336,217 +336,34 @@ sequenceDiagram
 | 4단계 | 4주차 | E2E 테스트 작성, QA, 버그 수정 |
 | 5단계 | 5주차 | 문서화, 코드 리뷰, 최종 배포 |
 
-## changelog
+## Changelog
 
-### 최근 변경사항 (Recent Changes)
+### 2026-02 (Feb)
 
-#### 2026-02-25: JWT payload 최소화 + 코드 리뷰 수정
+- **02-25: JWT 인증 전환**
+  - 세션 기반 → JWT (Access Token 30분 + Refresh Token 7일)
+  - `ApiService.js`: Bearer 토큰 관리, silent refresh, thundering herd 보호
+  - CSRF 관련 코드 완전 제거 (Bearer 토큰이 CSRF 방어 역할)
 
-- JWT payload에서 민감한 개인정보 제거: `email`, `nickname`, `role` 클레임 삭제, `sub`(user_id)만 유지
-- 백엔드 파일명/변수명 개선, 주석 정리
+- **02-09 ~ 12: 보안 강화 + 개발 환경 개선**
+  - XSS 정책 100% 준수: innerHTML 완전 제거, `escapeCssUrl` 전면 적용, URL sanitization
+  - CSRF Double Submit Cookie 구현 (이후 JWT 전환으로 제거)
+  - Python 의존성 제거, `npm serve` 마이그레이션 (Port 8080)
 
-#### 2026-02-25: JWT 인증으로 전환 (세션 기반 → JWT)
+- **02-02 ~ 06: 코드 품질 + 성능**
+  - `ErrorBoundary` 도입 (지수 백오프 재시도, GET 자동 재시도)
+  - 애니메이션 모듈 (스켈레톤, 스피너, 토스트, 좋아요 heartPop)
+  - Lazy Loading, debounce, 댓글 부분 업데이트
+  - 코드 리팩토링: `NAV_PATHS`/`UI_MESSAGES` 상수 통합, 중복 제거
 
-**인증 방식 변경**:
-- 서버 사이드 세션 → JWT (Access Token 30분 + Refresh Token 7일)
-- CSRF 미들웨어 제거 (Bearer 토큰이 CSRF 방어 역할)
-- SessionMiddleware 제거
+### 2026-01 (Jan)
 
-**프론트엔드 변경**:
-- `ApiService.js`: Bearer 토큰 관리 (`Authorization: Bearer <token>` 헤더), silent refresh, thundering herd 보호 (`_refreshing` 싱글턴 Promise)
-- `AuthModel.js`: 페이지 새로고침 시 HttpOnly 쿠키로 silent refresh (`POST /v1/auth/token/refresh`)
-- `constants.js`: `AUTH.REFRESH`, `AUTH.ME` 엔드포인트 상수 추가
-- CSRF 토큰 관련 코드 완전 제거 (`getCsrfToken()`, `X-CSRF-Token` 헤더)
+- **01-28 ~ 30: 안정화 + UX**
+  - MVC 패턴 강화, 이미지 표시 버그 수정
+  - 회원탈퇴 모달, 토스트 알림 (`alert()` 제거)
+  - 무한 스크롤 버그 수정, 401 리다이렉션
 
----
-
-#### 2026-02-12: 프론트엔드 개발 환경 변경
-
-**코드 변경**:
-
-1. **`js/config.js`**: API_BASE_URL 설정 변경
-   ```javascript
-   // 프로덕션: 빈 문자열 (same-origin)
-   export const API_BASE_URL = IS_LOCAL ? "http://127.0.0.1:8000" : "";
-   ```
-
-2. **쿠키 설정** (백엔드 변경 사항):
-   - Refresh Token Cookie: `SameSite=Lax`, `HttpOnly`, `path=/v1/auth`
-   - `Secure` 플래그: `HTTPS_ONLY` 환경변수로 제어 (선택적 HTTPS)
-   - *(참고: 2026-02-25에 세션/CSRF 쿠키가 JWT로 대체됨)*
-
----
-
-- 2026-02-12: 프론트엔드 개발 환경 정리 및 `npm serve` 마이그레이션 완료
-  - Python 의존성 완전 제거
-    - 가상 환경 삭제
-    - `pyproject.toml`, `2_cho_community_fe.egg-info/`, `__pycache__/`, `build/` 삭제
-    - 프론트엔드는 순수 정적 파일(HTML/CSS/JS)로 Python 의존성 없음
-  - 개발 서버 변경
-    - FastAPI/uvicorn 개발 서버 → `npm serve`
-    - 로컬 개발: `npm run dev` 명령어 사용
-    - 프로덕션: nginx로 정적 파일 서빙
-  - 문서 업데이트
-    - README.md: 시스템 아키텍처 다이어그램 업데이트
-
-- 2026-02-09: 코드 리뷰 기반 주요 이슈 수정
-  - 런타임 에러 수정
-    - `js/views/ProfileView.js`: escapeCssUrl import 경로 오류 수정
-      - 문제: `escapeCssUrl`을 `./helpers.js`에서 import 시도 → 함수가 존재하지 않아 런타임 에러
-      - 수정: `../utils/formatters.js`에서 import하도록 경로 변경
-      - 영향: 프로필 편집 페이지 정상 로딩, 사용자 경험 복구
-
-- 2026-02-09: CSRF Protection 구현
-  - Double Submit Cookie 패턴 클라이언트 구현
-    - `js/services/ApiService.js`: CSRF 토큰 자동 포함
-    - getCsrfToken(): 쿠키에서 토큰 읽기
-    - 모든 상태 변경 요청(`POST`/`PUT`/`PATCH`/`DELETE`)에 X-CSRF-Token 헤더 자동 추가
-  - 보안 & 안정성 개선
-    - 메모리 누수 수정: `js/views/HeaderView.js::cleanup()` 메서드 추가 (전역 이벤트 리스너 정리)
-    - 민감 정보 로깅 제거: `js/views/helpers.js::getImageUrl()` console.warn 삭제
-    - 중복 제출 방지: `js/controllers/CommentController.js::submitComment()` isSubmitting 플래그 추가
-
-- 2026-02-09: XSS 정책 100% 준수 완료
-  - innerHTML 완전 제거
-    - `js/utils/ErrorBoundary.js`: innerHTML 사용 제거, clearElement() 사용
-  - CSS Injection 방어
-    - `js/views/ProfileView.js`: escapeCssUrl 누락 수정 (setProfileImage, showProfilePreview)
-    - 모든 backgroundImage에 escapeCssUrl 적용 완료
-  - URL Sanitization 강화
-    - `js/views/helpers.js::getImageUrl()`: 위험한 프로토콜 명시적 차단
-    - javascript:, vbscript:, file:, data:text/html 등 차단
-    - data:image/* MIME type만 허용하는 whitelist 방식 적용
-
-- 2026-02-06: XSS 취약점 방어
-  - innerHTML 대신 DOM API를 사용
-  - XSS 테스트 코드 추가
-
-- 2026-02-04: 성능 최적화
-  - 이미지 Lazy Loading 적용
-    - 게시글 상세 이미지에 `loading="lazy"` 속성 추가 (`PostDetailView.js`)
-  - 이벤트 성능 최적화
-    - `debounce` 유틸리티 추가 (`js/utils/debounce.js`)
-    - 회원가입 입력(닉네임, 이메일) 유효성 검사에 300ms 디바운스 적용
-
-- 2026-02-04: 컴포넌트 개선
-  - 에러 바운더리 및 재시도 로직 도입 (`js/utils/ErrorBoundary.js`)
-    - 지수 백오프(Exponential Backoff) 기반 재시도
-    - 네트워크 에러 및 5xx/429 에러 자동 복구
-  - `ApiService` 안정성 강화
-    - GET 요청에 대해 자동 재시도 적용 (최대 2회)
-    - 에러/로딩 UI 스타일 추가 (`css/modules/animations.css`)
-
-- 2026-02-04: UX 개선
-  - 애니메이션 모듈 추가 (`css/modules/animations.css`)
-    - 페이지 전환 fade 효과 (body fadeIn)
-    - 로딩 스켈레톤 스타일 (`.skeleton`, `.skeleton-post`, `.skeleton-avatar`)
-    - 버튼 hover/active 애니메이션 (`translateY`, `box-shadow`)
-    - 스피너 컴포넌트 (`.spinner`, .`btn-loading`)
-    - 입력 필드 포커스 효과 (`border-color`, `box-shadow`)
-    - 좋아요 버튼 `heartPop` 애니메이션
-    - 토스트 `slideUp` 애니메이션
-    - 모달 `scale` 전환 효과
-
-- 2026-02-04
-  - 코드 리팩토링
-    - `SignupView.js`의 반복적인 에러 표시/숨기기 메서드를 `showFieldError`/`hideFieldError`로 통합
-    - `WriteController`, `EditController`, `DetailController`의 중복된 리다이렉트 로직을 `showToastAndRedirect` 헬퍼로 통합
-    - 하드코딩된 내비게이션 경로를 `NAV_PATHS` 상수로 통일 (`js/constants.js`)
-    - UI 메시지를 `UI_MESSAGES` 상수로 통합하고 `IMAGE_UPLOAD_FAIL`, `POST_CREATE_SUCCESS` 등 누락된 메시지 추가
-    - 이미지 업로드 결과 처리 로직(`extractUploadedImageUrl`)을 `helpers.js`로 캡슐화
-    - `SignupController.js` 리팩토링: `showToastAndRedirect`, `NAV_PATHS` 적용 및 코드 중복 제거
-
-- 2026-02-04
-  - 보안 일관성 개선
-    - `PostListView`, `HeaderView`, `CommentListView`에 `escapeCssUrl` 적용
-    - `PostFormView`, `HeaderView`의 `innerHTML` 사용을 `createElement`/`textContent`로 교체
-    - `CommentListView`, `HeaderController`의 `innerHTML = ''`을 `textContent = ''`로 교체
-  - 프론트엔드 코드 품질 개선
-    - `MainController.js` 불필요한 빈 줄 정리 (357줄 → 141줄) 및 미사용 import 제거
-    - `DetailController`의 불필요한 응답 fallback 코드 제거
-  - 성능 개선
-    - 댓글 변경 시 전체 게시글 리로드 대신 댓글 목록만 부분 업데이트 (`_reloadComments`)
-
-- 2026-02-02
-  - XSS 공격 방어를 위한 이스케이프 함수 추가
-  - 좋아요 에러 핸들링 및 롤백
-  - 네트워크 에러 처리
-  - API 엔드포인트를 상수로 관리하도록 수정 (`js/constants.js`)
-  - 닉네임 검증 로직 수정
-  - `formatDate` null 체크 추가
-  - 메모리 누수 방지
-  - MVC 아키텍처 위반 수정
-  - 렌더링 성능 최적화
-  - 컨트롤러 구조 개선
-  - 코드 중복 제거 및 리팩토링
-  - 테크 스펙 작성
-  - AI 에이전트 도입
-  - 인피니티 스크롤 로직 개선
-  - CSS 로딩 최적화
-
-- 2026-01-30
-  - 401 에러 발생 시 로그인 페이지로 리다이렉션
-  - UI 개선
-  - 프로필 수정 페이지에서 회원탈퇴 버튼 추가
-  - 회원탈퇴 모달 추가
-  - 회원탈퇴 기능 추가
-- 2026-01-29
-  - 로그인 안된 상태면 로그인 페이지로 리다이렉션
-  - 가독성을 높이기 위해 html 파일 이름 변경
-  - 게시물 목록의 끝에 와도 인피니티 스크롤링이 계속되던 버그 해결
-  - 로그 기능 추가
-  - 프로필 수정 후 게시글 목록 페이지로 리다이렉션하도록 수정
-  - 더미 데이터 삽입 후 인피니티 스크롤링이 안되던 이슈 해결
-  - `Jinja2Templates`와 `TemplateResponse` 의존성 제거
-  - HTML 인라인 스타일 제거
-  - 헤더 프로필 아이콘 사이즈 조정
-  - `auth-section`을 드롭다운 메뉴를 위한 ID로 한정
-  - 회원탈퇴 로직 수정
-  - `alert()` 대신 토스트 알림 추가
-  - API 엔드포인트 정리
-- 2026-01-28
-  - MVC 모델에 더욱 충실하도록 재구성
-  - 프로필 이미지가 제대로 표시되지 않는 이슈 해결
-  - 게시글 상세 조회 페이지에서 이미지가 제대로 출력되지 않던 이슈 해결
-  - 게시글 작성/수정 페이지에서 이미지 파일 이름이 나오지 않던 이슈 해결
-- 2026-01-25
-  - 프로젝트 구조 리팩토링
-    - MVC 패턴 도입 (Model, View, Controller 분리)
-  - 게시글 상세 페이지
-    - 좋아요/조회수/댓글 통계 UI 디자인 개선
-  - 프로필 수정 페이지
-    - 프로필 이미지 업로드 UI 개선 (원형 디자인, 변경 버튼 오버레이)
-- 2026-01-23
-  - 헤더 프로필 아이콘에 드롭다운 메뉴 추가
-  - 비밀번호 수정 페이지
-    - 비밀번호 수정
-  - 프로필 수정 페이지
-    - 프로필 수정
-    - 프로필 사진 업로드
-    - 닉네임 수정
-    - 닉네임 중복 확인
-  - 게시물 수정 페이지
-    - 게시물 수정
-  - 게시물 작성 페이지
-    - 게시물 작성
-  - 게시글 상세 페이지
-    - 댓글 작성
-    - 댓글 삭제
-    - 댓글 수정
-    - 게시글 삭제
-    - 게시글 수정
-    - 좋아요/좋아요 취소
-- 2026-01-22
-  - 메인 페이지
-    - 게시글 목록 불러오기
-    - 무한 스크롤 구현
-  - 로그인 페이지
-    - 기획서에 맞게 디자인 수정
-    - 예외 처리 (로그인 버튼 연타)
-  - 회원가입 페이지
-    - 프로필 사진 첨부 기능 추가
-    - 로그인 페이지와 연결
-- 2026-01-21
-  - 로그인 기능 구현
-  - 첫 HTML 파일 작성
-  - 레포지토리 생성
+- **01-21 ~ 25: 초기 구현**
+  - 전체 페이지 구현 (로그인, 회원가입, 메인, 상세, 작성, 수정, 프로필, 비밀번호)
+  - MVC 패턴 도입 (Model/View/Controller 분리)
+  - 무한 스크롤, 좋아요, 댓글 CRUD, 이미지 업로드
