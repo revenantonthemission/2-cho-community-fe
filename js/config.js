@@ -10,7 +10,7 @@ const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hos
 // 같은 오리진 배포 시 (nginx 리버스 프록시): 빈 문자열 사용
 export const API_BASE_URL = IS_LOCAL
     ? "http://127.0.0.1:8000"  // 로컬 개발: 백엔드 직접 연결
-    : "";  // 프로덕션: same-origin (nginx가 /v1/*를 백엔드로 프록시)
+    : "https://api.my-community.shop";  // 프로덕션: same-origin (nginx가 /v1/*를 백엔드로 프록시)
 
 /**
  * 네비게이션 경로를 실제 HTML 파일 경로로 변환합니다.
