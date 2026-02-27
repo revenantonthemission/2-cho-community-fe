@@ -340,6 +340,11 @@ sequenceDiagram
 
 ### 2026-02 (Feb)
 
+- **02-27: GitHub Actions CD 파이프라인 구축**
+  - `deploy-frontend.yml`: `workflow_dispatch` → S3 sync (allowlist 기반) → CloudFront invalidation
+  - OIDC 인증 (GitHub → AWS IAM Role), 환경 선택 (dev/staging/prod)
+  - 허용 목록: `*.html`, `*.css`, `*.js`, 이미지, 폰트 파일만 업로드
+
 - **02-25: JWT 인증 전환**
   - 세션 기반 → JWT (Access Token 30분 + Refresh Token 7일)
   - `ApiService.js`: Bearer 토큰 관리, silent refresh, thundering herd 보호
