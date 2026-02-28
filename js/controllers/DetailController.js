@@ -1,7 +1,6 @@
 // js/controllers/DetailController.js
 // 게시글 상세 페이지 컨트롤러
 
-import AuthModel from '../models/AuthModel.js';
 import PostModel from '../models/PostModel.js';
 import PostDetailView from '../views/PostDetailView.js';
 import ModalView from '../views/ModalView.js';
@@ -27,8 +26,9 @@ class DetailController {
 
     /**
      * 컨트롤러 초기화
+     * @param {object|null} [currentUser=null] - HeaderController에서 전달받은 사용자 정보
      */
-    async init() {
+    async init(currentUser = null) {
         const urlParams = new URLSearchParams(window.location.search);
         const postId = urlParams.get('id');
 
@@ -39,25 +39,20 @@ class DetailController {
 
         this.currentPostId = postId;
 
-        await this._checkLoginStatus();
+        this._setCurrentUser(currentUser);
         await this._loadPostDetail();
         this._setupEventListeners();
     }
 
     /**
-     * 로그인 상태 확인
+     * 현재 사용자 설정
+     * @param {object|null} user - 사용자 객체 또는 null
      * @private
      */
-    async _checkLoginStatus() {
-        try {
-            const authStatus = await AuthModel.checkAuthStatus();
-            if (authStatus.isAuthenticated) {
-                this.currentUserId = authStatus.user.user_id || authStatus.user.id;
-            } else {
-                this.currentUserId = null;
-            }
-        } catch (error) {
-            logger.warn('로그인 확인 실패', error);
+    _setCurrentUser(user) {
+        if (user) {
+            this.currentUserId = user.user_id || user.id;
+        } else {
             this.currentUserId = null;
         }
     }

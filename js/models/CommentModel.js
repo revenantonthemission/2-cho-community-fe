@@ -9,15 +9,6 @@ import { API_ENDPOINTS } from '../constants.js';
  */
 class CommentModel {
     /**
-     * 댓글 목록 조회
-     * @param {string|number} postId - 게시글 ID
-     * @returns {Promise<{ok: boolean, status: number, data: any}>}
-     */
-    static async getComments(postId) {
-        return ApiService.get(API_ENDPOINTS.COMMENTS.ROOT(postId));
-    }
-
-    /**
      * 댓글 작성
      * @param {string|number} postId - 게시글 ID
      * @param {string} content - 댓글 내용

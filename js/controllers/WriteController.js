@@ -138,7 +138,7 @@ class WriteController {
             if (result.ok) {
                 showToastAndRedirect(UI_MESSAGES.POST_CREATE_SUCCESS, NAV_PATHS.MAIN);
             } else {
-                this.view.showToast(UI_MESSAGES.POST_CREATE_FAIL || '게시글 작성 실패');
+                this.view.showToast(UI_MESSAGES.POST_CREATE_FAIL);
             }
 
         } catch (error) {

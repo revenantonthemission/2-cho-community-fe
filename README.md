@@ -296,7 +296,7 @@ sequenceDiagram
 - **정적 메서드**: 모든 클래스가 static 메서드만 사용
 - **IntersectionObserver**: 무한 스크롤 구현
 - **Custom Event**: `auth:session-expired` 이벤트로 401 처리 (silent refresh 실패 시 발생)
-- **XSS 방지**: `escapeHtml()` 유틸리티로 사용자 입력 이스케이프
+- **XSS 방지**: `createElement()` / `textContent` 기반 DOM 생성 (innerHTML 금지)
 - **성능 최적화**: 
   - **Lazy Loading**: `loading="lazy"` 속성으로 이미지 로딩 지연
   - **Debounce**: 입력 이벤트(회원가입 등) 제어로 불필요한 연산 방지
@@ -310,7 +310,7 @@ sequenceDiagram
 | JWT 인증 | Access Token(30분, in-memory) + Refresh Token(7일, HttpOnly Cookie, SHA-256 해시 DB 저장) |
 | CORS | 허용 출처 명시적 설정 (`localhost:8080`) |
 | SQL Injection | Parameterized queries (`aiomysql`) |
-| XSS | 프론트엔드에서 `escapeHtml()` 적용 |
+| XSS | 프론트엔드에서 `createElement()` / `textContent` 사용 (innerHTML 금지) |
 | Timing Attack | 로그인 시 존재하지 않는 사용자도 `bcrypt` 검증 수행 |
 
 ### 7. 비밀번호 정책
@@ -339,6 +339,12 @@ sequenceDiagram
 ## Changelog
 
 ### 2026-02 (Feb)
+
+- **02-28: 전체 코드 리뷰 기반 버그 수정**
+  - Silent refresh: 401 시 토큰 갱신 후 원래 요청 자동 재시도 (`_isRetry` 플래그로 무한 루프 방지)
+  - 이미지 미리보기: `post_write.html`, `post_edit.html`에 누락된 `#image-preview` 요소 추가
+  - Detail 페이지 이중 인증 요청 제거 (HeaderController에서 유저 전달)
+  - Dead code 정리: `escapeHtml()`, `CommentModel.getComments()`, `FormValidator.updateButtonState()` 제거
 
 - **02-27: GitHub Actions CD 파이프라인 구축**
   - `deploy-frontend.yml`: `workflow_dispatch` → S3 sync (allowlist 기반) → CloudFront invalidation

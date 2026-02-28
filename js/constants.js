@@ -57,6 +57,8 @@ export const UI_MESSAGES = {
     POST_DELETE_SUCCESS: '게시글이 삭제되었습니다.',
     POST_CREATE_SUCCESS: '게시글이 작성되었습니다.',
     IMAGE_UPLOAD_FAIL: '이미지 업로드 실패',
+    POST_CREATE_FAIL: '게시글 작성 실패',
+    POST_UPDATE_FAIL: '게시글 수정 실패',
 
     LOGOUT_SUCCESS: '로그아웃 되었습니다.',
 };

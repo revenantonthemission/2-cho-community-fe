@@ -191,7 +191,7 @@ class EditController {
             if (result.ok) {
                 showToastAndRedirect(UI_MESSAGES.POST_UPDATE_SUCCESS, NAV_PATHS.DETAIL(this.postId));
             } else {
-                this.view.showToast(UI_MESSAGES.POST_UPDATE_FAIL || '게시글 수정 실패');
+                this.view.showToast(UI_MESSAGES.POST_UPDATE_FAIL);
             }
         } catch (error) {
             logger.error('게시글 수정 실패', error);

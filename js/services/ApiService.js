@@ -89,9 +89,10 @@ class ApiService {
     /**
      * GET 요청 (자동 재시도 적용)
      * @param {string} endpoint - API 엔드포인트 (예: '/v1/users/me')
+     * @param {boolean} [_isRetry=false] - 401 refresh 후 재시도 여부 (내부용)
      * @returns {Promise<any>} - 응답 데이터
      */
-    static async get(endpoint) {
+    static async get(endpoint, _isRetry = false) {
         logger.debug(`GET 요청: ${endpoint}`);
 
         try {
@@ -110,7 +111,10 @@ class ApiService {
                     throw error;
                 }
 
-                return ApiService._handleResponse(response, 'GET', endpoint);
+                return ApiService._handleResponse(response, 'GET', endpoint, {
+                    retryFn: () => ApiService.get(endpoint, true),
+                    _isRetry
+                });
             }, {
                 maxRetries: 2, // GET은 안전하므로 2번 재시도
                 delay: 500,
@@ -127,9 +131,10 @@ class ApiService {
      * POST 요청 (JSON)
      * @param {string} endpoint - API 엔드포인트
      * @param {object} data - 요청 본문 데이터
+     * @param {boolean} [_isRetry=false] - 401 refresh 후 재시도 여부 (내부용)
      * @returns {Promise<any>} - 응답 데이터
      */
-    static async post(endpoint, data) {
+    static async post(endpoint, data, _isRetry = false) {
         logger.debug(`POST 요청: ${endpoint}`);
         try {
             const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -138,7 +143,10 @@ class ApiService {
                 body: JSON.stringify(data),
                 credentials: 'include'
             });
-            return ApiService._handleResponse(response, 'POST', endpoint);
+            return ApiService._handleResponse(response, 'POST', endpoint, {
+                retryFn: () => ApiService.post(endpoint, data, true),
+                _isRetry
+            });
         } catch (error) {
             return ApiService._handleNetworkError(error, 'POST', endpoint);
         }
@@ -148,9 +156,10 @@ class ApiService {
      * POST 요청 (FormData - 파일 업로드용)
      * @param {string} endpoint - API 엔드포인트
      * @param {FormData} formData - FormData 객체
+     * @param {boolean} [_isRetry=false] - 401 refresh 후 재시도 여부 (내부용)
      * @returns {Promise<any>} - 응답 데이터
      */
-    static async postFormData(endpoint, formData) {
+    static async postFormData(endpoint, formData, _isRetry = false) {
         logger.debug(`POST FormData 요청: ${endpoint}`);
         try {
             // FormData는 Content-Type을 브라우저가 자동 설정 (multipart/form-data boundary 포함)
@@ -165,7 +174,10 @@ class ApiService {
                 body: formData,
                 credentials: 'include'
             });
-            return ApiService._handleResponse(response, 'POST', endpoint);
+            return ApiService._handleResponse(response, 'POST', endpoint, {
+                retryFn: () => ApiService.postFormData(endpoint, formData, true),
+                _isRetry
+            });
         } catch (error) {
             return ApiService._handleNetworkError(error, 'POST', endpoint);
         }
@@ -175,9 +187,10 @@ class ApiService {
      * PATCH 요청
      * @param {string} endpoint - API 엔드포인트
      * @param {object} data - 요청 본문 데이터
+     * @param {boolean} [_isRetry=false] - 401 refresh 후 재시도 여부 (내부용)
      * @returns {Promise<any>} - 응답 데이터
      */
-    static async patch(endpoint, data) {
+    static async patch(endpoint, data, _isRetry = false) {
         logger.debug(`PATCH 요청: ${endpoint}`);
         try {
             const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -186,7 +199,10 @@ class ApiService {
                 body: JSON.stringify(data),
                 credentials: 'include'
             });
-            return ApiService._handleResponse(response, 'PATCH', endpoint);
+            return ApiService._handleResponse(response, 'PATCH', endpoint, {
+                retryFn: () => ApiService.patch(endpoint, data, true),
+                _isRetry
+            });
         } catch (error) {
             return ApiService._handleNetworkError(error, 'PATCH', endpoint);
         }
@@ -196,9 +212,10 @@ class ApiService {
      * PUT 요청
      * @param {string} endpoint - API 엔드포인트
      * @param {object} data - 요청 본문 데이터
+     * @param {boolean} [_isRetry=false] - 401 refresh 후 재시도 여부 (내부용)
      * @returns {Promise<any>} - 응답 데이터
      */
-    static async put(endpoint, data) {
+    static async put(endpoint, data, _isRetry = false) {
         logger.debug(`PUT 요청: ${endpoint}`);
         try {
             const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -207,7 +224,10 @@ class ApiService {
                 body: JSON.stringify(data),
                 credentials: 'include'
             });
-            return ApiService._handleResponse(response, 'PUT', endpoint);
+            return ApiService._handleResponse(response, 'PUT', endpoint, {
+                retryFn: () => ApiService.put(endpoint, data, true),
+                _isRetry
+            });
         } catch (error) {
             return ApiService._handleNetworkError(error, 'PUT', endpoint);
         }
@@ -217,9 +237,10 @@ class ApiService {
      * DELETE 요청
      * @param {string} endpoint - API 엔드포인트
      * @param {object} [data] - 선택적 요청 본문 데이터
+     * @param {boolean} [_isRetry=false] - 401 refresh 후 재시도 여부 (내부용)
      * @returns {Promise<any>} - 응답 데이터
      */
-    static async delete(endpoint, data = null) {
+    static async delete(endpoint, data = null, _isRetry = false) {
         logger.debug(`DELETE 요청: ${endpoint}`);
         try {
             const options = {
@@ -231,7 +252,10 @@ class ApiService {
                 options.body = JSON.stringify(data);
             }
             const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
-            return ApiService._handleResponse(response, 'DELETE', endpoint);
+            return ApiService._handleResponse(response, 'DELETE', endpoint, {
+                retryFn: () => ApiService.delete(endpoint, data, true),
+                _isRetry
+            });
         } catch (error) {
             return ApiService._handleNetworkError(error, 'DELETE', endpoint);
         }
@@ -239,13 +263,17 @@ class ApiService {
 
     /**
      * 응답 처리 공통 로직
-     * 401 수신 시 silent refresh 시도 후 auth:session-expired 이벤트 발생.
+     * 401 수신 시 silent refresh 시도 후 원래 요청을 재시도합니다.
+     * 재시도도 실패하면 auth:session-expired 이벤트를 발생시킵니다.
      * @param {Response} response - fetch 응답 객체
      * @param {string} method - HTTP 메서드
      * @param {string} endpoint - API 엔드포인트
+     * @param {object} [options] - 추가 옵션
+     * @param {Function} [options.retryFn] - 401 refresh 성공 시 재시도할 함수
+     * @param {boolean} [options._isRetry] - 재시도 요청 여부 (무한 루프 방지)
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
      */
-    static async _handleResponse(response, method = '', endpoint = '') {
+    static async _handleResponse(response, method = '', endpoint = '', options = {}) {
         let data = null;
 
         // 응답 본문이 있는 경우에만 처리
@@ -271,11 +299,15 @@ class ApiService {
             logger.error(`${method} ${endpoint} 실패 (${response.status})`, data);
         }
 
-        // 401 처리: auth 엔드포인트가 아닌 경우 refresh 시도
+        // 401 처리: auth 엔드포인트가 아닌 경우 refresh 후 재시도
         const isAuthEndpoint = endpoint.includes('/auth/');
-        if (response.status === 401 && !isAuthEndpoint) {
+        if (response.status === 401 && !isAuthEndpoint && !options._isRetry) {
             logger.warn('401 감지 — silent refresh 시도');
             const refreshed = await ApiService._tryRefresh();
+            if (refreshed && options.retryFn) {
+                logger.info('Refresh 성공 — 원래 요청 재시도');
+                return options.retryFn();
+            }
             if (!refreshed) {
                 logger.warn('Refresh 실패 — 세션 만료 이벤트 발생');
                 window.dispatchEvent(new CustomEvent('auth:session-expired'));
