@@ -17,6 +17,8 @@ export const API_ENDPOINTS = {
         ME: '/v1/users/me',
         PASSWORD: '/v1/users/me/password',
         PROFILE_IMAGE: '/v1/users/profile/image',
+        FIND_EMAIL: '/v1/users/find-email',
+        RESET_PASSWORD: '/v1/users/reset-password',
     },
     POSTS: {
         ROOT: '/v1/posts',
@@ -61,6 +63,8 @@ export const UI_MESSAGES = {
     POST_UPDATE_FAIL: '게시글 수정 실패',
 
     LOGOUT_SUCCESS: '로그아웃 되었습니다.',
+    FIND_EMAIL_SUCCESS: '이메일 조회가 완료되었습니다.',
+    RESET_PASSWORD_SUCCESS: '임시 비밀번호가 이메일로 발송되었습니다.',
 };
 
 export const NAV_PATHS = {
@@ -72,6 +76,7 @@ export const NAV_PATHS = {
     EDIT: (id) => `/edit?id=${id}`,
     PASSWORD: '/password',
     EDIT_PROFILE: '/edit-profile',
+    FIND_ACCOUNT: '/find-account',
 };
 
 // 클린 URL → 실제 HTML 파일 매핑
@@ -85,4 +90,5 @@ export const HTML_PATHS = {
     '/edit': '/post_edit.html',
     '/password': '/user_password.html',
     '/edit-profile': '/user_edit.html',
+    '/find-account': '/user_find_account.html',
 };

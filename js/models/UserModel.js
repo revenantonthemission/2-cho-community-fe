@@ -61,6 +61,24 @@ class UserModel {
         formData.append('file', file);
         return ApiService.postFormData(API_ENDPOINTS.USERS.PROFILE_IMAGE, formData);
     }
+
+    /**
+     * 닉네임으로 이메일 찾기
+     * @param {string} nickname - 닉네임
+     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     */
+    static async findEmail(nickname) {
+        return ApiService.post(API_ENDPOINTS.USERS.FIND_EMAIL, { nickname });
+    }
+
+    /**
+     * 임시 비밀번호 요청
+     * @param {string} email - 이메일 주소
+     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     */
+    static async resetPassword(email) {
+        return ApiService.post(API_ENDPOINTS.USERS.RESET_PASSWORD, { email });
+    }
 }
 
 export default UserModel;

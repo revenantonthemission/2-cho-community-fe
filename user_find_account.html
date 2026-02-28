@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아무 말 대잔치 - 계정 찾기</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/pages/login.css">
+    <link rel="stylesheet" href="/css/pages/find_account.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+KR:wght@100..900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="header-title-wrapper">
+            <h2>아무 말 대잔치</h2>
+        </div>
+    </header>
+    <div class="login-container">
+        <h2>계정 찾기</h2>
+
+        <!-- 탭 네비게이션 -->
+        <div class="tab-nav" role="tablist">
+            <button class="tab-btn active" id="tab-find-email" role="tab" aria-selected="true"
+                aria-controls="panel-find-email">이메일 찾기</button>
+            <button class="tab-btn" id="tab-reset-password" role="tab" aria-selected="false"
+                aria-controls="panel-reset-password">비밀번호 찾기</button>
+        </div>
+
+        <!-- 이메일 찾기 패널 -->
+        <div id="panel-find-email" role="tabpanel" aria-labelledby="tab-find-email">
+            <form id="find-email-form" novalidate>
+                <div class="input-group">
+                    <label for="nickname">닉네임</label>
+                    <input type="text" id="nickname" name="nickname"
+                        placeholder="가입 시 사용한 닉네임을 입력하세요" autocomplete="username">
+                    <span id="nickname-helper"></span>
+                </div>
+                <button type="submit" class="login-btn" id="find-email-btn" disabled>이메일 찾기</button>
+            </form>
+            <div id="find-email-result" class="result-box" hidden>
+                <p>가입된 이메일: <strong id="masked-email-display"></strong></p>
+            </div>
+        </div>
+
+        <!-- 비밀번호 찾기 패널 -->
+        <div id="panel-reset-password" role="tabpanel" aria-labelledby="tab-reset-password" hidden>
+            <form id="reset-password-form" novalidate>
+                <div class="input-group">
+                    <label for="reset-email">이메일</label>
+                    <input type="email" id="reset-email" name="email"
+                        placeholder="가입 시 사용한 이메일을 입력하세요" autocomplete="email">
+                    <span id="reset-email-helper"></span>
+                </div>
+                <button type="submit" class="login-btn" id="reset-password-btn" disabled>임시 비밀번호 받기</button>
+            </form>
+        </div>
+
+        <div class="links">
+            <a href="/login">로그인으로 돌아가기</a>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script type="module" src="/js/app/find_account.js"></script>
+</body>
+
+</html>

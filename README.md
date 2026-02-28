@@ -51,7 +51,6 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 - 게시글 검색 기능
 - 대댓글(nested comments) 기능
 - 소셜 로그인 (OAuth)
-- 이메일 인증 및 비밀번호 찾기
 - 관리자 대시보드
 - 게시글 카테고리 또는 태그 기능
 
@@ -165,6 +164,8 @@ erDiagram
 | Method | Endpoint | 설명 | 인증 |
 | ------ | -------- | ---- | ---- |
 | POST | `/v1/users` | 회원가입 | X |
+| POST | `/v1/users/find-email` | 이메일 찾기 (닉네임 → 마스킹 이메일) | X |
+| POST | `/v1/users/reset-password` | 비밀번호 재설정 (이메일 → 임시 비밀번호 발송) | X |
 | GET | `/v1/users/{user_id}` | 사용자 프로필 조회 | X |
 | PATCH | `/v1/users/me` | 프로필 수정 (본인) | O |
 | DELETE | `/v1/users/me` | 회원 탈퇴 (본인) | O |
@@ -257,13 +258,14 @@ sequenceDiagram
 
 ```text
 2-cho-community-fe/
-├── html/                    # 8개 정적 HTML 페이지
+├── html/                    # 9개 정적 HTML 페이지
 │   ├── post_list.html       # 메인 피드
 │   ├── post_detail.html     # 게시글 상세
 │   ├── post_write.html      # 게시글 작성
 │   ├── post_edit.html       # 게시글 수정
 │   ├── user_login.html      # 로그인
 │   ├── user_signup.html     # 회원가입
+│   ├── user_find_account.html # 계정 찾기 (이메일/비밀번호)
 │   ├── user_password.html   # 비밀번호 변경
 │   └── user_edit.html       # 프로필 수정
 │
@@ -339,6 +341,12 @@ sequenceDiagram
 ## Changelog
 
 ### 2026-02 (Feb)
+
+- **02-28: 계정 찾기 페이지 (이메일 찾기 + 비밀번호 재설정)**
+  - `user_find_account.html`: 탭 UI (이메일 찾기 / 비밀번호 찾기)
+  - 이메일 찾기: 닉네임 입력 → 마스킹 이메일 결과 표시
+  - 비밀번호 재설정: 이메일 입력 → 임시 비밀번호 발송 토스트
+  - MVC 패턴: `FindAccountController` + `FindAccountView`, 429 Rate Limit 처리
 
 - **02-28: 전체 코드 리뷰 기반 버그 수정**
   - Silent refresh: 401 시 토큰 갱신 후 원래 요청 자동 재시도 (`_isRetry` 플래그로 무한 루프 방지)
