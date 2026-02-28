@@ -4,6 +4,7 @@
 import UserModel from '../models/UserModel.js';
 import FindAccountView from '../views/FindAccountView.js';
 import FormValidator from '../views/FormValidator.js';
+import { resolveNavPath } from '../config.js';
 import Logger from '../utils/Logger.js';
 
 const logger = Logger.createLogger('FindAccountController');
@@ -38,6 +39,18 @@ class FindAccountController {
      * 이벤트 리스너 등록
      */
     _setupEventListeners() {
+        // 뒤로가기 버튼
+        const backBtn = document.getElementById('back-btn');
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                if (window.history.length > 1) {
+                    history.back();
+                } else {
+                    location.href = resolveNavPath('/login');
+                }
+            });
+        }
+
         this.view.bindEvents({
             onTabFindEmail: () => this._switchTab('find-email'),
             onTabResetPassword: () => this._switchTab('reset-password'),

@@ -342,6 +342,10 @@ sequenceDiagram
 
 ### 2026-02 (Feb)
 
+- **02-28: 뒤로가기 버튼 UI 통일**
+  - `user_signup.html`: `<a>` 텍스트 `<` → `<button>` SVG chevron 통일 (기존 JS 바인딩 미작동 수정)
+  - `user_find_account.html`: 누락된 뒤로가기 버튼 추가
+
 - **02-28: 계정 찾기 페이지 (이메일 찾기 + 비밀번호 재설정)**
   - `user_find_account.html`: 탭 UI (이메일 찾기 / 비밀번호 찾기)
   - 이메일 찾기: 닉네임 입력 → 마스킹 이메일 결과 표시
