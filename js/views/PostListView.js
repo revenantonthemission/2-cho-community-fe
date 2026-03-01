@@ -4,6 +4,7 @@
 import { formatDate, formatCount, truncateTitle, escapeCssUrl } from '../utils/formatters.js';
 import { getImageUrl } from './helpers.js';
 import { createElement } from '../utils/dom.js';
+import { UI_MESSAGES } from '../constants.js';
 
 /**
  * 게시글 목록 View 클래스
@@ -117,6 +118,20 @@ class PostListView {
         container.appendChild(
             createElement('div', { className: 'empty-state' }, [
                 createElement('p', {}, ['등록된 게시글이 없습니다.'])
+            ])
+        );
+    }
+
+    /**
+     * 검색 결과 없음 메시지 표시
+     * @param {HTMLElement} container - 목록 컨테이너
+     * @param {string} searchTerm - 검색어
+     */
+    static showSearchEmptyState(container, searchTerm) {
+        container.textContent = '';
+        container.appendChild(
+            createElement('div', { className: 'empty-state' }, [
+                createElement('p', {}, [`'${searchTerm}' — ${UI_MESSAGES.SEARCH_NO_RESULTS}`])
             ])
         );
     }

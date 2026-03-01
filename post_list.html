@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>아무 말 대잔치</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/modules/search.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -27,6 +28,19 @@
             <h3 id="welcome-message">안녕하세요, 아무 말 대잔치 <strong>게시판</strong> 입니다.</h3>
             <div class="action-wrapper">
                 <button id="write-btn" class="write-btn">게시글 작성</button>
+            </div>
+        </section>
+
+        <section class="search-sort-section">
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="게시글 검색..." maxlength="100">
+                <button id="search-btn" class="search-btn">검색</button>
+            </div>
+            <div class="sort-buttons" id="sort-buttons">
+                <button class="sort-btn active" data-sort="latest">최신순</button>
+                <button class="sort-btn" data-sort="likes">인기순</button>
+                <button class="sort-btn" data-sort="views">조회순</button>
+                <button class="sort-btn" data-sort="comments">댓글순</button>
             </div>
         </section>
 

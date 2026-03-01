@@ -7,6 +7,7 @@
     <title>아무 말 대잔치 - 게시글 상세</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/pages/detail.css">
+    <link rel="stylesheet" href="/css/modules/comments.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -74,6 +75,10 @@
         <!-- 댓글 섹션 (Comment Section) -->
         <section class="comment-section">
             <div class="comment-input-wrapper">
+                <div id="reply-indicator" class="reply-indicator hidden">
+                    <span id="reply-indicator-text"></span>
+                    <button id="reply-cancel-btn" class="reply-cancel-btn">취소</button>
+                </div>
                 <textarea id="comment-input" placeholder="댓글을 남겨주세요!"></textarea>
                 <div class="comment-submit-wrapper">
                     <button id="comment-submit-btn" class="comment-submit-btn">댓글 등록</button>

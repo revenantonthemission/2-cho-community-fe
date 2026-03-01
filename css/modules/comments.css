@@ -114,3 +114,63 @@
     line-height: 1.5;
     color: #333;
 }
+
+/* ============================= */
+/* Reply (대댓글) Styles         */
+/* ============================= */
+.comment-reply {
+    margin-left: 40px;
+    border-left: 2px solid #e0e0e0;
+    padding-left: 16px;
+}
+
+/* ============================= */
+/* Deleted Comment               */
+/* ============================= */
+.comment-deleted {
+    padding: 12px 0;
+}
+
+.comment-deleted-text {
+    color: #999;
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* ============================= */
+/* Reply Indicator               */
+/* ============================= */
+.reply-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    align-self: stretch;
+    padding: 8px 12px;
+    background: #f3e5f5;
+    border-radius: 8px 8px 0 0;
+    font-size: 13px;
+    color: #7C4DFF;
+}
+
+.reply-indicator.hidden {
+    display: none;
+}
+
+.reply-cancel-btn {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.reply-cancel-btn:hover {
+    color: #666;
+}
+
+/* ============================= */
+/* Reply Button                  */
+/* ============================= */
+.reply-btn {
+    color: #7C4DFF;
+}

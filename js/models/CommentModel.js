@@ -12,10 +12,15 @@ class CommentModel {
      * 댓글 작성
      * @param {string|number} postId - 게시글 ID
      * @param {string} content - 댓글 내용
+     * @param {string|number|null} parentId - 부모 댓글 ID (대댓글인 경우)
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
      */
-    static async createComment(postId, content) {
-        return ApiService.post(API_ENDPOINTS.COMMENTS.ROOT(postId), { content });
+    static async createComment(postId, content, parentId = null) {
+        const body = { content };
+        if (parentId !== null) {
+            body.parent_id = parentId;
+        }
+        return ApiService.post(API_ENDPOINTS.COMMENTS.ROOT(postId), body);
     }
 
     /**

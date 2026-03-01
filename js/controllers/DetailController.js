@@ -83,8 +83,15 @@ class DetailController {
             // 댓글 별도 추출 (백엔드 응답 구조: data: { post: {...}, comments: [...] })
             const comments = data?.comments || [];
 
-            // 댓글 수 동기화
-            post.comments_count = comments.length;
+            // 트리 구조에서 총 댓글 수 계산 (삭제된 댓글 제외)
+            let totalComments = 0;
+            comments.forEach(c => {
+                if (!c.is_deleted) totalComments++;
+                if (c.replies) {
+                    totalComments += c.replies.filter(r => !r.is_deleted).length;
+                }
+            });
+            post.comments_count = totalComments;
 
             // 게시글 렌더링
             PostDetailView.renderPost(post);
@@ -127,9 +134,16 @@ class DetailController {
             const data = result.data?.data;
             const comments = data?.comments || [];
 
-            // 댓글 수만 업데이트
+            // 총 댓글 수 계산 (삭제된 댓글 제외)
+            let totalCount = 0;
+            comments.forEach(c => {
+                if (!c.is_deleted) totalCount++;
+                if (c.replies) {
+                    totalCount += c.replies.filter(r => !r.is_deleted).length;
+                }
+            });
             const commentCount = document.getElementById('comment-count');
-            if (commentCount) commentCount.textContent = comments.length;
+            if (commentCount) commentCount.textContent = totalCount;
 
             // 댓글 목록만 다시 렌더링
             this.commentController.render(comments);

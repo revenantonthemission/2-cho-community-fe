@@ -65,6 +65,8 @@ export const UI_MESSAGES = {
     LOGOUT_SUCCESS: '로그아웃 되었습니다.',
     FIND_EMAIL_SUCCESS: '이메일 조회가 완료되었습니다.',
     RESET_PASSWORD_SUCCESS: '임시 비밀번호가 이메일로 발송되었습니다.',
+    SEARCH_PLACEHOLDER: '게시글 검색...',
+    SEARCH_NO_RESULTS: '검색 결과가 없습니다.',
 };
 
 export const NAV_PATHS = {
@@ -77,6 +79,20 @@ export const NAV_PATHS = {
     PASSWORD: '/password',
     EDIT_PROFILE: '/edit-profile',
     FIND_ACCOUNT: '/find-account',
+};
+
+export const SORT_OPTIONS = {
+    LATEST: 'latest',
+    LIKES: 'likes',
+    VIEWS: 'views',
+    COMMENTS: 'comments',
+};
+
+export const SORT_LABELS = {
+    latest: '최신순',
+    likes: '인기순',
+    views: '조회순',
+    comments: '댓글순',
 };
 
 // 클린 URL → 실제 HTML 파일 매핑

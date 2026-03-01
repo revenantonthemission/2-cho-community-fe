@@ -12,10 +12,16 @@ class PostModel {
      * 게시글 목록 조회
      * @param {number} [offset=0] - 시작 위치
      * @param {number} [limit=10] - 조회 개수
+     * @param {string|null} [search=null] - 검색어
+     * @param {string} [sort='latest'] - 정렬 기준
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
      */
-    static async getPosts(offset = 0, limit = 10) {
-        return ApiService.get(`${API_ENDPOINTS.POSTS.ROOT}/?offset=${offset}&limit=${limit}`);
+    static async getPosts(offset = 0, limit = 10, search = null, sort = 'latest') {
+        let url = `${API_ENDPOINTS.POSTS.ROOT}/?offset=${offset}&limit=${limit}&sort=${sort}`;
+        if (search) {
+            url += `&search=${encodeURIComponent(search)}`;
+        }
+        return ApiService.get(url);
     }
 
     /**
