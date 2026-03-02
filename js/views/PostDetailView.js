@@ -3,6 +3,8 @@
 
 import { formatDate, formatCount, escapeCssUrl } from '../utils/formatters.js';
 import { getImageUrl, showToast } from './helpers.js';
+import { resolveNavPath } from '../config.js';
+import { NAV_PATHS } from '../constants.js';
 
 /**
  * 게시글 상세 View 클래스
@@ -24,6 +26,14 @@ class PostDetailView {
         // 작성자
         const authorNickname = document.getElementById('post-author-nickname');
         if (authorNickname) authorNickname.innerText = post.author.nickname;
+
+        // 닉네임 클릭 시 사용자 프로필로 이동
+        if (authorNickname && post.author?.user_id) {
+            authorNickname.classList.add('clickable-nickname');
+            authorNickname.addEventListener('click', () => {
+                location.href = resolveNavPath(NAV_PATHS.USER_PROFILE(post.author.user_id));
+            });
+        }
 
         const authorImg = document.getElementById('post-author-img');
         if (authorImg) {

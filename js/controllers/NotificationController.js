@@ -1,0 +1,162 @@
+// js/controllers/NotificationController.js
+// 알림 목록 페이지 컨트롤러
+
+import NotificationModel from '../models/NotificationModel.js';
+import NotificationView from '../views/NotificationView.js';
+import { showToast } from '../views/helpers.js';
+import { resolveNavPath } from '../config.js';
+import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
+import Logger from '../utils/Logger.js';
+
+const logger = Logger.createLogger('NotificationController');
+
+/**
+ * 알림 목록 페이지 컨트롤러
+ * 무한 스크롤과 이벤트 위임으로 알림 목록을 관리한다.
+ */
+class NotificationController {
+    constructor() {
+        this.currentOffset = 0;
+        this.LIMIT = 20;
+        this.isLoading = false;
+        this.hasMore = true;
+    }
+
+    async init() {
+        this.listEl = document.getElementById('notification-list');
+        this.emptyEl = document.getElementById('notification-empty');
+        this.markAllBtn = document.getElementById('mark-all-read-btn');
+
+        this._setupEventListeners();
+        this._setupInfiniteScroll();
+        await this._loadNotifications();
+    }
+
+    /**
+     * 이벤트 리스너 설정 (이벤트 위임 패턴)
+     * @private
+     */
+    _setupEventListeners() {
+        // 모두 읽음 버튼
+        this.markAllBtn?.addEventListener('click', () => this._handleMarkAllRead());
+
+        // 이벤트 위임: 알림 클릭 + 삭제
+        this.listEl?.addEventListener('click', (e) => {
+            const deleteBtn = e.target.closest('.notification-delete-btn');
+            if (deleteBtn) {
+                e.stopPropagation();
+                const li = deleteBtn.closest('.notification-item');
+                const id = li?.dataset.id;
+                if (id) this._handleDelete(parseInt(id), li);
+                return;
+            }
+
+            const item = e.target.closest('.notification-item');
+            if (item) {
+                this._handleItemClick(item);
+            }
+        });
+    }
+
+    /**
+     * 무한 스크롤 설정
+     * @private
+     */
+    _setupInfiniteScroll() {
+        window.addEventListener('scroll', () => {
+            if (this.isLoading || !this.hasMore) return;
+            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+            if (scrollTop + clientHeight >= scrollHeight - 100) {
+                this._loadNotifications();
+            }
+        });
+    }
+
+    /**
+     * 알림 목록 로드 (페이지네이션)
+     * @private
+     */
+    async _loadNotifications() {
+        if (this.isLoading || !this.hasMore) return;
+        this.isLoading = true;
+
+        try {
+            const result = await NotificationModel.getNotifications(this.currentOffset, this.LIMIT);
+
+            if (!result.ok) {
+                showToast(UI_MESSAGES.NOTIFICATION_LOAD_FAIL);
+                this.isLoading = false;
+                return;
+            }
+
+            const notifications = result.data?.data?.notifications || [];
+            const totalCount = result.data?.data?.total_count || 0;
+
+            if (notifications.length === 0 && this.currentOffset === 0) {
+                this.emptyEl?.classList.remove('hidden');
+            }
+
+            // post_id를 data attribute에 저장하여 클릭 시 게시글 이동에 사용
+            notifications.forEach(n => {
+                const li = NotificationView.createNotificationItem(n);
+                li.dataset.postId = n.post_id;
+                this.listEl?.appendChild(li);
+            });
+
+            this.currentOffset += notifications.length;
+            this.hasMore = this.currentOffset < totalCount;
+        } catch (error) {
+            logger.error('알림 목록 로드 실패', error);
+            showToast(UI_MESSAGES.NOTIFICATION_LOAD_FAIL);
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    /**
+     * 알림 항목 클릭 처리 (읽음 표시 + 게시글 이동)
+     * @private
+     */
+    async _handleItemClick(item) {
+        const id = parseInt(item.dataset.id);
+        const postId = item.dataset.postId;
+
+        // 읽음 처리
+        if (item.classList.contains('unread')) {
+            await NotificationModel.markAsRead(id);
+            item.classList.remove('unread');
+        }
+
+        // 게시글로 이동
+        if (postId) {
+            location.href = resolveNavPath(NAV_PATHS.DETAIL(postId));
+        }
+    }
+
+    /**
+     * 알림 삭제 처리
+     * @private
+     */
+    async _handleDelete(id, li) {
+        const result = await NotificationModel.deleteNotification(id);
+        if (result.ok) {
+            li.remove();
+        }
+    }
+
+    /**
+     * 모든 알림 읽음 처리
+     * @private
+     */
+    async _handleMarkAllRead() {
+        const result = await NotificationModel.markAllAsRead();
+        if (result.ok) {
+            this.listEl?.querySelectorAll('.unread').forEach(el => {
+                el.classList.remove('unread');
+            });
+            showToast('모든 알림을 읽음 처리했습니다.');
+        }
+    }
+}
+
+export default NotificationController;

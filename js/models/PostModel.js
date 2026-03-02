@@ -14,12 +14,16 @@ class PostModel {
      * @param {number} [limit=10] - 조회 개수
      * @param {string|null} [search=null] - 검색어
      * @param {string} [sort='latest'] - 정렬 기준
+     * @param {number|null} [authorId=null] - 작성자 ID 필터
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
      */
-    static async getPosts(offset = 0, limit = 10, search = null, sort = 'latest') {
+    static async getPosts(offset = 0, limit = 10, search = null, sort = 'latest', authorId = null) {
         let url = `${API_ENDPOINTS.POSTS.ROOT}/?offset=${offset}&limit=${limit}&sort=${sort}`;
         if (search) {
             url += `&search=${encodeURIComponent(search)}`;
+        }
+        if (authorId) {
+            url += `&author_id=${authorId}`;
         }
         return ApiService.get(url);
     }

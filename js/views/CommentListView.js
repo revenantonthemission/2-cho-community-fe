@@ -4,6 +4,8 @@
 import { formatDate, escapeCssUrl } from '../utils/formatters.js';
 import { getImageUrl } from './helpers.js';
 import { createElement } from '../utils/dom.js';
+import { resolveNavPath } from '../config.js';
+import { NAV_PATHS } from '../constants.js';
 
 /**
  * 댓글 목록 View 클래스
@@ -73,7 +75,15 @@ class CommentListView {
             }),
             createElement('div', { className: 'comment-content-wrapper' }, [
                 createElement('div', { className: 'comment-header' }, [
-                    createElement('span', { className: 'comment-author-name' }, [nickname]),
+                    createElement('span', {
+                        className: `comment-author-name${comment.author?.user_id ? ' clickable-nickname' : ''}`,
+                        ...(comment.author?.user_id ? {
+                            onClick: (e) => {
+                                e.stopPropagation();
+                                location.href = resolveNavPath(NAV_PATHS.USER_PROFILE(comment.author.user_id));
+                            },
+                        } : {}),
+                    }, [nickname]),
                     createElement('span', { className: 'comment-date' }, [dateStr]),
                     ...(actionButtons.length > 0 ? [
                         createElement('div', { className: 'comment-actions' }, actionButtons)

@@ -79,6 +79,15 @@ class UserModel {
     static async resetPassword(email) {
         return ApiService.post(API_ENDPOINTS.USERS.RESET_PASSWORD, { email });
     }
+
+    /**
+     * 사용자 공개 프로필 조회
+     * @param {number} userId - 사용자 ID
+     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     */
+    static async getUserById(userId) {
+        return ApiService.get(`${API_ENDPOINTS.USERS.ROOT}/${userId}`);
+    }
 }
 
 export default UserModel;

@@ -38,6 +38,7 @@ class HeaderView {
      * @param {object} handlers - 이벤트 핸들러 객체
      * @param {Function} handlers.onEditInfo - 회원정보 수정 클릭 핸들러
      * @param {Function} handlers.onChangePassword - 비밀번호 수정 클릭 핸들러
+     * @param {Function} handlers.onMyActivity - 내 활동 클릭 핸들러
      * @param {Function} handlers.onLogout - 로그아웃 클릭 핸들러
      * @returns {HTMLElement} - 드롭다운 요소
      */
@@ -53,6 +54,7 @@ class HeaderView {
                 createElement('ul', {}, [
                     createElement('li', { id: 'menu-edit-info' }, ['회원정보수정']),
                     createElement('li', { id: 'menu-change-pw' }, ['비밀번호수정']),
+                    createElement('li', { id: 'menu-my-activity' }, ['내 활동']),
                     createElement('li', { id: 'menu-logout' }, ['로그아웃']),
                 ])
             );
@@ -115,6 +117,7 @@ class HeaderView {
 
         bindMenuBtn('menu-edit-info', handlers.onEditInfo);
         bindMenuBtn('menu-change-pw', handlers.onChangePassword);
+        bindMenuBtn('menu-my-activity', handlers.onMyActivity);
         bindMenuBtn('menu-logout', handlers.onLogout);
     }
 

@@ -38,7 +38,23 @@ export const API_ENDPOINTS = {
          * @returns {string} - 엔드포인트 경로
          */
         DETAIL: (postId, commentId) => `/v1/posts/${postId}/comments/${commentId}`
-    }
+    },
+    NOTIFICATIONS: {
+        ROOT: '/v1/notifications',
+        UNREAD_COUNT: '/v1/notifications/unread-count',
+        READ: (id) => `/v1/notifications/${id}/read`,
+        READ_ALL: '/v1/notifications/read-all',
+        DELETE: (id) => `/v1/notifications/${id}`,
+    },
+    VERIFICATION: {
+        VERIFY: '/v1/auth/verify-email',
+        RESEND: '/v1/auth/resend-verification',
+    },
+    ACTIVITY: {
+        MY_POSTS: '/v1/users/me/posts',
+        MY_COMMENTS: '/v1/users/me/comments',
+        MY_LIKES: '/v1/users/me/likes',
+    },
 };
 
 export const UI_MESSAGES = {
@@ -67,6 +83,9 @@ export const UI_MESSAGES = {
     RESET_PASSWORD_SUCCESS: '임시 비밀번호가 이메일로 발송되었습니다.',
     SEARCH_PLACEHOLDER: '게시글 검색...',
     SEARCH_NO_RESULTS: '검색 결과가 없습니다.',
+    EMAIL_NOT_VERIFIED: '이메일 인증 후 이용 가능합니다.',
+    VERIFICATION_SENT: '인증 메일을 발송했습니다.',
+    NOTIFICATION_LOAD_FAIL: '알림 목록을 불러오지 못했습니다.',
 };
 
 export const NAV_PATHS = {
@@ -79,6 +98,10 @@ export const NAV_PATHS = {
     PASSWORD: '/password',
     EDIT_PROFILE: '/edit-profile',
     FIND_ACCOUNT: '/find-account',
+    NOTIFICATIONS: '/notifications',
+    MY_ACTIVITY: '/my-activity',
+    VERIFY_EMAIL: '/verify-email',
+    USER_PROFILE: (id) => `/user-profile?id=${id}`,
 };
 
 export const SORT_OPTIONS = {
@@ -107,4 +130,8 @@ export const HTML_PATHS = {
     '/password': '/user_password.html',
     '/edit-profile': '/user_edit.html',
     '/find-account': '/user_find_account.html',
+    '/notifications': '/notifications.html',
+    '/my-activity': '/my-activity.html',
+    '/verify-email': '/verify-email.html',
+    '/user-profile': '/user-profile.html',
 };

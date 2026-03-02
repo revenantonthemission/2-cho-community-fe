@@ -4,7 +4,8 @@
 import { formatDate, formatCount, truncateTitle, escapeCssUrl } from '../utils/formatters.js';
 import { getImageUrl } from './helpers.js';
 import { createElement } from '../utils/dom.js';
-import { UI_MESSAGES } from '../constants.js';
+import { UI_MESSAGES, NAV_PATHS } from '../constants.js';
+import { resolveNavPath } from '../config.js';
 
 /**
  * 게시글 목록 View 클래스
@@ -59,7 +60,15 @@ class PostListView {
                         backgroundSize: 'cover'
                     }
                 }),
-                createElement('span', { className: 'author-nickname' }, [nickname])
+                createElement('span', {
+                    className: `author-nickname${post.author?.user_id ? ' clickable-nickname' : ''}`,
+                    ...(post.author?.user_id ? {
+                        onClick: (e) => {
+                            e.stopPropagation();  // 카드 전체 클릭 방지
+                            location.href = resolveNavPath(NAV_PATHS.USER_PROFILE(post.author.user_id));
+                        },
+                    } : {}),
+                }, [nickname])
             ])
         ]);
 
