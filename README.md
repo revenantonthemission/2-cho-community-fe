@@ -1,33 +1,12 @@
 # 2-cho-community-fe
 
-AWS AI School 2기 4주차 과제
+AWS AI School 2기 과제: 커뮤니티 프론트엔드
 
 ## 요약 (Summary)
 
-커뮤니티 포럼 "아무 말 대잔치"를 구축합니다. FastAPI를 기반으로 하는 비동기 백엔드와 Vanilla JavaScript 프론트엔드(순수 정적 파일)로 구성된 모노레포 구조이며, JWT 기반 인증(Access Token + Refresh Token)과 MySQL 데이터베이스를 사용합니다. 게시글 CRUD, 댓글, 좋아요, 회원 관리 기능을 제공합니다.
+커뮤니티 포럼 "아무 말 대잔치"를 구축합니다. FastAPI를 기반으로 하는 비동기 백엔드와 Vanilla JavaScript 프론트엔드(순수 정적 파일)로 구성된 모노레포 구조이며, JWT 기반 인증(Access Token + Refresh Token)과 MySQL 데이터베이스를 사용합니다. 게시글 CRUD, 댓글(대댓글 포함), 좋아요, 검색/정렬, 이메일 인증, 알림, 내 활동 조회, 사용자 프로필 기능을 제공합니다.
 
 **개발 환경**: 프론트엔드는 `npm serve`를 사용하여 정적 파일을 서빙하며, Python 의존성이 없습니다. 프로덕션에서는 S3 + CloudFront를 사용합니다.
-
-## Quick Start (Development)
-
-### 로컬 개발 환경
-
-```bash
-# 1. 백엔드 실행 (별도 터미널)
-cd ../2-cho-community-be
-source .venv/bin/activate
-uvicorn main:app --reload --port 8000
-
-# 2. 프론트엔드 실행
-cd 2-cho-community-fe
-npm install  # 최초 1회만 실행
-npm run dev  # Port 8080
-
-# 3. 브라우저에서 접속
-# http://localhost:8080
-```
-
-**참고**: 프론트엔드는 순수 정적 파일(HTML/CSS/JS)로 구성되어 있으며 Python 의존성이 없습니다. 개발 환경에서는 `npm serve`를 사용하여 정적 파일을 서빙합니다.
 
 ## 배경 (Background)
 
@@ -45,10 +24,14 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 - 프로필 이미지 및 닉네임 수정 기능을 제공한다.
 - 무한 스크롤 기반의 게시글 목록을 제공한다.
 - 모바일/데스크탑 반응형 UI를 제공한다.
+- 이메일 인증 페이지를 제공한다. (토큰 기반 인증 결과 표시)
+- 알림 페이지를 제공한다. (읽음/삭제 처리, 무한 스크롤, 헤더 뱃지 30초 폴링)
+- 내 활동 페이지를 제공한다. (탭 UI: 내가 쓴 글/댓글/좋아요한 글)
+- 타 사용자 프로필 페이지를 제공한다. (닉네임 클릭으로 프로필 이동, 작성 글 목록)
 
 ## 목표가 아닌 것 (Non-Goals)
 
-- 실시간 알림 기능 (WebSocket)
+- 실시간 알림 기능 (WebSocket) — 현재는 30초 폴링 방식 사용
 - 소셜 로그인 (OAuth)
 - 관리자 대시보드
 - 게시글 카테고리 또는 태그 기능
@@ -75,7 +58,7 @@ flowchart TD
     Backend -->|"Async Connection Pool"| DB
 
     subgraph DB["MySQL Database"]
-        Tables["user, refresh_token, post,<br/>comment, post_like"]
+        Tables["user, refresh_token, post, comment,<br/>post_like, email_verification, notification"]
     end
 ```
 
@@ -89,6 +72,8 @@ erDiagram
     user ||--o{ post : "creates"
     user ||--o{ comment : "writes"
     user ||--o{ post_like : "likes"
+    user ||--o{ email_verification : "verifies"
+    user ||--o{ notification : "receives"
     post ||--o{ comment : "has"
     post ||--o{ post_like : "receives"
 
@@ -98,6 +83,7 @@ erDiagram
         varchar password_hash
         varchar nickname UK
         varchar profile_image
+        boolean email_verified "default FALSE"
         datetime deleted_at
         datetime created_at
     }
@@ -125,6 +111,7 @@ erDiagram
         int id PK
         int post_id FK
         int author_id FK
+        int parent_id FK "대댓글 부모"
         text content
         datetime deleted_at
         datetime created_at
@@ -134,6 +121,25 @@ erDiagram
         int id PK
         int post_id FK
         int user_id FK
+        datetime created_at
+    }
+
+    email_verification {
+        int id PK
+        int user_id FK
+        varchar token UK
+        datetime expires_at
+        boolean used "default FALSE"
+        datetime created_at
+    }
+
+    notification {
+        int id PK
+        int user_id FK "수신자"
+        int actor_id FK "발신자"
+        int post_id FK
+        enum type "like, comment, reply"
+        boolean is_read "default FALSE"
         datetime created_at
     }
 ```
@@ -146,6 +152,8 @@ erDiagram
   - `idx_refresh_token_hash`: Refresh Token 해시 조회
   - `idx_post_created_deleted`: 최신순 게시글 목록 조회
   - `idx_comment_post_deleted`: 게시글별 댓글 목록 조회
+  - `idx_notification_user_read`: 알림 목록 조회 (사용자별 + 읽음 상태)
+  - `idx_email_verification_token`: 이메일 인증 토큰 조회
 
 ### 3. API 설계
 
@@ -195,7 +203,7 @@ erDiagram
   "message": "성공",
   "data": { },
   "errors": null,
-  "timestamp": "2024-01-01T00:00:00Z"
+  "timestamp": "2026-01-01T00:00:00Z"
 }
 ```
 
@@ -257,7 +265,7 @@ sequenceDiagram
 
 ```text
 2-cho-community-fe/
-├── html/                    # 9개 정적 HTML 페이지
+├── html/                    # 13개 정적 HTML 페이지
 │   ├── post_list.html       # 메인 피드
 │   ├── post_detail.html     # 게시글 상세
 │   ├── post_write.html      # 게시글 작성
@@ -266,7 +274,11 @@ sequenceDiagram
 │   ├── user_signup.html     # 회원가입
 │   ├── user_find_account.html # 계정 찾기 (이메일/비밀번호)
 │   ├── user_password.html   # 비밀번호 변경
-│   └── user_edit.html       # 프로필 수정
+│   ├── user_edit.html       # 프로필 수정
+│   ├── verify-email.html    # 이메일 인증
+│   ├── notifications.html   # 알림
+│   ├── my-activity.html     # 내 활동
+│   └── user-profile.html    # 타 사용자 프로필
 │
 ├── js/
 │   ├── app/                 # 페이지별 진입점
@@ -288,9 +300,9 @@ sequenceDiagram
 
 #### MVC 패턴
 
-- **Model**: API 호출 담당. `AuthModel`, `PostModel`, `UserModel`, `CommentModel`
+- **Model**: API 호출 담당. `AuthModel`, `PostModel`, `UserModel`, `CommentModel`, `NotificationModel`, `ActivityModel`
 - **View**: DOM 렌더링. 정적 메서드로 HTML 생성 및 이벤트 바인딩
-- **Controller**: 비즈니스 로직. Model과 View 조정, 상태 관리 (`MainController`, `DetailController`, `WriteController` 등)
+- **Controller**: 비즈니스 로직. Model과 View 조정, 상태 관리 (`MainController`, `DetailController`, `WriteController`, `NotificationController`, `MyActivityController`, `UserProfileController` 등)
 
 #### 주요 패턴
 
@@ -298,7 +310,7 @@ sequenceDiagram
 - **IntersectionObserver**: 무한 스크롤 구현
 - **Custom Event**: `auth:session-expired` 이벤트로 401 처리 (silent refresh 실패 시 발생)
 - **XSS 방지**: `createElement()` / `textContent` 기반 DOM 생성 (innerHTML 금지)
-- **성능 최적화**: 
+- **성능 최적화**:
   - **Lazy Loading**: `loading="lazy"` 속성으로 이미지 로딩 지연
   - **Debounce**: 입력 이벤트(회원가입 등) 제어로 불필요한 연산 방지
 - **에러 처리**: `ErrorBoundary`를 통한 재시도 로직 및 에러 복구 전략
@@ -338,6 +350,15 @@ sequenceDiagram
 | 5단계 | 5주차 | 문서화, 코드 리뷰, 최종 배포 |
 
 ## Changelog
+
+### 2026-03 (Mar)
+
+- **03-02: 이메일 인증, 알림, 내 활동, 사용자 프로필 UI**
+  - 이메일 인증 페이지: 토큰 검증 결과 표시, 성공 시 로그인 페이지 리다이렉트
+  - 알림 페이지: 무한 스크롤 목록, 읽음/삭제 처리, 헤더 벨 아이콘 + 뱃지 (30초 폴링)
+  - 내 활동 페이지: 탭 UI (내가 쓴 글/댓글/좋아요한 글), 탭별 무한 스크롤
+  - 사용자 프로필: 공개 프로필 + 작성 글 목록, 닉네임 클릭으로 이동 (게시글 목록/상세/댓글)
+  - 헤더 드롭다운에 "내 활동" 메뉴 추가, `PostModel.getPosts()`에 `authorId` 필터 추가
 
 ### 2026-02 (Feb)
 

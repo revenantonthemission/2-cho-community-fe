@@ -76,14 +76,6 @@ class PostFormView {
     }
 
     /**
-     * 선택된 파일 조회
-     * @returns {File|null}
-     */
-    getSelectedFile() {
-        return this.fileInput?.files[0] || null;
-    }
-
-    /**
      * 제목 최대 길이 제한 적용
      * @param {number} maxLength - 최대 길이
      */

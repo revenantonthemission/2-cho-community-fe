@@ -93,9 +93,13 @@ class HeaderController {
      */
     _isAuthPage() {
         const path = location.pathname;
-        // 클린 URL과 HTML 파일 경로 모두 지원
-        return path === '/login' || path === '/signup'
-            || path === '/user_login.html' || path === '/user_signup.html';
+        // 인증 불필요 페이지: 클린 URL과 HTML 파일 경로 모두 지원
+        const publicPages = [
+            '/login', '/signup', '/find-account', '/verify-email',
+            '/user_login.html', '/user_signup.html',
+            '/user_find_account.html', '/verify-email.html',
+        ];
+        return publicPages.includes(path);
     }
 
     /**

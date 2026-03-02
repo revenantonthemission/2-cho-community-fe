@@ -203,7 +203,7 @@ class MainController {
                 });
             }
 
-            this.currentOffset += this.LIMIT;
+            this.currentOffset += posts.length;
 
         } catch (error) {
             logger.error('게시글 목록 로딩 실패', error);

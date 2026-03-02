@@ -63,13 +63,24 @@ class NotificationController {
      * @private
      */
     _setupInfiniteScroll() {
-        window.addEventListener('scroll', () => {
+        this._scrollHandler = () => {
             if (this.isLoading || !this.hasMore) return;
             const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
             if (scrollTop + clientHeight >= scrollHeight - 100) {
                 this._loadNotifications();
             }
-        });
+        };
+        window.addEventListener('scroll', this._scrollHandler);
+    }
+
+    /**
+     * 컨트롤러 정리 (스크롤 핸들러 제거)
+     */
+    destroy() {
+        if (this._scrollHandler) {
+            window.removeEventListener('scroll', this._scrollHandler);
+            this._scrollHandler = null;
+        }
     }
 
     /**

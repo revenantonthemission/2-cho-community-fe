@@ -21,6 +21,8 @@ export function createElement(tag, attributes = {}, children = []) {
             });
         } else if (key === 'style' && typeof value === 'object') {
             Object.assign(element.style, value);
+        } else if (key === 'textContent') {
+            element.textContent = value;
         } else if (key.startsWith('on') && typeof value === 'function') {
             // 이벤트 리스너 (예: onClick)
             const eventName = key.substring(2).toLowerCase();

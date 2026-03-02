@@ -1,10 +1,6 @@
 // js/constants.js
 // 상수 정의 파일
 
-import { API_BASE_URL } from './config.js';
-
-export { API_BASE_URL };
-
 export const API_ENDPOINTS = {
     AUTH: {
         LOGIN: '/v1/auth/session',

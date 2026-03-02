@@ -28,12 +28,14 @@ class UserModel {
 
     /**
      * 비밀번호 변경
+     * @param {string} currentPassword - 현재 비밀번호
      * @param {string} newPassword - 새 비밀번호
      * @param {string} newPasswordConfirm - 새 비밀번호 확인
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
      */
-    static async changePassword(newPassword, newPasswordConfirm) {
+    static async changePassword(currentPassword, newPassword, newPasswordConfirm) {
         return ApiService.put(API_ENDPOINTS.USERS.PASSWORD, {
+            current_password: currentPassword,
             new_password: newPassword,
             new_password_confirm: newPasswordConfirm
         });

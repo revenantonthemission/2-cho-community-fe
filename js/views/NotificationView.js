@@ -2,6 +2,7 @@
 // 알림 DOM 렌더링 (View 전용)
 
 import { createElement } from '../utils/dom.js';
+import { formatDate } from '../utils/formatters.js';
 
 /**
  * 알림 관련 View
@@ -37,7 +38,7 @@ class NotificationView {
 
         const time = createElement('span', {
             className: 'notification-time',
-            textContent: notification.created_at,
+            textContent: formatDate(new Date(notification.created_at)),
         });
 
         content.appendChild(message);
@@ -54,24 +55,6 @@ class NotificationView {
         return li;
     }
 
-    /**
-     * 알림 목록 렌더링
-     * @param {HTMLElement} container - 렌더링할 컨테이너
-     * @param {Array} notifications - 알림 데이터 배열
-     */
-    static renderNotifications(container, notifications) {
-        notifications.forEach(notification => {
-            container.appendChild(NotificationView.createNotificationItem(notification));
-        });
-    }
-
-    /**
-     * 알림 목록 초기화
-     * @param {HTMLElement} container - 비울 컨테이너
-     */
-    static clearList(container) {
-        container.textContent = '';
-    }
 }
 
 export default NotificationView;
