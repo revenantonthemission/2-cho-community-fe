@@ -98,6 +98,40 @@
 }
 
 /* ============================= */
+/* 게시글 배지 (Post Badges) */
+/* ============================= */
+.post-badges {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.pin-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #FF6D00;
+    color: white;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.category-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #EDE7F6;
+    color: #5E35B1;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.post-card.pinned {
+    border-left: 3px solid #FF6D00;
+}
+
+/* ============================= */
 /* 로딩 감지기 (Loading Sentinel) */
 /* ============================= */
 #loading-sentinel {

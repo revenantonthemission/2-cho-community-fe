@@ -218,8 +218,9 @@ class SignupView {
         const backBtn = document.getElementById('back-btn');
         if (backBtn) {
             backBtn.addEventListener('click', () => {
-                window.history.back();
-                if (document.referrer === '') {
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
                     window.location.href = resolveNavPath('/login');
                 }
             });

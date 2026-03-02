@@ -102,7 +102,6 @@ class ProfileController {
      * @private
      */
     _handleNicknameInput() {
-        this._validateNickname();
         this._checkFormValidity();
     }
 

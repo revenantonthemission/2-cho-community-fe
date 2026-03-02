@@ -4,6 +4,8 @@
 import { formatDate, formatCount, truncateTitle, escapeCssUrl } from '../utils/formatters.js';
 import { getImageUrl } from './helpers.js';
 import { createElement } from '../utils/dom.js';
+import { UI_MESSAGES, NAV_PATHS, CATEGORY_LABELS } from '../constants.js';
+import { resolveNavPath } from '../config.js';
 
 /**
  * 게시글 목록 View 클래스
@@ -31,8 +33,23 @@ class PostListView {
         const profileImgUrl = getImageUrl(post.author?.profileImageUrl);
         const nickname = post.author?.nickname || '';
 
+        // 배지 요소들
+        const badges = [];
+        if (post.is_pinned) {
+            badges.push(createElement('span', { className: 'pin-badge' }, ['고정']));
+        }
+        if (post.category_id && CATEGORY_LABELS[post.category_id]) {
+            badges.push(createElement('span', { className: 'category-badge' }, [
+                post.category_name || CATEGORY_LABELS[post.category_id]
+            ]));
+        }
+
         // DOM 생성 (createElement 사용)
-        const card = createElement('li', { className: 'post-card' }, [
+        const card = createElement('li', { className: `post-card${post.is_pinned ? ' pinned' : ''}` }, [
+            // Badges
+            ...(badges.length > 0 ? [
+                createElement('div', { className: 'post-badges' }, badges)
+            ] : []),
             // Header: Title & Date
             createElement('div', { className: 'post-card-header' }, [
                 createElement('h3', { className: 'post-title' }, [titleText]),
@@ -43,7 +60,7 @@ class PostListView {
             createElement('div', { className: 'post-stats' }, [
                 createElement('span', {}, [`좋아요 ${formatCount(likes)}`]),
                 createElement('span', {}, [`댓글 ${formatCount(comments)}`]),
-                createElement('span', {}, [`조회수 ${formatCount(views)}`])
+                createElement('span', {}, [`조회수 ${formatCount(views)}`]),
             ]),
             
             // Divider
@@ -58,7 +75,15 @@ class PostListView {
                         backgroundSize: 'cover'
                     }
                 }),
-                createElement('span', { className: 'author-nickname' }, [nickname])
+                createElement('span', {
+                    className: `author-nickname${post.author?.user_id ? ' clickable-nickname' : ''}`,
+                    ...(post.author?.user_id ? {
+                        onClick: (e) => {
+                            e.stopPropagation();  // 카드 전체 클릭 방지
+                            location.href = resolveNavPath(NAV_PATHS.USER_PROFILE(post.author.user_id));
+                        },
+                    } : {}),
+                }, [nickname])
             ])
         ]);
 
@@ -119,6 +144,46 @@ class PostListView {
                 createElement('p', {}, ['등록된 게시글이 없습니다.'])
             ])
         );
+    }
+
+    /**
+     * 검색 결과 없음 메시지 표시
+     * @param {HTMLElement} container - 목록 컨테이너
+     * @param {string} searchTerm - 검색어
+     */
+    static showSearchEmptyState(container, searchTerm) {
+        container.textContent = '';
+        container.appendChild(
+            createElement('div', { className: 'empty-state' }, [
+                createElement('p', {}, [`'${searchTerm}' — ${UI_MESSAGES.SEARCH_NO_RESULTS}`])
+            ])
+        );
+    }
+
+    /**
+     * 카테고리 탭 렌더링
+     * @param {HTMLElement} container - 탭 컨테이너
+     * @param {Array} categories - 카테고리 목록
+     * @param {number|null} activeCategoryId - 현재 선택된 카테고리 ID
+     * @param {Function} onSelect - 카테고리 선택 핸들러
+     */
+    static renderCategoryTabs(container, categories, activeCategoryId, onSelect) {
+        container.textContent = '';
+
+        // '전체' 탭
+        const allTab = createElement('button', {
+            className: `category-tab${activeCategoryId === null ? ' active' : ''}`,
+            onClick: () => onSelect(null),
+        }, ['전체']);
+        container.appendChild(allTab);
+
+        categories.forEach(cat => {
+            const tab = createElement('button', {
+                className: `category-tab${activeCategoryId === cat.category_id ? ' active' : ''}`,
+                onClick: () => onSelect(cat.category_id),
+            }, [cat.name]);
+            container.appendChild(tab);
+        });
     }
 }
 

@@ -1,14 +1,15 @@
 // js/controllers/DetailController.js
 // 게시글 상세 페이지 컨트롤러
 
-import AuthModel from '../models/AuthModel.js';
 import PostModel from '../models/PostModel.js';
+import UserModel from '../models/UserModel.js';
+import ReportModel from '../models/ReportModel.js';
 import PostDetailView from '../views/PostDetailView.js';
 import ModalView from '../views/ModalView.js';
 import CommentController from './CommentController.js';
 import Logger from '../utils/Logger.js';
 import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
-import { showToastAndRedirect } from '../views/helpers.js';
+import { showToastAndRedirect, showToast } from '../views/helpers.js';
 import { resolveNavPath } from '../config.js';
 
 const logger = Logger.createLogger('DetailController');
@@ -20,15 +21,20 @@ class DetailController {
     constructor() {
         this.currentPostId = null;
         this.currentUserId = null;
+        this.currentUser = null;
         this.deleteTargetId = null; // 오직 게시글 삭제 대상 ID만 저장
         this.isLiking = false;
+        this.isBookmarking = false;
         this.commentController = null;
+        this.currentPost = null; // 현재 게시글 데이터 (pin 상태 등)
+        this.reportTarget = null; // { type: 'post'|'comment', id: number }
     }
 
     /**
      * 컨트롤러 초기화
+     * @param {object|null} [currentUser=null] - HeaderController에서 전달받은 사용자 정보
      */
-    async init() {
+    async init(currentUser = null) {
         const urlParams = new URLSearchParams(window.location.search);
         const postId = urlParams.get('id');
 
@@ -39,27 +45,32 @@ class DetailController {
 
         this.currentPostId = postId;
 
-        await this._checkLoginStatus();
+        this._setCurrentUser(currentUser);
         await this._loadPostDetail();
         this._setupEventListeners();
     }
 
     /**
-     * 로그인 상태 확인
+     * 현재 사용자 설정
+     * @param {object|null} user - 사용자 객체 또는 null
      * @private
      */
-    async _checkLoginStatus() {
-        try {
-            const authStatus = await AuthModel.checkAuthStatus();
-            if (authStatus.isAuthenticated) {
-                this.currentUserId = authStatus.user.user_id || authStatus.user.id;
-            } else {
-                this.currentUserId = null;
-            }
-        } catch (error) {
-            logger.warn('로그인 확인 실패', error);
+    _setCurrentUser(user) {
+        this.currentUser = user;
+        if (user) {
+            this.currentUserId = user.user_id || user.id;
+        } else {
             this.currentUserId = null;
         }
+    }
+
+    /**
+     * 관리자 여부 확인
+     * @returns {boolean}
+     * @private
+     */
+    get _isAdmin() {
+        return this.currentUser?.role === 'admin';
     }
 
     /**
@@ -88,16 +99,33 @@ class DetailController {
             // 댓글 별도 추출 (백엔드 응답 구조: data: { post: {...}, comments: [...] })
             const comments = data?.comments || [];
 
-            // 댓글 수 동기화
-            post.comments_count = comments.length;
+            // 트리 구조에서 총 댓글 수 계산 (삭제된 댓글 제외)
+            let totalComments = 0;
+            comments.forEach(c => {
+                if (!c.is_deleted) totalComments++;
+                if (c.replies) {
+                    totalComments += c.replies.filter(r => !r.is_deleted).length;
+                }
+            });
+            post.comments_count = totalComments;
 
             // 게시글 렌더링
+            this.currentPost = post;
             PostDetailView.renderPost(post);
 
-            // 작성자 액션 버튼 표시/숨기기
+            // 작성자/관리자 액션 버튼 표시/숨기기
             const isOwner = this.currentUserId && post.author &&
                 (this.currentUserId === post.author.user_id || this.currentUserId === post.author.id);
-            PostDetailView.toggleActionButtons(isOwner);
+            PostDetailView.toggleActionButtons(isOwner, this._isAdmin);
+
+            // 신고 버튼 (로그인 + 본인 게시글 아닌 경우)
+            PostDetailView.toggleReportButton(this.currentUserId && !isOwner);
+
+            // 고정/해제 버튼 (관리자만)
+            PostDetailView.togglePinButton(this._isAdmin, post.is_pinned);
+
+            // 차단 버튼 (로그인 + 본인 게시글 아닌 경우)
+            PostDetailView.toggleBlockButton(this.currentUserId && !isOwner, post.is_blocked);
 
             // 댓글 컨트롤러 초기화 및 렌더링 위임
             if (!this.commentController) {
@@ -105,8 +133,10 @@ class DetailController {
                     this.currentPostId,
                     this.currentUserId,
                     {
-                        onCommentChange: () => this._reloadComments()
-                    }
+                        onCommentChange: () => this._reloadComments(),
+                        onReport: (targetType, targetId) => this._openReportModal(targetType, targetId),
+                    },
+                    this._isAdmin
                 );
                 // 입력창 이벤트는 DOM이 그려진 후 한 번만 설정
                 this.commentController.setupInputEvents();
@@ -132,9 +162,16 @@ class DetailController {
             const data = result.data?.data;
             const comments = data?.comments || [];
 
-            // 댓글 수만 업데이트
+            // 총 댓글 수 계산 (삭제된 댓글 제외)
+            let totalCount = 0;
+            comments.forEach(c => {
+                if (!c.is_deleted) totalCount++;
+                if (c.replies) {
+                    totalCount += c.replies.filter(r => !r.is_deleted).length;
+                }
+            });
             const commentCount = document.getElementById('comment-count');
-            if (commentCount) commentCount.textContent = comments.length;
+            if (commentCount) commentCount.textContent = totalCount;
 
             // 댓글 목록만 다시 렌더링
             this.commentController.render(comments);
@@ -178,13 +215,49 @@ class DetailController {
             likeBox.addEventListener('click', () => this._handleLike());
         }
 
-        // 댓글 관련 이벤트는 CommentController에서 처리함
+        // 북마크
+        const bookmarkBox = document.getElementById('bookmark-box');
+        if (bookmarkBox) {
+            bookmarkBox.addEventListener('click', () => this._handleBookmark());
+        }
 
-        // 게시글 삭제 모달 설정
-        // 주의: 댓글 삭제 모달은 CommentController에서 별도로 설정함
-        // 여기서는 'confirm-modal' ID를 공유하더라도 콜백이 덮어씌워지는 구조임.
-        // 따라서 모달을 열 때마다 콜백을 재설정하는 것이 안전함.
-        // _openDeleteModal 에서 설정하도록 변경.
+        // 공유
+        const shareBtn = document.getElementById('share-post-btn');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', () => this._handleShare());
+        }
+
+        // 고정/해제 버튼 (관리자)
+        const pinBtn = document.getElementById('pin-post-btn');
+        if (pinBtn) {
+            pinBtn.addEventListener('click', () => this._handlePinToggle());
+        }
+
+        // 차단 버튼
+        const blockBtn = document.getElementById('block-user-btn');
+        if (blockBtn) {
+            blockBtn.addEventListener('click', () => this._handleBlock());
+        }
+
+        // 신고 버튼
+        const reportBtn = document.getElementById('report-post-btn');
+        if (reportBtn) {
+            reportBtn.addEventListener('click', () => this._openReportModal('post'));
+        }
+
+        // 신고 모달 제출
+        const reportSubmitBtn = document.getElementById('report-submit-btn');
+        if (reportSubmitBtn) {
+            reportSubmitBtn.addEventListener('click', () => this._submitReport());
+        }
+
+        // 신고 모달 취소
+        const reportCancelBtn = document.getElementById('report-cancel-btn');
+        if (reportCancelBtn) {
+            reportCancelBtn.addEventListener('click', () => {
+                ModalView.closeModal('report-modal');
+            });
+        }
     }
 
     /**
@@ -232,6 +305,101 @@ class DetailController {
     }
 
     /**
+     * 북마크 토글 처리 (낙관적 UI)
+     * @private
+     */
+    async _handleBookmark() {
+        if (this.isBookmarking) return;
+
+        const bookmarkBox = document.getElementById('bookmark-box');
+        const countEl = document.getElementById('bookmark-count');
+        const originalCount = parseInt(countEl.innerText) || 0;
+        const wasBookmarked = bookmarkBox.classList.contains('active');
+
+        // 낙관적 UI 업데이트
+        const newCount = wasBookmarked ? Math.max(0, originalCount - 1) : originalCount + 1;
+        PostDetailView.updateBookmarkState(!wasBookmarked, newCount);
+
+        this.isBookmarking = true;
+
+        try {
+            const result = wasBookmarked
+                ? await PostModel.unbookmarkPost(this.currentPostId)
+                : await PostModel.bookmarkPost(this.currentPostId);
+
+            if (!result.ok) {
+                PostDetailView.updateBookmarkState(wasBookmarked, originalCount);
+                PostDetailView.showToast(UI_MESSAGES.BOOKMARK_FAIL);
+            }
+        } catch (error) {
+            logger.error('북마크 처리 실패', error);
+            PostDetailView.updateBookmarkState(wasBookmarked, originalCount);
+            PostDetailView.showToast(UI_MESSAGES.SERVER_ERROR);
+        } finally {
+            this.isBookmarking = false;
+        }
+    }
+
+    /**
+     * 공유 처리 (Web Share API 또는 클립보드)
+     * @private
+     */
+    async _handleShare() {
+        const url = window.location.href;
+
+        // 모바일: Web Share API 지원 시 사용
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: this.currentPost?.title || '게시글',
+                    url: url,
+                });
+                return;
+            } catch {
+                // 사용자 취소 등 — 무시
+            }
+        }
+
+        // 데스크톱: 클립보드 복사
+        try {
+            await navigator.clipboard.writeText(url);
+            PostDetailView.showToast(UI_MESSAGES.SHARE_COPIED);
+        } catch {
+            PostDetailView.showToast(UI_MESSAGES.UNKNOWN_ERROR);
+        }
+    }
+
+    /**
+     * 사용자 차단/해제 토글
+     * @private
+     */
+    async _handleBlock() {
+        if (!this.currentPost?.author?.user_id) return;
+
+        const authorId = this.currentPost.author.user_id;
+        const blockBtn = document.getElementById('block-user-btn');
+        const isBlocked = blockBtn?.textContent === '차단 해제';
+
+        try {
+            const result = isBlocked
+                ? await UserModel.unblockUser(authorId)
+                : await UserModel.blockUser(authorId);
+
+            if (result.ok) {
+                PostDetailView.toggleBlockButton(true, !isBlocked);
+                showToast(isBlocked ? UI_MESSAGES.UNBLOCK_SUCCESS : UI_MESSAGES.BLOCK_SUCCESS);
+            } else if (result.status === 400) {
+                showToast(UI_MESSAGES.BLOCK_SELF);
+            } else {
+                showToast(UI_MESSAGES.BLOCK_FAIL);
+            }
+        } catch (error) {
+            logger.error('차단 처리 실패', error);
+            showToast(UI_MESSAGES.BLOCK_FAIL);
+        }
+    }
+
+    /**
      * 게시글 삭제 모달 열기
      * @private
      */
@@ -247,6 +415,104 @@ class DetailController {
         });
 
         ModalView.openConfirmModal('confirm-modal', '게시글을 삭제하시겠습니까?');
+    }
+
+    /**
+     * 게시글 고정/해제 토글 (관리자)
+     * @private
+     */
+    async _handlePinToggle() {
+        if (!this.currentPost) return;
+
+        try {
+            const isPinned = this.currentPost.is_pinned;
+            const result = isPinned
+                ? await PostModel.unpinPost(this.currentPostId)
+                : await PostModel.pinPost(this.currentPostId);
+
+            if (result.ok) {
+                this.currentPost.is_pinned = !isPinned;
+                PostDetailView.togglePinButton(true, !isPinned);
+                showToast(isPinned ? UI_MESSAGES.UNPIN_SUCCESS : UI_MESSAGES.PIN_SUCCESS);
+            } else {
+                showToast(UI_MESSAGES.UNKNOWN_ERROR);
+            }
+        } catch (error) {
+            logger.error('고정/해제 실패', error);
+            showToast(UI_MESSAGES.UNKNOWN_ERROR);
+        }
+    }
+
+    /**
+     * 신고 모달 열기 (게시글 또는 댓글)
+     * @param {string} [targetType='post'] - 'post' 또는 'comment'
+     * @param {number} [targetId] - 대상 ID (생략 시 현재 게시글)
+     * @private
+     */
+    _openReportModal(targetType = 'post', targetId = null) {
+        const modal = document.getElementById('report-modal');
+        if (modal) {
+            this.reportTarget = {
+                type: targetType,
+                id: targetId || Number(this.currentPostId),
+            };
+
+            // 모달 제목 변경
+            const titleEl = modal.querySelector('h3');
+            if (titleEl) {
+                titleEl.textContent = targetType === 'comment' ? '댓글 신고' : '게시글 신고';
+            }
+
+            // 폼 초기화
+            const reasonSelect = document.getElementById('report-reason');
+            const descInput = document.getElementById('report-description');
+            if (reasonSelect) reasonSelect.value = 'spam';
+            if (descInput) descInput.value = '';
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    /**
+     * 신고 제출 (게시글 또는 댓글)
+     * @private
+     */
+    async _submitReport() {
+        if (!this.reportTarget) return;
+
+        const reasonSelect = document.getElementById('report-reason');
+        const descInput = document.getElementById('report-description');
+
+        const reason = reasonSelect?.value;
+        const description = descInput?.value?.trim() || null;
+
+        try {
+            const result = await ReportModel.createReport({
+                target_type: this.reportTarget.type,
+                target_id: this.reportTarget.id,
+                reason,
+                description,
+            });
+
+            ModalView.closeModal('report-modal');
+
+            if (result.ok) {
+                showToast(UI_MESSAGES.REPORT_SUCCESS);
+            } else if (result.status === 409) {
+                showToast(UI_MESSAGES.REPORT_DUPLICATE);
+            } else if (result.status === 400) {
+                showToast(UI_MESSAGES.REPORT_OWN_CONTENT);
+            } else {
+                showToast(UI_MESSAGES.UNKNOWN_ERROR);
+            }
+        } catch (error) {
+            logger.error('신고 제출 실패', error);
+            ModalView.closeModal('report-modal');
+            showToast(UI_MESSAGES.UNKNOWN_ERROR);
+        } finally {
+            this.reportTarget = null;
+        }
     }
 
     /**

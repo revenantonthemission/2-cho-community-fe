@@ -1,7 +1,7 @@
 // js/views/FormValidator.js
 // 폼 유효성 검사 View 헬퍼 (DOM 조작과 유효성 검사 결합)
 
-import { showError, hideError, updateButtonState as updateBtnState } from './helpers.js';
+import { showError, hideError } from './helpers.js';
 import Validators from '../utils/validators.js';
 
 /**
@@ -98,17 +98,6 @@ class FormValidator {
         }
 
         return result.valid;
-    }
-
-    /**
-     * 버튼 상태 업데이트
-     * @param {boolean} isValid - 유효 여부
-     * @param {HTMLButtonElement} button - 버튼 요소
-     * @param {string} [activeColor='#7F6AEE'] - 활성 색상
-     * @param {string} [inactiveColor='#ACA0EB'] - 비활성 색상
-     */
-    static updateButtonState(isValid, button, activeColor = '#7F6AEE', inactiveColor = '#ACA0EB') {
-        updateBtnState(button, isValid, activeColor, inactiveColor);
     }
 }
 

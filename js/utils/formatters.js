@@ -45,21 +45,6 @@ export function truncateTitle(title, maxLength = 26) {
 }
 
 /**
- * XSS 방지를 위한 HTML 이스케이프 함수
- * @param {string} text - 원본 텍스트
- * @returns {string} - 이스케이프된 텍스트
- */
-export function escapeHtml(text) {
-    if (!text) return '';
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
-
-/**
  * CSS url() 내에서 사용할 URL 이스케이프 함수
  * style="background-image: url('...')" 에서 인젝션 방지
  * @param {string} url - 원본 URL

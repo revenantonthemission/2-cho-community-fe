@@ -10,9 +10,11 @@ import { showError, hideError, showToast, updateButtonState as updateBtnState } 
 class PasswordView {
     constructor() {
         this.form = null;
+        this.currentPasswordInput = null;
         this.newPasswordInput = null;
         this.confirmPasswordInput = null;
         this.submitBtn = null;
+        this.currentPasswordHelper = null;
         this.newPasswordHelper = null;
         this.confirmPasswordHelper = null;
     }
@@ -23,13 +25,23 @@ class PasswordView {
      */
     initialize() {
         this.form = document.getElementById('password-form');
+        this.currentPasswordInput = document.getElementById('current-password');
         this.newPasswordInput = document.getElementById('new-password');
         this.confirmPasswordInput = document.getElementById('confirm-password');
         this.submitBtn = document.getElementById('submit-btn');
+        this.currentPasswordHelper = document.getElementById('current-password-helper');
         this.newPasswordHelper = document.getElementById('new-password-helper');
         this.confirmPasswordHelper = document.getElementById('confirm-password-helper');
 
         return !!this.form;
+    }
+
+    /**
+     * 현재 비밀번호 값 조회
+     * @returns {string}
+     */
+    getCurrentPassword() {
+        return this.currentPasswordInput?.value || '';
     }
 
     /**
@@ -46,6 +58,21 @@ class PasswordView {
      */
     getConfirmPassword() {
         return this.confirmPasswordInput?.value || '';
+    }
+
+    /**
+     * 현재 비밀번호 에러 표시
+     * @param {string} message - 에러 메시지
+     */
+    showCurrentPasswordError(message) {
+        showError(this.currentPasswordHelper, message);
+    }
+
+    /**
+     * 현재 비밀번호 에러 숨기기
+     */
+    hideCurrentPasswordError() {
+        hideError(this.currentPasswordHelper);
     }
 
     /**
@@ -108,6 +135,10 @@ class PasswordView {
      * @param {object} handlers - 이벤트 핸들러 객체
      */
     bindEvents(handlers) {
+        if (this.currentPasswordInput && handlers.onCurrentPasswordInput) {
+            this.currentPasswordInput.addEventListener('input', handlers.onCurrentPasswordInput);
+        }
+
         if (this.newPasswordInput && handlers.onNewPasswordInput) {
             this.newPasswordInput.addEventListener('input', handlers.onNewPasswordInput);
         }

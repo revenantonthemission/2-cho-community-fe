@@ -34,6 +34,15 @@
 
         <form id="edit-form">
             <div class="input-group">
+                <label for="category-select">카테고리*</label>
+                <div class="form-divider"></div>
+                <select id="category-select" class="category-select" required>
+                    <!-- 카테고리 옵션은 JS로 로드됨 -->
+                </select>
+                <div class="form-divider"></div>
+            </div>
+
+            <div class="input-group">
                 <label for="post-title">제목*</label>
                 <div class="form-divider"></div>
                 <input type="text" id="post-title" placeholder="제목을 입력해주세요. (최대 26글자)" maxlength="26" required>
@@ -52,10 +61,11 @@
             <div class="file-upload-section">
                 <label class="file-upload-label">이미지</label>
                 <div class="file-upload-row">
-                    <input type="file" id="file-input" accept="image/*" class="hidden-input">
+                    <input type="file" id="file-input" accept="image/*" multiple class="hidden-input">
                     <label for="file-input" class="file-select-btn">파일 선택</label>
                     <span id="file-name" class="file-name-text">기존 파일 명</span>
                 </div>
+                <div id="image-preview" class="hidden"></div>
             </div>
 
             <div class="submit-section">

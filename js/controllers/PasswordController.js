@@ -18,6 +18,7 @@ class PasswordController {
     constructor() {
         this.view = new PasswordView();
         this.state = {
+            currentPassword: { valid: false, touched: false },
             newPassword: { valid: false, touched: false },
             confirmPassword: { valid: false, touched: false }
         };
@@ -39,6 +40,7 @@ class PasswordController {
      */
     _setupEventListeners() {
         this.view.bindEvents({
+            onCurrentPasswordInput: () => this._handleCurrentPasswordInput(),
             onNewPasswordInput: () => this._handleNewPasswordInput(),
             onConfirmPasswordInput: () => this._handleConfirmPasswordInput(),
             onSubmit: (e) => this._handleSubmit(e)
@@ -51,6 +53,22 @@ class PasswordController {
                 history.back();
             });
         }
+    }
+
+    /**
+     * 현재 비밀번호 입력 처리
+     * @private
+     */
+    _handleCurrentPasswordInput() {
+        this.state.currentPassword.touched = true;
+        const current = this.view.getCurrentPassword();
+        this.state.currentPassword.valid = current.length > 0;
+        if (this.state.currentPassword.valid) {
+            this.view.hideCurrentPasswordError();
+        } else {
+            this.view.showCurrentPasswordError('* 현재 비밀번호를 입력해주세요');
+        }
+        this._updateButtonState();
     }
 
     /**
@@ -116,7 +134,7 @@ class PasswordController {
      * @private
      */
     _updateButtonState() {
-        const isValid = this.state.newPassword.valid && this.state.confirmPassword.valid;
+        const isValid = this.state.currentPassword.valid && this.state.newPassword.valid && this.state.confirmPassword.valid;
         this.view.updateButtonState(isValid);
     }
 
@@ -127,8 +145,14 @@ class PasswordController {
     async _handleSubmit(event) {
         event.preventDefault();
 
+        const currentPassword = this.view.getCurrentPassword();
         const newPassword = this.view.getNewPassword();
         const confirmPassword = this.view.getConfirmPassword();
+
+        if (!currentPassword) {
+            this.view.showCurrentPasswordError('* 현재 비밀번호를 입력해주세요');
+            return;
+        }
 
         if (newPassword !== confirmPassword) {
             this.view.showConfirmPasswordError('* 비밀번호가 다릅니다');
@@ -136,7 +160,7 @@ class PasswordController {
         }
 
         try {
-            const result = await UserModel.changePassword(newPassword, confirmPassword);
+            const result = await UserModel.changePassword(currentPassword, newPassword, confirmPassword);
 
             if (result.ok) {
                 // 비밀번호 변경 성공 시 로그아웃 처리 및 리다이렉트

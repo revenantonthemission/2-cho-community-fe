@@ -1,0 +1,66 @@
+/* css/pages/find_account.css */
+/* 계정 찾기 페이지 전용 스타일 */
+
+/* ============================= */
+/* 탭 네비게이션 (Tab Navigation) */
+/* ============================= */
+.tab-nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px 0;
+    border: none;
+    background: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #999;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.tab-btn:hover {
+    color: #666;
+}
+
+.tab-btn.active {
+    color: #7F6AEE;
+    border-bottom-color: #7F6AEE;
+    font-weight: 600;
+}
+
+/* ============================= */
+/* 결과 박스 (Result Box) */
+/* ============================= */
+.result-box {
+    margin-top: 16px;
+    padding: 16px;
+    background-color: #f8f7ff;
+    border-radius: 8px;
+    border: 1px solid #e0ddf5;
+    text-align: center;
+}
+
+.result-box p {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.result-box strong {
+    color: #7F6AEE;
+    font-weight: 600;
+}
+
+/* ============================= */
+/* 링크 간격 조정 */
+/* ============================= */
+.login-container .links {
+    margin-top: 24px;
+}

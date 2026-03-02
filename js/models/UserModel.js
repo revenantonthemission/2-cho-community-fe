@@ -28,12 +28,14 @@ class UserModel {
 
     /**
      * 비밀번호 변경
+     * @param {string} currentPassword - 현재 비밀번호
      * @param {string} newPassword - 새 비밀번호
      * @param {string} newPasswordConfirm - 새 비밀번호 확인
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
      */
-    static async changePassword(newPassword, newPasswordConfirm) {
+    static async changePassword(currentPassword, newPassword, newPasswordConfirm) {
         return ApiService.put(API_ENDPOINTS.USERS.PASSWORD, {
+            current_password: currentPassword,
             new_password: newPassword,
             new_password_confirm: newPasswordConfirm
         });
@@ -60,6 +62,58 @@ class UserModel {
         const formData = new FormData();
         formData.append('file', file);
         return ApiService.postFormData(API_ENDPOINTS.USERS.PROFILE_IMAGE, formData);
+    }
+
+    /**
+     * 닉네임으로 이메일 찾기
+     * @param {string} nickname - 닉네임
+     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     */
+    static async findEmail(nickname) {
+        return ApiService.post(API_ENDPOINTS.USERS.FIND_EMAIL, { nickname });
+    }
+
+    /**
+     * 임시 비밀번호 요청
+     * @param {string} email - 이메일 주소
+     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     */
+    static async resetPassword(email) {
+        return ApiService.post(API_ENDPOINTS.USERS.RESET_PASSWORD, { email });
+    }
+
+    /**
+     * 사용자 공개 프로필 조회
+     * @param {number} userId - 사용자 ID
+     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     */
+    static async getUserById(userId) {
+        return ApiService.get(`${API_ENDPOINTS.USERS.ROOT}/${userId}`);
+    }
+
+    /**
+     * 사용자 차단
+     * @param {number} userId - 차단할 사용자 ID
+     */
+    static async blockUser(userId) {
+        return ApiService.post(API_ENDPOINTS.BLOCKS.BLOCK(userId), {});
+    }
+
+    /**
+     * 사용자 차단 해제
+     * @param {number} userId - 차단 해제할 사용자 ID
+     */
+    static async unblockUser(userId) {
+        return ApiService.delete(API_ENDPOINTS.BLOCKS.BLOCK(userId));
+    }
+
+    /**
+     * 내 차단 목록 조회
+     * @param {number} offset
+     * @param {number} limit
+     */
+    static async getMyBlocks(offset = 0, limit = 10) {
+        return ApiService.get(`${API_ENDPOINTS.ACTIVITY.MY_BLOCKS}?offset=${offset}&limit=${limit}`);
     }
 }
 

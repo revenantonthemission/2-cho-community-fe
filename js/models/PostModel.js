@@ -12,10 +12,23 @@ class PostModel {
      * 게시글 목록 조회
      * @param {number} [offset=0] - 시작 위치
      * @param {number} [limit=10] - 조회 개수
+     * @param {string|null} [search=null] - 검색어
+     * @param {string} [sort='latest'] - 정렬 기준
+     * @param {number|null} [authorId=null] - 작성자 ID 필터
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
      */
-    static async getPosts(offset = 0, limit = 10) {
-        return ApiService.get(`${API_ENDPOINTS.POSTS.ROOT}/?offset=${offset}&limit=${limit}`);
+    static async getPosts(offset = 0, limit = 10, search = null, sort = 'latest', authorId = null, categoryId = null) {
+        let url = `${API_ENDPOINTS.POSTS.ROOT}/?offset=${offset}&limit=${limit}&sort=${sort}`;
+        if (search) {
+            url += `&search=${encodeURIComponent(search)}`;
+        }
+        if (authorId) {
+            url += `&author_id=${authorId}`;
+        }
+        if (categoryId) {
+            url += `&category_id=${categoryId}`;
+        }
+        return ApiService.get(url);
     }
 
     /**
@@ -71,6 +84,40 @@ class PostModel {
      */
     static async unlikePost(postId) {
         return ApiService.delete(`${API_ENDPOINTS.POSTS.ROOT}/${postId}/likes`);
+    }
+
+    /**
+     * 게시글 북마크
+     * @param {string|number} postId - 게시글 ID
+     */
+    static async bookmarkPost(postId) {
+        return ApiService.post(API_ENDPOINTS.BOOKMARKS.ROOT(postId), {});
+    }
+
+    /**
+     * 게시글 북마크 해제
+     * @param {string|number} postId - 게시글 ID
+     */
+    static async unbookmarkPost(postId) {
+        return ApiService.delete(API_ENDPOINTS.BOOKMARKS.ROOT(postId));
+    }
+
+    /**
+     * 게시글 고정
+     * @param {string|number} postId - 게시글 ID
+     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     */
+    static async pinPost(postId) {
+        return ApiService.patch(API_ENDPOINTS.POSTS.PIN(postId), {});
+    }
+
+    /**
+     * 게시글 고정 해제
+     * @param {string|number} postId - 게시글 ID
+     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     */
+    static async unpinPost(postId) {
+        return ApiService.delete(API_ENDPOINTS.POSTS.PIN(postId));
     }
 
     /**

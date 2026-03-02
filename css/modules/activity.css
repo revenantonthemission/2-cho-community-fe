@@ -1,0 +1,136 @@
+/* css/modules/activity.css */
+/* 내 활동 페이지 스타일 */
+
+/* ============================= */
+/* 탭 버튼 (Activity Tabs)       */
+/* ============================= */
+.activity-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px 16px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #666;
+}
+
+.tab-btn:hover {
+    background: #ede7f6;
+    border-color: #7C4DFF;
+}
+
+.tab-btn.active {
+    background: #7C4DFF;
+    color: #fff;
+    border-color: #7C4DFF;
+}
+
+/* ============================= */
+/* 활동 목록 (Activity List)     */
+/* ============================= */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* ============================= */
+/* 빈 상태 (Empty State)         */
+/* ============================= */
+.activity-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+    font-size: 16px;
+}
+
+.activity-empty.hidden {
+    display: none;
+}
+
+/* ============================= */
+/* 댓글 카드 (Comment Card)      */
+/* ============================= */
+.comment-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.comment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.comment-card-content {
+    margin-bottom: 12px;
+}
+
+.comment-text {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #333;
+    word-break: break-word;
+}
+
+.comment-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #888;
+}
+
+.comment-card-post {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+    margin-right: 12px;
+}
+
+.comment-post-title {
+    color: #7C4DFF;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.comment-post-title:hover {
+    text-decoration: underline;
+}
+
+.comment-post-title.deleted {
+    color: #999;
+    cursor: default;
+    font-style: italic;
+}
+
+.comment-post-title.deleted:hover {
+    text-decoration: none;
+}
+
+.comment-card-date {
+    white-space: nowrap;
+    flex-shrink: 0;
+}

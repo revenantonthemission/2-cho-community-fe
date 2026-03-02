@@ -2,6 +2,7 @@
 // 메인 페이지 컨트롤러 (게시글 목록, 무한 스크롤)
 
 import PostModel from '../models/PostModel.js';
+import CategoryModel from '../models/CategoryModel.js';
 import PostListView from '../views/PostListView.js';
 import Logger from '../utils/Logger.js';
 import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
@@ -22,6 +23,11 @@ class MainController {
         this.loadedPostIds = new Set();
         // IntersectionObserver 참조 (cleanup용)
         this.scrollObserver = null;
+        this.currentSearch = null;
+        this.currentSort = 'latest';
+        this.currentCategory = null;
+        // 검색/정렬 변경 시 이전 요청의 응답을 무시하기 위한 세대 카운터
+        this.loadGeneration = 0;
     }
 
     /**
@@ -29,8 +35,10 @@ class MainController {
      */
     async init() {
         // 헤더의 인증 관련 로직은 HeaderController에서 처리
+        await this._loadCategories();
         await this._loadPosts();
         this._setupInfiniteScroll();
+        this._setupSearchAndSort();
 
         // 게시글 작성 버튼
         const writeBtn = document.getElementById('write-btn');
@@ -39,6 +47,96 @@ class MainController {
                 location.href = resolveNavPath(NAV_PATHS.WRITE);
             });
         }
+    }
+
+    /**
+     * 검색바와 정렬 버튼 이벤트를 설정합니다.
+     * @private
+     */
+    _setupSearchAndSort() {
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const sortButtons = document.getElementById('sort-buttons');
+
+        const doSearch = () => {
+            this.currentSearch = searchInput.value.trim() || null;
+            this._resetAndReload();
+        };
+
+        if (searchBtn) searchBtn.addEventListener('click', doSearch);
+        if (searchInput) {
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') doSearch();
+            });
+        }
+
+        if (sortButtons) {
+            sortButtons.addEventListener('click', (e) => {
+                const btn = e.target.closest('.sort-btn');
+                if (!btn) return;
+
+                const sort = btn.dataset.sort;
+                if (sort === this.currentSort) return;
+
+                sortButtons.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                this.currentSort = sort;
+                this._resetAndReload();
+            });
+        }
+    }
+
+    /**
+     * 검색/정렬 변경 시 목록을 초기화하고 재로드합니다.
+     * @private
+     */
+    _resetAndReload() {
+        this.loadGeneration++;
+        this.currentOffset = 0;
+        this.hasMore = true;
+        this.isLoading = false;
+        this.loadedPostIds.clear();
+
+        const listElement = document.getElementById('post-list');
+        if (listElement) listElement.textContent = '';
+
+        this._loadPosts();
+    }
+
+    /**
+     * 카테고리 목록 로드 및 탭 렌더링
+     * @private
+     */
+    async _loadCategories() {
+        const tabContainer = document.getElementById('category-tabs');
+        if (!tabContainer) return;
+
+        try {
+            const result = await CategoryModel.getCategories();
+            if (!result.ok) return;
+
+            this._categories = result.data?.data?.categories || [];
+            this._renderCategoryTabs();
+        } catch (error) {
+            logger.error('카테고리 로드 실패', error);
+        }
+    }
+
+    /**
+     * 카테고리 탭 렌더링
+     * @private
+     */
+    _renderCategoryTabs() {
+        const tabContainer = document.getElementById('category-tabs');
+        if (!tabContainer || !this._categories) return;
+
+        PostListView.renderCategoryTabs(tabContainer, this._categories, this.currentCategory, (categoryId) => {
+            if (categoryId === this.currentCategory) return;
+            this.currentCategory = categoryId;
+            this._renderCategoryTabs();
+            this._resetAndReload();
+        });
     }
 
     /**
@@ -87,13 +185,20 @@ class MainController {
         if (this.isLoading || !this.hasMore) return;
 
         this.isLoading = true;
+        const generation = this.loadGeneration;
         const listElement = document.getElementById('post-list');
         const sentinel = document.getElementById('loading-sentinel');
 
         PostListView.toggleLoadingSentinel(sentinel, true);
 
         try {
-            const result = await PostModel.getPosts(this.currentOffset, this.LIMIT);
+            const result = await PostModel.getPosts(
+                this.currentOffset, this.LIMIT, this.currentSearch, this.currentSort,
+                null, this.currentCategory
+            );
+
+            // 검색/정렬이 변경되어 세대가 바뀌었으면 이전 응답 무시
+            if (generation !== this.loadGeneration) return;
 
             if (!result.ok) throw new Error(UI_MESSAGES.POST_LOAD_FAIL);
 
@@ -120,7 +225,11 @@ class MainController {
             }
 
             if (this.currentOffset === 0 && newPosts.length === 0) {
-                PostListView.showEmptyState(listElement);
+                if (this.currentSearch) {
+                    PostListView.showSearchEmptyState(listElement, this.currentSearch);
+                } else {
+                    PostListView.showEmptyState(listElement);
+                }
                 this.hasMore = false;
                 PostListView.toggleLoadingSentinel(sentinel, false);
                 return;
@@ -133,7 +242,7 @@ class MainController {
                 });
             }
 
-            this.currentOffset += this.LIMIT;
+            this.currentOffset += posts.length;
 
         } catch (error) {
             logger.error('게시글 목록 로딩 실패', error);

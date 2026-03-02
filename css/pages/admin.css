@@ -1,0 +1,209 @@
+/* css/pages/admin.css */
+/* 신고 관리 페이지 스타일 */
+
+/* ============================= */
+/* 페이지 타이틀 */
+/* ============================= */
+.admin-page-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+/* ============================= */
+/* 필터 탭 */
+/* ============================= */
+.report-filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 0 16px;
+}
+
+.report-filter-tab {
+    padding: 8px 18px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #666;
+}
+
+.report-filter-tab:hover {
+    background: #ede7f6;
+    border-color: #7C4DFF;
+}
+
+.report-filter-tab.active {
+    background: #7C4DFF;
+    color: white;
+    border-color: #7C4DFF;
+}
+
+/* ============================= */
+/* 신고 카드 목록 */
+/* ============================= */
+.report-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0 16px;
+}
+
+/* ============================= */
+/* 신고 카드 */
+/* ============================= */
+.report-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+}
+
+.report-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.report-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.report-target-type {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
+.report-date {
+    font-size: 12px;
+    color: #888;
+}
+
+/* ============================= */
+/* 상태 배지 */
+/* ============================= */
+.report-status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.report-status-badge.status-pending {
+    background: #FFF3E0;
+    color: #E65100;
+}
+
+.report-status-badge.status-resolved {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+.report-status-badge.status-dismissed {
+    background: #ECEFF1;
+    color: #546E7A;
+}
+
+/* ============================= */
+/* 신고 상세 정보 */
+/* ============================= */
+.report-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.report-info-row {
+    display: flex;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.report-label {
+    color: #888;
+    min-width: 60px;
+    flex-shrink: 0;
+    font-weight: 500;
+}
+
+/* ============================= */
+/* 신고 카드 액션 버튼 */
+/* ============================= */
+.report-card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #eee;
+}
+
+.report-action-btn {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.resolve-btn {
+    background: #FF5252;
+    color: white;
+}
+
+.resolve-btn:hover {
+    background: #D32F2F;
+}
+
+.dismiss-btn {
+    background: #E0E0E0;
+    color: #333;
+}
+
+.dismiss-btn:hover {
+    background: #BDBDBD;
+}
+
+/* ============================= */
+/* 신고 모달 폼 */
+/* ============================= */
+.report-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 16px 0;
+}
+
+.report-form label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
+.report-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.report-form textarea:focus {
+    outline: none;
+    border-color: #7C4DFF;
+}

@@ -113,3 +113,107 @@
     font-weight: 700;
     /* 굵은 글씨 */
 }
+
+/* 북마크 박스 (Bookmark Box) */
+#bookmark-box {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#bookmark-box:hover {
+    background-color: #CCCCCC;
+}
+
+#bookmark-box.active {
+    background-color: #F5A623;
+    border: none;
+    color: #fff;
+}
+
+/* ============================= */
+/* 추가 액션 버튼 (Extra Actions) */
+/* ============================= */
+.post-extra-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.share-btn {
+    background-color: #4A90D9;
+    color: #fff;
+}
+
+.share-btn:hover {
+    background-color: #357ABD;
+}
+
+.block-btn {
+    background-color: #888;
+    color: #fff;
+}
+
+.block-btn:hover {
+    background-color: #666;
+}
+
+/* ============================= */
+/* 이미지 갤러리 (Image Gallery) */
+/* ============================= */
+.image-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.image-gallery img {
+    max-width: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.image-gallery img:hover {
+    opacity: 0.85;
+}
+
+.image-gallery.single-image img {
+    max-width: 100%;
+}
+
+.image-gallery.multi-image img {
+    width: calc(50% - 4px);
+    object-fit: cover;
+    aspect-ratio: 4/3;
+}
+
+/* ============================= */
+/* 댓글 좋아요 (Comment Like) */
+/* ============================= */
+.comment-like-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: #888;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.2s;
+}
+
+.comment-like-btn:hover {
+    color: #E74C3C;
+}
+
+.comment-like-btn.active {
+    color: #E74C3C;
+}
+
+.comment-like-btn .like-icon {
+    font-size: 14px;
+}

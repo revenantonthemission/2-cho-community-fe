@@ -16,13 +16,16 @@ class CommentController {
      * @param {string|number} currentUserId - 현재 사용자 ID
      * @param {object} callbacks - 콜백 함수
      * @param {Function} callbacks.onCommentChange - 댓글 변경 시 호출 (삭제, 추가 등)
+     * @param {boolean} [isAdmin=false] - 관리자 여부
      */
-    constructor(postId, currentUserId, callbacks = {}) {
+    constructor(postId, currentUserId, callbacks = {}, isAdmin = false) {
         this.postId = postId;
         this.currentUserId = currentUserId;
         this.callbacks = callbacks;
+        this.isAdmin = isAdmin;
         this.editingCommentId = null;
         this.isSubmitting = false; // 중복 제출 방지 플래그
+        this.replyingToComment = null; // 답글 대상 댓글 정보
     }
 
     /**
@@ -35,8 +38,11 @@ class CommentController {
 
         CommentListView.renderComments(listEl, comments, this.currentUserId, {
             onEdit: (comment) => this.startEdit(comment),
-            onDelete: (commentId) => this.confirmDelete(commentId)
-        });
+            onDelete: (commentId) => this.confirmDelete(commentId),
+            onReply: (comment) => this.startReply(comment),
+            onReport: (comment) => this._reportComment(comment),
+            onLike: (comment) => this._handleCommentLike(comment),
+        }, this.isAdmin);
     }
 
     /**
@@ -63,6 +69,12 @@ class CommentController {
             // 지금은 addEventListener만 함 (SPA 네비게이션 시 주의 필요)
             commentSubmitBtn.addEventListener('click', () => this.submitComment());
         }
+
+        // 답글 취소 버튼
+        const replyCancelBtn = document.getElementById('reply-cancel-btn');
+        if (replyCancelBtn) {
+            replyCancelBtn.addEventListener('click', () => this.cancelReply());
+        }
     }
 
     /**
@@ -70,6 +82,9 @@ class CommentController {
      * @param {object} comment - 수정할 댓글 객체
      */
     startEdit(comment) {
+        // 답글 모드가 활성화되어 있으면 먼저 해제
+        this.cancelReply();
+
         const commentInput = document.getElementById('comment-input');
         const commentSubmitBtn = document.getElementById('comment-submit-btn');
 
@@ -80,6 +95,58 @@ class CommentController {
 
         this.editingCommentId = comment.comment_id;
         PostDetailView.updateCommentButtonState(comment.content, commentSubmitBtn, true);
+    }
+
+    /**
+     * 답글 모드 시작
+     * @param {object} comment - 답글 대상 댓글 객체
+     */
+    startReply(comment) {
+        const commentInput = document.getElementById('comment-input');
+        const commentSubmitBtn = document.getElementById('comment-submit-btn');
+        const replyIndicator = document.getElementById('reply-indicator');
+
+        // 수정 모드가 활성화되어 있으면 먼저 해제
+        this.editingCommentId = null;
+        PostDetailView.updateCommentButtonState('', commentSubmitBtn, false);
+
+        this.replyingToComment = {
+            id: comment.comment_id,
+            nickname: comment.author?.nickname || '알 수 없음',
+        };
+
+        if (commentInput) {
+            commentInput.value = '';
+            commentInput.placeholder = `${this.replyingToComment.nickname}님에게 답글...`;
+            commentInput.focus();
+        }
+
+        if (replyIndicator) {
+            const indicatorText = document.getElementById('reply-indicator-text');
+            if (indicatorText) {
+                indicatorText.textContent = `${this.replyingToComment.nickname}님에게 답글 작성 중`;
+            }
+            replyIndicator.classList.remove('hidden');
+        }
+    }
+
+    /**
+     * 답글 모드 취소
+     */
+    cancelReply() {
+        const commentInput = document.getElementById('comment-input');
+        const replyIndicator = document.getElementById('reply-indicator');
+
+        this.replyingToComment = null;
+
+        if (commentInput) {
+            commentInput.placeholder = '댓글을 남겨주세요!';
+            commentInput.value = '';
+        }
+
+        if (replyIndicator) {
+            replyIndicator.classList.add('hidden');
+        }
     }
 
     /**
@@ -143,12 +210,14 @@ class CommentController {
             if (this.editingCommentId) {
                 result = await CommentModel.updateComment(this.postId, this.editingCommentId, content);
             } else {
-                result = await CommentModel.createComment(this.postId, content);
+                const parentId = this.replyingToComment?.id || null;
+                result = await CommentModel.createComment(this.postId, content, parentId);
             }
 
             if (result.ok) {
                 PostDetailView.resetCommentInput();
                 this.editingCommentId = null;
+                this.cancelReply();
                 this._notifyChange();
             } else {
                 PostDetailView.showToast(this.editingCommentId ? UI_MESSAGES.COMMENT_UPDATE_FAIL : UI_MESSAGES.COMMENT_CREATE_FAIL);
@@ -163,6 +232,41 @@ class CommentController {
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('btn-loading');
             }
+        }
+    }
+
+    /**
+     * 댓글 좋아요 토글 — 전체 목록 새로고침으로 상태 반영
+     * @param {object} comment - 좋아요 대상 댓글
+     * @private
+     */
+    async _handleCommentLike(comment) {
+        try {
+            const wasLiked = comment.is_liked;
+            const result = wasLiked
+                ? await CommentModel.unlikeComment(this.postId, comment.comment_id)
+                : await CommentModel.likeComment(this.postId, comment.comment_id);
+
+            if (result.ok) {
+                // 댓글 목록 새로고침으로 정확한 상태 반영
+                this._notifyChange();
+            } else {
+                PostDetailView.showToast(UI_MESSAGES.COMMENT_LIKE_FAIL);
+            }
+        } catch (error) {
+            logger.error('댓글 좋아요 처리 실패', error);
+            PostDetailView.showToast(UI_MESSAGES.COMMENT_LIKE_FAIL);
+        }
+    }
+
+    /**
+     * 댓글 신고 — DetailController의 신고 모달로 위임
+     * @param {object} comment - 신고 대상 댓글
+     * @private
+     */
+    _reportComment(comment) {
+        if (this.callbacks.onReport) {
+            this.callbacks.onReport('comment', comment.comment_id);
         }
     }
 

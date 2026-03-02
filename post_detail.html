@@ -7,6 +7,7 @@
     <title>아무 말 대잔치 - 게시글 상세</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/pages/detail.css">
+    <link rel="stylesheet" href="/css/modules/comments.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -32,6 +33,7 @@
     <main class="main-container post-detail-container">
         <!-- 게시글 내용 섹션 (Post Content Section) -->
         <article class="post-content-wrapper">
+            <div id="post-badges" class="post-badges"></div>
             <h1 id="post-title" class="detail-title">Loading...</h1>
 
             <div class="post-info-row">
@@ -50,6 +52,7 @@
 
             <div class="post-body">
                 <img id="post-image" src="" alt="Post Image" class="post-image hidden">
+                <div id="image-gallery" class="image-gallery hidden"></div>
                 <p id="post-content"></p>
             </div>
 
@@ -57,6 +60,10 @@
                 <div class="stat-box" id="like-box">
                     <div class="stat-value" id="like-count">0</div>
                     <div class="stat-label">좋아요</div>
+                </div>
+                <div class="stat-box" id="bookmark-box">
+                    <div class="stat-value" id="bookmark-count">0</div>
+                    <div class="stat-label">북마크</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-value" id="view-count">0</div>
@@ -67,6 +74,13 @@
                     <div class="stat-label">댓글</div>
                 </div>
             </div>
+
+            <div class="post-extra-actions">
+                <button id="share-post-btn" class="action-btn share-btn">공유</button>
+                <button id="pin-post-btn" class="action-btn pin-btn" style="display:none">고정</button>
+                <button id="block-user-btn" class="action-btn block-btn" style="display:none">차단</button>
+                <button id="report-post-btn" class="action-btn report-btn" style="display:none">신고</button>
+            </div>
         </article>
 
         <div class="post-divider"></div>
@@ -74,6 +88,10 @@
         <!-- 댓글 섹션 (Comment Section) -->
         <section class="comment-section">
             <div class="comment-input-wrapper">
+                <div id="reply-indicator" class="reply-indicator hidden">
+                    <span id="reply-indicator-text"></span>
+                    <button id="reply-cancel-btn" class="reply-cancel-btn">취소</button>
+                </div>
                 <textarea id="comment-input" placeholder="댓글을 남겨주세요!"></textarea>
                 <div class="comment-submit-wrapper">
                     <button id="comment-submit-btn" class="comment-submit-btn">댓글 등록</button>
@@ -85,6 +103,28 @@
             </ul>
         </section>
     </main>
+
+    <!-- 신고 모달 (Report Modal) -->
+    <div id="report-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>게시글 신고</h3>
+            <div class="report-form">
+                <label for="report-reason">신고 사유</label>
+                <select id="report-reason" class="category-select">
+                    <option value="spam">스팸</option>
+                    <option value="abuse">욕설/비방</option>
+                    <option value="inappropriate">부적절한 내용</option>
+                    <option value="other">기타</option>
+                </select>
+                <label for="report-description">상세 설명 (선택)</label>
+                <textarea id="report-description" placeholder="신고 사유를 자세히 설명해주세요." maxlength="500" rows="3"></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button id="report-cancel-btn" class="secondary-btn">취소</button>
+                <button id="report-submit-btn" class="primary-btn">신고</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 모달 (Modal) -->
     <div id="confirm-modal" class="modal hidden">

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const headerController = new HeaderController();
     await headerController.init();
 
-    // 상세 페이지 초기화
+    // 상세 페이지 초기화 (헤더에서 확인한 사용자 정보 재활용)
     const detailController = new DetailController();
-    await detailController.init();
+    await detailController.init(headerController.getCurrentUser());
 });

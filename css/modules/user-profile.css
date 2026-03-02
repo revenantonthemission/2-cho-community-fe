@@ -1,0 +1,95 @@
+/* css/modules/user-profile.css */
+/* 타 사용자 프로필 페이지 스타일 */
+
+/* ============================= */
+/* 프로필 헤더 (Profile Header)  */
+/* ============================= */
+.user-profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 24px;
+    gap: 16px;
+}
+
+.profile-img-wrapper {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #e0e0e0;
+    flex-shrink: 0;
+}
+
+.profile-img-large {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+#profile-nickname {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+    text-align: center;
+    word-break: break-word;
+}
+
+/* ============================= */
+/* 작성한 글 섹션 (Posts Section) */
+/* ============================= */
+.user-profile-posts {
+    padding: 0 20px 40px;
+}
+
+.user-profile-posts h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+/* post-list 재사용 */
+.user-profile-posts .post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* ============================= */
+/* 클릭 가능한 닉네임 (Clickable) */
+/* ============================= */
+.clickable-nickname {
+    cursor: pointer;
+    color: #7C4DFF;
+}
+
+.clickable-nickname:hover {
+    text-decoration: underline;
+}
+
+/* ============================= */
+/* 차단 버튼 (Block Button)     */
+/* ============================= */
+.user-profile-header .block-btn {
+    background-color: #888;
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.user-profile-header .block-btn:hover {
+    background-color: #666;
+}

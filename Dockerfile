@@ -1,12 +1,12 @@
 # Frontend Docker Image
-# Build: docker build -t my-community-frontend:latest ./2-cho-community-fe
+# Build: docker build -t my-community-fe:latest ./2-cho-community-fe
 
 FROM nginx:alpine
 
 ARG APP_VERSION=1.0.0
 LABEL maintainer="corpseonthemission@icloud.com"
 LABEL version="${APP_VERSION}"
-LABEL description="my-community-frontend"
+LABEL description="my-community-fe: A community platform frontend built with Vanilla JS and served by Nginx"
 
 # Copy static files to Nginx html directory
 COPY . /usr/share/nginx/html

@@ -1,10 +1,6 @@
 // js/constants.js
 // 상수 정의 파일
 
-import { API_BASE_URL } from './config.js';
-
-export { API_BASE_URL };
-
 export const API_ENDPOINTS = {
     AUTH: {
         LOGIN: '/v1/auth/session',
@@ -17,10 +13,35 @@ export const API_ENDPOINTS = {
         ME: '/v1/users/me',
         PASSWORD: '/v1/users/me/password',
         PROFILE_IMAGE: '/v1/users/profile/image',
+        FIND_EMAIL: '/v1/users/find-email',
+        RESET_PASSWORD: '/v1/users/reset-password',
     },
     POSTS: {
         ROOT: '/v1/posts',
-        IMAGE: '/v1/posts/image'
+        IMAGE: '/v1/posts/image',
+        PIN: (postId) => `/v1/posts/${postId}/pin`,
+    },
+    CATEGORIES: {
+        ROOT: '/v1/categories',
+    },
+    REPORTS: {
+        ROOT: '/v1/reports',
+    },
+    ADMIN: {
+        REPORTS: '/v1/admin/reports',
+        RESOLVE_REPORT: (id) => `/v1/admin/reports/${id}`,
+    },
+    LIKES: {
+        ROOT: (postId) => `/v1/posts/${postId}/likes`,
+    },
+    BOOKMARKS: {
+        ROOT: (postId) => `/v1/posts/${postId}/bookmark`,
+    },
+    COMMENT_LIKES: {
+        ROOT: (postId, commentId) => `/v1/posts/${postId}/comments/${commentId}/like`,
+    },
+    BLOCKS: {
+        BLOCK: (userId) => `/v1/users/${userId}/block`,
     },
     COMMENTS: {
         /**
@@ -36,7 +57,25 @@ export const API_ENDPOINTS = {
          * @returns {string} - 엔드포인트 경로
          */
         DETAIL: (postId, commentId) => `/v1/posts/${postId}/comments/${commentId}`
-    }
+    },
+    NOTIFICATIONS: {
+        ROOT: '/v1/notifications',
+        UNREAD_COUNT: '/v1/notifications/unread-count',
+        READ: (id) => `/v1/notifications/${id}/read`,
+        READ_ALL: '/v1/notifications/read-all',
+        DELETE: (id) => `/v1/notifications/${id}`,
+    },
+    VERIFICATION: {
+        VERIFY: '/v1/auth/verify-email',
+        RESEND: '/v1/auth/resend-verification',
+    },
+    ACTIVITY: {
+        MY_POSTS: '/v1/users/me/posts',
+        MY_COMMENTS: '/v1/users/me/comments',
+        MY_LIKES: '/v1/users/me/likes',
+        MY_BOOKMARKS: '/v1/users/me/bookmarks',
+        MY_BLOCKS: '/v1/users/me/blocks',
+    },
 };
 
 export const UI_MESSAGES = {
@@ -57,8 +96,32 @@ export const UI_MESSAGES = {
     POST_DELETE_SUCCESS: '게시글이 삭제되었습니다.',
     POST_CREATE_SUCCESS: '게시글이 작성되었습니다.',
     IMAGE_UPLOAD_FAIL: '이미지 업로드 실패',
+    POST_CREATE_FAIL: '게시글 작성 실패',
+    POST_UPDATE_FAIL: '게시글 수정 실패',
 
     LOGOUT_SUCCESS: '로그아웃 되었습니다.',
+    FIND_EMAIL_SUCCESS: '이메일 조회가 완료되었습니다.',
+    RESET_PASSWORD_SUCCESS: '임시 비밀번호가 이메일로 발송되었습니다.',
+    SEARCH_PLACEHOLDER: '게시글 검색...',
+    SEARCH_NO_RESULTS: '검색 결과가 없습니다.',
+    EMAIL_NOT_VERIFIED: '이메일 인증 후 이용 가능합니다.',
+    VERIFICATION_SENT: '인증 메일을 발송했습니다.',
+    NOTIFICATION_LOAD_FAIL: '알림 목록을 불러오지 못했습니다.',
+    REPORT_SUCCESS: '신고가 접수되었습니다.',
+    REPORT_DUPLICATE: '이미 신고한 콘텐츠입니다.',
+    REPORT_OWN_CONTENT: '자신의 콘텐츠는 신고할 수 없습니다.',
+    PIN_SUCCESS: '게시글이 고정되었습니다.',
+    UNPIN_SUCCESS: '게시글 고정이 해제되었습니다.',
+    REPORT_RESOLVE_SUCCESS: '신고가 처리되었습니다.',
+    REPORT_DISMISS_SUCCESS: '신고가 기각되었습니다.',
+    ADMIN_REQUIRED: '관리자 권한이 필요합니다.',
+    BOOKMARK_FAIL: '북마크 처리에 실패했습니다.',
+    COMMENT_LIKE_FAIL: '댓글 좋아요 처리에 실패했습니다.',
+    BLOCK_SUCCESS: '사용자를 차단했습니다.',
+    UNBLOCK_SUCCESS: '차단이 해제되었습니다.',
+    BLOCK_FAIL: '차단 처리에 실패했습니다.',
+    BLOCK_SELF: '자기 자신을 차단할 수 없습니다.',
+    SHARE_COPIED: '링크가 복사되었습니다.',
 };
 
 export const NAV_PATHS = {
@@ -70,9 +133,31 @@ export const NAV_PATHS = {
     EDIT: (id) => `/edit?id=${id}`,
     PASSWORD: '/password',
     EDIT_PROFILE: '/edit-profile',
+    FIND_ACCOUNT: '/find-account',
+    NOTIFICATIONS: '/notifications',
+    MY_ACTIVITY: '/my-activity',
+    VERIFY_EMAIL: '/verify-email',
+    USER_PROFILE: (id) => `/user-profile?id=${id}`,
+    ADMIN_REPORTS: '/admin/reports',
 };
 
-// S3 deployment: Map clean URLs to actual HTML filenames
+export const SORT_OPTIONS = {
+    LATEST: 'latest',
+    LIKES: 'likes',
+    VIEWS: 'views',
+    COMMENTS: 'comments',
+    HOT: 'hot',
+};
+
+export const SORT_LABELS = {
+    latest: '최신순',
+    likes: '인기순',
+    views: '조회순',
+    comments: '댓글순',
+    hot: '핫',
+};
+
+// 클린 URL → 실제 HTML 파일 매핑
 export const HTML_PATHS = {
     '/': '/user_login.html',
     '/main': '/post_list.html',
@@ -83,4 +168,27 @@ export const HTML_PATHS = {
     '/edit': '/post_edit.html',
     '/password': '/user_password.html',
     '/edit-profile': '/user_edit.html',
+    '/find-account': '/user_find_account.html',
+    '/notifications': '/notifications.html',
+    '/my-activity': '/my-activity.html',
+    '/verify-email': '/verify-email.html',
+    '/user-profile': '/user-profile.html',
+    '/admin/reports': '/admin_reports.html',
+};
+
+export const CATEGORY_LABELS = {
+    1: '자유게시판',
+    2: '질문답변',
+    3: '정보공유',
+    4: '공지사항',
+};
+
+// 공지사항 카테고리 slug (관리자만 선택 가능)
+export const NOTICE_CATEGORY_SLUG = 'notice';
+
+export const REPORT_REASONS = {
+    spam: '스팸',
+    abuse: '욕설/비방',
+    inappropriate: '부적절한 내용',
+    other: '기타',
 };

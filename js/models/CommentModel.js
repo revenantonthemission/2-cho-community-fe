@@ -9,22 +9,18 @@ import { API_ENDPOINTS } from '../constants.js';
  */
 class CommentModel {
     /**
-     * 댓글 목록 조회
-     * @param {string|number} postId - 게시글 ID
-     * @returns {Promise<{ok: boolean, status: number, data: any}>}
-     */
-    static async getComments(postId) {
-        return ApiService.get(API_ENDPOINTS.COMMENTS.ROOT(postId));
-    }
-
-    /**
      * 댓글 작성
      * @param {string|number} postId - 게시글 ID
      * @param {string} content - 댓글 내용
+     * @param {string|number|null} parentId - 부모 댓글 ID (대댓글인 경우)
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
      */
-    static async createComment(postId, content) {
-        return ApiService.post(API_ENDPOINTS.COMMENTS.ROOT(postId), { content });
+    static async createComment(postId, content, parentId = null) {
+        const body = { content };
+        if (parentId !== null) {
+            body.parent_id = parentId;
+        }
+        return ApiService.post(API_ENDPOINTS.COMMENTS.ROOT(postId), body);
     }
 
     /**
@@ -46,6 +42,24 @@ class CommentModel {
      */
     static async deleteComment(postId, commentId) {
         return ApiService.delete(API_ENDPOINTS.COMMENTS.DETAIL(postId, commentId));
+    }
+
+    /**
+     * 댓글 좋아요
+     * @param {string|number} postId - 게시글 ID
+     * @param {string|number} commentId - 댓글 ID
+     */
+    static async likeComment(postId, commentId) {
+        return ApiService.post(API_ENDPOINTS.COMMENT_LIKES.ROOT(postId, commentId), {});
+    }
+
+    /**
+     * 댓글 좋아요 취소
+     * @param {string|number} postId - 게시글 ID
+     * @param {string|number} commentId - 댓글 ID
+     */
+    static async unlikeComment(postId, commentId) {
+        return ApiService.delete(API_ENDPOINTS.COMMENT_LIKES.ROOT(postId, commentId));
     }
 }
 
