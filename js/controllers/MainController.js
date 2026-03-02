@@ -2,6 +2,7 @@
 // 메인 페이지 컨트롤러 (게시글 목록, 무한 스크롤)
 
 import PostModel from '../models/PostModel.js';
+import CategoryModel from '../models/CategoryModel.js';
 import PostListView from '../views/PostListView.js';
 import Logger from '../utils/Logger.js';
 import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
@@ -24,6 +25,7 @@ class MainController {
         this.scrollObserver = null;
         this.currentSearch = null;
         this.currentSort = 'latest';
+        this.currentCategory = null;
         // 검색/정렬 변경 시 이전 요청의 응답을 무시하기 위한 세대 카운터
         this.loadGeneration = 0;
     }
@@ -33,6 +35,7 @@ class MainController {
      */
     async init() {
         // 헤더의 인증 관련 로직은 HeaderController에서 처리
+        await this._loadCategories();
         await this._loadPosts();
         this._setupInfiniteScroll();
         this._setupSearchAndSort();
@@ -102,6 +105,41 @@ class MainController {
     }
 
     /**
+     * 카테고리 목록 로드 및 탭 렌더링
+     * @private
+     */
+    async _loadCategories() {
+        const tabContainer = document.getElementById('category-tabs');
+        if (!tabContainer) return;
+
+        try {
+            const result = await CategoryModel.getCategories();
+            if (!result.ok) return;
+
+            this._categories = result.data?.data?.categories || [];
+            this._renderCategoryTabs();
+        } catch (error) {
+            logger.error('카테고리 로드 실패', error);
+        }
+    }
+
+    /**
+     * 카테고리 탭 렌더링
+     * @private
+     */
+    _renderCategoryTabs() {
+        const tabContainer = document.getElementById('category-tabs');
+        if (!tabContainer || !this._categories) return;
+
+        PostListView.renderCategoryTabs(tabContainer, this._categories, this.currentCategory, (categoryId) => {
+            if (categoryId === this.currentCategory) return;
+            this.currentCategory = categoryId;
+            this._renderCategoryTabs();
+            this._resetAndReload();
+        });
+    }
+
+    /**
      * 무한 스크롤 설정
      * @private
      */
@@ -155,7 +193,8 @@ class MainController {
 
         try {
             const result = await PostModel.getPosts(
-                this.currentOffset, this.LIMIT, this.currentSearch, this.currentSort
+                this.currentOffset, this.LIMIT, this.currentSearch, this.currentSort,
+                null, this.currentCategory
             );
 
             // 검색/정렬이 변경되어 세대가 바뀌었으면 이전 응답 무시

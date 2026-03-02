@@ -17,9 +17,10 @@ class CommentListView {
      * @param {string|number|null} currentUserId - 현재 로그인한 사용자 ID
      * @param {object} handlers - 이벤트 핸들러 객체
      * @param {boolean} isReply - 대댓글 여부
+     * @param {boolean} isAdmin - 관리자 여부
      * @returns {HTMLElement} - 댓글 요소
      */
-    static createCommentElement(comment, currentUserId, handlers, isReply = false) {
+    static createCommentElement(comment, currentUserId, handlers, isReply = false, isAdmin = false) {
         const isOwner = currentUserId && !comment.is_deleted &&
             comment.author && currentUserId === comment.author.user_id;
 
@@ -51,7 +52,7 @@ class CommentListView {
             );
         }
 
-        // 수정/삭제 (본인만)
+        // 수정/삭제 (본인 또는 관리자)
         if (isOwner) {
             actionButtons.push(
                 createElement('button', {
@@ -62,6 +63,24 @@ class CommentListView {
                     className: 'small-btn delete-cmt-btn',
                     onClick: () => handlers.onDelete(comment.comment_id),
                 }, ['삭제'])
+            );
+        } else if (isAdmin && !comment.is_deleted) {
+            // 관리자: 삭제만 (수정 권한 없음)
+            actionButtons.push(
+                createElement('button', {
+                    className: 'small-btn delete-cmt-btn',
+                    onClick: () => handlers.onDelete(comment.comment_id),
+                }, ['삭제'])
+            );
+        }
+
+        // 신고 버튼 (본인 댓글 제외, 로그인 시에만)
+        if (currentUserId && !isOwner && !comment.is_deleted && handlers.onReport) {
+            actionButtons.push(
+                createElement('button', {
+                    className: 'small-btn report-btn',
+                    onClick: () => handlers.onReport(comment),
+                }, ['신고'])
             );
         }
 
@@ -104,15 +123,16 @@ class CommentListView {
      * @param {Array} comments - 트리 구조 댓글 배열 (각 항목에 replies 포함)
      * @param {string|number|null} currentUserId - 현재 로그인한 사용자 ID
      * @param {object} handlers - 이벤트 핸들러 객체
+     * @param {boolean} [isAdmin=false] - 관리자 여부
      */
-    static renderComments(container, comments, currentUserId, handlers) {
+    static renderComments(container, comments, currentUserId, handlers, isAdmin = false) {
         container.textContent = '';
 
         const fragment = document.createDocumentFragment();
         comments.forEach(comment => {
             // 루트 댓글
             const element = CommentListView.createCommentElement(
-                comment, currentUserId, handlers, false
+                comment, currentUserId, handlers, false, isAdmin
             );
             fragment.appendChild(element);
 
@@ -120,7 +140,7 @@ class CommentListView {
             if (comment.replies && comment.replies.length > 0) {
                 comment.replies.forEach(reply => {
                     const replyEl = CommentListView.createCommentElement(
-                        reply, currentUserId, handlers, true
+                        reply, currentUserId, handlers, true, isAdmin
                     );
                     fragment.appendChild(replyEl);
                 });

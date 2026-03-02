@@ -74,8 +74,10 @@ erDiagram
     user ||--o{ post_like : "likes"
     user ||--o{ email_verification : "verifies"
     user ||--o{ notification : "receives"
+    user ||--o{ report : "reports"
     post ||--o{ comment : "has"
     post ||--o{ post_like : "receives"
+    category ||--o{ post : "classifies"
 
     user {
         int id PK
@@ -83,6 +85,7 @@ erDiagram
         varchar password_hash
         varchar nickname UK
         varchar profile_image
+        enum role "user, admin"
         boolean email_verified "default FALSE"
         datetime deleted_at
         datetime created_at
@@ -99,11 +102,35 @@ erDiagram
     post {
         int id PK
         int author_id FK
+        int category_id FK
         varchar title
         text content
         varchar image_url
+        boolean is_pinned "default FALSE"
         int view_count
         datetime deleted_at
+        datetime created_at
+    }
+
+    category {
+        int id PK
+        varchar name UK
+        varchar slug UK
+        varchar description
+        int sort_order
+        datetime created_at
+    }
+
+    report {
+        int id PK
+        int reporter_id FK
+        enum target_type "post, comment"
+        int target_id
+        enum reason "spam, abuse, inappropriate, other"
+        text description
+        enum status "pending, resolved, dismissed"
+        int resolved_by FK
+        datetime resolved_at
         datetime created_at
     }
 
@@ -154,6 +181,9 @@ erDiagram
   - `idx_comment_post_deleted`: 게시글별 댓글 목록 조회
   - `idx_notification_user_read`: 알림 목록 조회 (사용자별 + 읽음 상태)
   - `idx_email_verification_token`: 이메일 인증 토큰 조회
+  - `idx_post_category`: 카테고리별 게시글 목록 조회
+  - `idx_post_pinned`: 고정 게시글 우선 정렬
+  - `idx_report_status`: 신고 상태별 목록 조회
 
 ### 3. API 설계
 
@@ -183,17 +213,33 @@ erDiagram
 
 | Method | Endpoint | 설명 | 인증 |
 | ------ | -------- | ---- | ---- |
-| GET | `/v1/posts` | 게시글 목록 (페이지네이션) | X |
-| POST | `/v1/posts` | 게시글 작성 | O |
+| GET | `/v1/posts` | 게시글 목록 (페이지네이션, `?search=`, `?sort=`, `?category_id=`) | X |
+| POST | `/v1/posts` | 게시글 작성 (`category_id` 필수) | O (이메일 인증) |
 | GET | `/v1/posts/{post_id}` | 게시글 상세 조회 | X |
 | PATCH | `/v1/posts/{post_id}` | 게시글 수정 | O (작성자) |
-| DELETE | `/v1/posts/{post_id}` | 게시글 삭제 | O (작성자) |
+| DELETE | `/v1/posts/{post_id}` | 게시글 삭제 | O (작성자/관리자) |
+| PATCH | `/v1/posts/{post_id}/pin` | 게시글 고정 | O (관리자) |
+| DELETE | `/v1/posts/{post_id}/pin` | 게시글 고정 해제 | O (관리자) |
 | POST | `/v1/posts/{post_id}/likes` | 좋아요 | O |
 | DELETE | `/v1/posts/{post_id}/likes` | 좋아요 취소 | O |
 | POST | `/v1/posts/{post_id}/comments` | 댓글 작성 | O |
 | PUT | `/v1/posts/{post_id}/comments/{comment_id}` | 댓글 수정 | O (작성자) |
-| DELETE | `/v1/posts/{post_id}/comments/{comment_id}` | 댓글 삭제 | O (작성자) |
+| DELETE | `/v1/posts/{post_id}/comments/{comment_id}` | 댓글 삭제 | O (작성자/관리자) |
 | POST | `/v1/posts/image` | 게시글 이미지 업로드 | O |
+
+#### 카테고리 API (`/v1/categories`)
+
+| Method | Endpoint | 설명 | 인증 |
+| ------ | -------- | ---- | ---- |
+| GET | `/v1/categories` | 카테고리 목록 조회 | X |
+
+#### 신고 API (`/v1/reports`, `/v1/admin/reports`)
+
+| Method | Endpoint | 설명 | 인증 |
+| ------ | -------- | ---- | ---- |
+| POST | `/v1/reports` | 신고 생성 | O (이메일 인증) |
+| GET | `/v1/admin/reports` | 신고 목록 조회 (`?status=pending\|resolved\|dismissed`) | O (관리자) |
+| PATCH | `/v1/admin/reports/{report_id}` | 신고 처리 (resolved/dismissed) | O (관리자) |
 
 #### 응답 형식
 
@@ -352,6 +398,13 @@ sequenceDiagram
 ## Changelog
 
 ### 2026-03 (Mar)
+
+- **03-02: 관리자 역할, 신고, 카테고리, 게시글 고정 UI**
+  - 카테고리 탭: 게시글 목록 상단 가로 스크롤 탭, 카테고리별 필터링
+  - 게시글 작성/수정: 카테고리 select 드롭다운, 공지사항은 관리자만 선택 가능
+  - 신고: 게시글/댓글 신고 버튼, 사유 선택 모달 (4종: 스팸/욕설/부적절/기타)
+  - 관리자 기능: 타인 게시글/댓글 삭제, 고정/해제, 신고 관리 페이지 (`/admin/reports`)
+  - 고정 배지 + 카테고리 배지 UI, 드롭다운에 관리자 메뉴
 
 - **03-02: 이메일 인증, 알림, 내 활동, 사용자 프로필 UI**
   - 이메일 인증 페이지: 토큰 검증 결과 표시, 성공 시 로그인 페이지 리다이렉트

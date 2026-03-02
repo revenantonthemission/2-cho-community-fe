@@ -18,7 +18,18 @@ export const API_ENDPOINTS = {
     },
     POSTS: {
         ROOT: '/v1/posts',
-        IMAGE: '/v1/posts/image'
+        IMAGE: '/v1/posts/image',
+        PIN: (postId) => `/v1/posts/${postId}/pin`,
+    },
+    CATEGORIES: {
+        ROOT: '/v1/categories',
+    },
+    REPORTS: {
+        ROOT: '/v1/reports',
+    },
+    ADMIN: {
+        REPORTS: '/v1/admin/reports',
+        RESOLVE_REPORT: (id) => `/v1/admin/reports/${id}`,
     },
     COMMENTS: {
         /**
@@ -82,6 +93,14 @@ export const UI_MESSAGES = {
     EMAIL_NOT_VERIFIED: '이메일 인증 후 이용 가능합니다.',
     VERIFICATION_SENT: '인증 메일을 발송했습니다.',
     NOTIFICATION_LOAD_FAIL: '알림 목록을 불러오지 못했습니다.',
+    REPORT_SUCCESS: '신고가 접수되었습니다.',
+    REPORT_DUPLICATE: '이미 신고한 콘텐츠입니다.',
+    REPORT_OWN_CONTENT: '자신의 콘텐츠는 신고할 수 없습니다.',
+    PIN_SUCCESS: '게시글이 고정되었습니다.',
+    UNPIN_SUCCESS: '게시글 고정이 해제되었습니다.',
+    REPORT_RESOLVE_SUCCESS: '신고가 처리되었습니다.',
+    REPORT_DISMISS_SUCCESS: '신고가 기각되었습니다.',
+    ADMIN_REQUIRED: '관리자 권한이 필요합니다.',
 };
 
 export const NAV_PATHS = {
@@ -98,6 +117,7 @@ export const NAV_PATHS = {
     MY_ACTIVITY: '/my-activity',
     VERIFY_EMAIL: '/verify-email',
     USER_PROFILE: (id) => `/user-profile?id=${id}`,
+    ADMIN_REPORTS: '/admin/reports',
 };
 
 export const SORT_OPTIONS = {
@@ -130,4 +150,19 @@ export const HTML_PATHS = {
     '/my-activity': '/my-activity.html',
     '/verify-email': '/verify-email.html',
     '/user-profile': '/user-profile.html',
+    '/admin/reports': '/admin_reports.html',
+};
+
+export const CATEGORY_LABELS = {
+    1: '자유게시판',
+    2: '질문답변',
+    3: '정보공유',
+    4: '공지사항',
+};
+
+export const REPORT_REASONS = {
+    spam: '스팸',
+    abuse: '욕설/비방',
+    inappropriate: '부적절한 내용',
+    other: '기타',
 };

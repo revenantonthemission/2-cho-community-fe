@@ -34,6 +34,15 @@
 
         <form id="write-form">
             <div class="input-group">
+                <label for="category-select">카테고리*</label>
+                <div class="form-divider"></div>
+                <select id="category-select" class="category-select" required>
+                    <!-- 카테고리 옵션은 JS로 로드됨 -->
+                </select>
+                <div class="form-divider"></div>
+            </div>
+
+            <div class="input-group">
                 <label for="post-title">제목*</label>
                 <div class="form-divider"></div>
                 <input type="text" id="post-title" placeholder="제목을 입력해주세요. (최대 26글자)" maxlength="26" required>

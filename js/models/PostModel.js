@@ -17,13 +17,16 @@ class PostModel {
      * @param {number|null} [authorId=null] - 작성자 ID 필터
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
      */
-    static async getPosts(offset = 0, limit = 10, search = null, sort = 'latest', authorId = null) {
+    static async getPosts(offset = 0, limit = 10, search = null, sort = 'latest', authorId = null, categoryId = null) {
         let url = `${API_ENDPOINTS.POSTS.ROOT}/?offset=${offset}&limit=${limit}&sort=${sort}`;
         if (search) {
             url += `&search=${encodeURIComponent(search)}`;
         }
         if (authorId) {
             url += `&author_id=${authorId}`;
+        }
+        if (categoryId) {
+            url += `&category_id=${categoryId}`;
         }
         return ApiService.get(url);
     }
@@ -81,6 +84,24 @@ class PostModel {
      */
     static async unlikePost(postId) {
         return ApiService.delete(`${API_ENDPOINTS.POSTS.ROOT}/${postId}/likes`);
+    }
+
+    /**
+     * 게시글 고정
+     * @param {string|number} postId - 게시글 ID
+     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     */
+    static async pinPost(postId) {
+        return ApiService.patch(API_ENDPOINTS.POSTS.PIN(postId), {});
+    }
+
+    /**
+     * 게시글 고정 해제
+     * @param {string|number} postId - 게시글 ID
+     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     */
+    static async unpinPost(postId) {
+        return ApiService.delete(API_ENDPOINTS.POSTS.PIN(postId));
     }
 
     /**

@@ -7,7 +7,7 @@ import HeaderView from '../views/HeaderView.js';
 import { showToast } from '../views/helpers.js';
 import Logger from '../utils/Logger.js';
 import { resolveNavPath } from '../config.js';
-import { NAV_PATHS } from '../constants.js';
+import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
 
 const logger = Logger.createLogger('HeaderController');
 
@@ -54,13 +54,17 @@ class HeaderController {
                 const profileCircle = HeaderView.createProfileElement(this.currentUser);
                 authSection.appendChild(profileCircle);
 
-                // 드롭다운 설정
-                HeaderView.createDropdown(profileCircle, {
+                // 드롭다운 설정 (관리자면 신고 관리 메뉴 추가)
+                const dropdownHandlers = {
                     onEditInfo: () => this._handleEditInfo(),
                     onChangePassword: () => this._handleChangePassword(),
                     onMyActivity: () => this._handleMyActivity(),
-                    onLogout: () => this._handleLogout()
-                });
+                    onLogout: () => this._handleLogout(),
+                };
+                if (this.currentUser.role === 'admin') {
+                    dropdownHandlers.onAdminReports = () => this._handleAdminReports();
+                }
+                HeaderView.createDropdown(profileCircle, dropdownHandlers);
 
                 // 알림 폴링 시작
                 this._startNotificationPolling();
@@ -124,6 +128,14 @@ class HeaderController {
      */
     _handleMyActivity() {
         location.href = resolveNavPath(NAV_PATHS.MY_ACTIVITY);
+    }
+
+    /**
+     * 신고 관리 페이지 이동 (관리자)
+     * @private
+     */
+    _handleAdminReports() {
+        location.href = resolveNavPath(NAV_PATHS.ADMIN_REPORTS);
     }
 
     /**

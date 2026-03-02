@@ -2,12 +2,13 @@
 // 게시글 상세 페이지 컨트롤러
 
 import PostModel from '../models/PostModel.js';
+import ReportModel from '../models/ReportModel.js';
 import PostDetailView from '../views/PostDetailView.js';
 import ModalView from '../views/ModalView.js';
 import CommentController from './CommentController.js';
 import Logger from '../utils/Logger.js';
 import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
-import { showToastAndRedirect } from '../views/helpers.js';
+import { showToastAndRedirect, showToast } from '../views/helpers.js';
 import { resolveNavPath } from '../config.js';
 
 const logger = Logger.createLogger('DetailController');
@@ -19,9 +20,11 @@ class DetailController {
     constructor() {
         this.currentPostId = null;
         this.currentUserId = null;
+        this.currentUser = null;
         this.deleteTargetId = null; // 오직 게시글 삭제 대상 ID만 저장
         this.isLiking = false;
         this.commentController = null;
+        this.currentPost = null; // 현재 게시글 데이터 (pin 상태 등)
     }
 
     /**
@@ -50,11 +53,21 @@ class DetailController {
      * @private
      */
     _setCurrentUser(user) {
+        this.currentUser = user;
         if (user) {
             this.currentUserId = user.user_id || user.id;
         } else {
             this.currentUserId = null;
         }
+    }
+
+    /**
+     * 관리자 여부 확인
+     * @returns {boolean}
+     * @private
+     */
+    get _isAdmin() {
+        return this.currentUser?.role === 'admin';
     }
 
     /**
@@ -94,12 +107,19 @@ class DetailController {
             post.comments_count = totalComments;
 
             // 게시글 렌더링
+            this.currentPost = post;
             PostDetailView.renderPost(post);
 
-            // 작성자 액션 버튼 표시/숨기기
+            // 작성자/관리자 액션 버튼 표시/숨기기
             const isOwner = this.currentUserId && post.author &&
                 (this.currentUserId === post.author.user_id || this.currentUserId === post.author.id);
-            PostDetailView.toggleActionButtons(isOwner);
+            PostDetailView.toggleActionButtons(isOwner, this._isAdmin);
+
+            // 신고 버튼 (로그인 + 본인 게시글 아닌 경우)
+            PostDetailView.toggleReportButton(this.currentUserId && !isOwner);
+
+            // 고정/해제 버튼 (관리자만)
+            PostDetailView.togglePinButton(this._isAdmin, post.is_pinned);
 
             // 댓글 컨트롤러 초기화 및 렌더링 위임
             if (!this.commentController) {
@@ -108,7 +128,8 @@ class DetailController {
                     this.currentUserId,
                     {
                         onCommentChange: () => this._reloadComments()
-                    }
+                    },
+                    this._isAdmin
                 );
                 // 입력창 이벤트는 DOM이 그려진 후 한 번만 설정
                 this.commentController.setupInputEvents();
@@ -187,13 +208,31 @@ class DetailController {
             likeBox.addEventListener('click', () => this._handleLike());
         }
 
-        // 댓글 관련 이벤트는 CommentController에서 처리함
+        // 고정/해제 버튼 (관리자)
+        const pinBtn = document.getElementById('pin-post-btn');
+        if (pinBtn) {
+            pinBtn.addEventListener('click', () => this._handlePinToggle());
+        }
 
-        // 게시글 삭제 모달 설정
-        // 주의: 댓글 삭제 모달은 CommentController에서 별도로 설정함
-        // 여기서는 'confirm-modal' ID를 공유하더라도 콜백이 덮어씌워지는 구조임.
-        // 따라서 모달을 열 때마다 콜백을 재설정하는 것이 안전함.
-        // _openDeleteModal 에서 설정하도록 변경.
+        // 신고 버튼
+        const reportBtn = document.getElementById('report-post-btn');
+        if (reportBtn) {
+            reportBtn.addEventListener('click', () => this._openReportModal());
+        }
+
+        // 신고 모달 제출
+        const reportSubmitBtn = document.getElementById('report-submit-btn');
+        if (reportSubmitBtn) {
+            reportSubmitBtn.addEventListener('click', () => this._submitReport());
+        }
+
+        // 신고 모달 취소
+        const reportCancelBtn = document.getElementById('report-cancel-btn');
+        if (reportCancelBtn) {
+            reportCancelBtn.addEventListener('click', () => {
+                ModalView.closeModal('report-modal');
+            });
+        }
     }
 
     /**
@@ -256,6 +295,87 @@ class DetailController {
         });
 
         ModalView.openConfirmModal('confirm-modal', '게시글을 삭제하시겠습니까?');
+    }
+
+    /**
+     * 게시글 고정/해제 토글 (관리자)
+     * @private
+     */
+    async _handlePinToggle() {
+        if (!this.currentPost) return;
+
+        try {
+            const isPinned = this.currentPost.is_pinned;
+            const result = isPinned
+                ? await PostModel.unpinPost(this.currentPostId)
+                : await PostModel.pinPost(this.currentPostId);
+
+            if (result.ok) {
+                this.currentPost.is_pinned = !isPinned;
+                PostDetailView.togglePinButton(true, !isPinned);
+                showToast(isPinned ? UI_MESSAGES.UNPIN_SUCCESS : UI_MESSAGES.PIN_SUCCESS);
+            } else {
+                showToast(UI_MESSAGES.UNKNOWN_ERROR);
+            }
+        } catch (error) {
+            logger.error('고정/해제 실패', error);
+            showToast(UI_MESSAGES.UNKNOWN_ERROR);
+        }
+    }
+
+    /**
+     * 신고 모달 열기
+     * @private
+     */
+    _openReportModal() {
+        const modal = document.getElementById('report-modal');
+        if (modal) {
+            // 폼 초기화
+            const reasonSelect = document.getElementById('report-reason');
+            const descInput = document.getElementById('report-description');
+            if (reasonSelect) reasonSelect.value = 'spam';
+            if (descInput) descInput.value = '';
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    /**
+     * 게시글 신고 제출
+     * @private
+     */
+    async _submitReport() {
+        const reasonSelect = document.getElementById('report-reason');
+        const descInput = document.getElementById('report-description');
+
+        const reason = reasonSelect?.value;
+        const description = descInput?.value?.trim() || null;
+
+        try {
+            const result = await ReportModel.createReport({
+                target_type: 'post',
+                target_id: Number(this.currentPostId),
+                reason,
+                description,
+            });
+
+            ModalView.closeModal('report-modal');
+
+            if (result.ok) {
+                showToast(UI_MESSAGES.REPORT_SUCCESS);
+            } else if (result.status === 409) {
+                showToast(UI_MESSAGES.REPORT_DUPLICATE);
+            } else if (result.status === 400) {
+                showToast(UI_MESSAGES.REPORT_OWN_CONTENT);
+            } else {
+                showToast(UI_MESSAGES.UNKNOWN_ERROR);
+            }
+        } catch (error) {
+            logger.error('신고 제출 실패', error);
+            ModalView.closeModal('report-modal');
+            showToast(UI_MESSAGES.UNKNOWN_ERROR);
+        }
     }
 
     /**

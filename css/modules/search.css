@@ -1,3 +1,41 @@
+/* 카테고리 탭 */
+.category-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 0 16px 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.category-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.category-tab {
+    padding: 6px 14px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #666;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.category-tab:hover {
+    background: #ede7f6;
+    border-color: #7C4DFF;
+}
+
+.category-tab.active {
+    background: #7C4DFF;
+    color: white;
+    border-color: #7C4DFF;
+}
+
 /* 검색 + 정렬 섹션 */
 .search-sort-section {
     padding: 0 16px 16px;

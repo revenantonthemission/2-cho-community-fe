@@ -2,6 +2,7 @@
 // 게시글 작성 페이지 컨트롤러 - 비즈니스 로직 및 이벤트 처리 담당
 
 import PostModel from '../models/PostModel.js';
+import CategoryModel from '../models/CategoryModel.js';
 import WriteView from '../views/WriteView.js';
 import { extractUploadedImageUrl, readFileAsDataURL, showToastAndRedirect } from '../views/helpers.js';
 import Logger from '../utils/Logger.js';
@@ -17,16 +18,51 @@ class WriteController {
     constructor() {
         this.view = new WriteView();
         this.selectedFile = null;
+        this.currentUser = null;
     }
 
     /**
      * 컨트롤러 초기화
+     * @param {object|null} [currentUser=null] - 현재 사용자 정보
      */
-    init() {
+    async init(currentUser = null) {
+        this.currentUser = currentUser;
+
         // View 초기화
         if (!this.view.initialize()) return;
 
+        await this._loadCategories();
         this._setupEventListeners();
+    }
+
+    /**
+     * 카테고리 목록 로드
+     * @private
+     */
+    async _loadCategories() {
+        const categorySelect = document.getElementById('category-select');
+        if (!categorySelect) return;
+
+        try {
+            const result = await CategoryModel.getCategories();
+            if (!result.ok) return;
+
+            const categories = result.data?.data?.categories || [];
+            const isAdmin = this.currentUser?.role === 'admin';
+
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = cat.name;
+                // 공지사항(id=4)은 관리자만 선택 가능
+                if (cat.id === 4 && !isAdmin) {
+                    option.disabled = true;
+                }
+                categorySelect.appendChild(option);
+            });
+        } catch (error) {
+            logger.error('카테고리 로드 실패', error);
+        }
     }
 
     /**
@@ -127,10 +163,14 @@ class WriteController {
             }
 
             // 게시글 작성
+            const categorySelect = document.getElementById('category-select');
+            const categoryId = categorySelect ? Number(categorySelect.value) : 1;
+
             const postPayload = {
                 title: title,
                 content: content,
-                image_url: imageUrl
+                image_url: imageUrl,
+                category_id: categoryId,
             };
 
             const result = await PostModel.createPost(postPayload);

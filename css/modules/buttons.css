@@ -130,6 +130,75 @@
 }
 
 /* ============================= */
+/* 신고 버튼 (Report Button) */
+/* ============================= */
+.report-btn {
+    color: #E53935;
+    border-color: #FFCDD2;
+}
+
+.report-btn:hover {
+    background: #FFEBEE;
+    border-color: #E53935;
+}
+
+/* ============================= */
+/* 고정 버튼 (Pin Button) */
+/* ============================= */
+.pin-btn {
+    color: #FF6D00;
+    border-color: #FFE0B2;
+}
+
+.pin-btn:hover {
+    background: #FFF3E0;
+    border-color: #FF6D00;
+}
+
+/* ============================= */
+/* 추가 액션 영역 (Extra Actions) */
+/* ============================= */
+.post-extra-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    justify-content: flex-end;
+}
+
+/* ============================= */
+/* 카테고리 셀렉트 (Category Select) */
+/* ============================= */
+.category-select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: auto;
+}
+
+.category-select:focus {
+    border-color: #7C4DFF;
+}
+
+.category-select option:disabled {
+    color: #ccc;
+}
+
+/* ============================= */
+/* 관리자 메뉴 아이템 (Admin Menu Item) */
+/* ============================= */
+.menu-admin {
+    color: #E53935;
+    font-weight: 600;
+}
+
+/* ============================= */
 /* 탈퇴 버튼 (Withdraw Button) */
 /* ============================= */
 .withdraw-btn {

@@ -2,6 +2,7 @@
 // 게시글 수정 페이지 컨트롤러 - 비즈니스 로직 및 이벤트 처리 담당
 
 import PostModel from '../models/PostModel.js';
+import CategoryModel from '../models/CategoryModel.js';
 import EditView from '../views/EditView.js';
 import { extractUploadedImageUrl, readFileAsDataURL, showToastAndRedirect } from '../views/helpers.js';
 import Logger from '../utils/Logger.js';
@@ -16,15 +17,19 @@ const logger = Logger.createLogger('EditController');
 class EditController {
     constructor() {
         this.view = new EditView();
-        this.originalData = { title: '', content: '', image_url: null };
+        this.originalData = { title: '', content: '', image_url: null, category_id: null };
         this.currentData = { title: '', content: '', image_file: null };
         this.postId = null;
+        this.currentUser = null;
     }
 
     /**
      * 컨트롤러 초기화
+     * @param {object|null} [currentUser=null] - 현재 사용자 정보
      */
-    async init() {
+    async init(currentUser = null) {
+        this.currentUser = currentUser;
+
         const urlParams = new URLSearchParams(window.location.search);
         this.postId = urlParams.get('id');
 
@@ -36,8 +41,38 @@ class EditController {
         // View 초기화
         if (!this.view.initialize()) return;
 
+        await this._loadCategories();
         await this._loadPostData();
         this._setupEventListeners();
+    }
+
+    /**
+     * 카테고리 목록 로드
+     * @private
+     */
+    async _loadCategories() {
+        const categorySelect = document.getElementById('category-select');
+        if (!categorySelect) return;
+
+        try {
+            const result = await CategoryModel.getCategories();
+            if (!result.ok) return;
+
+            const categories = result.data?.data?.categories || [];
+            const isAdmin = this.currentUser?.role === 'admin';
+
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = cat.name;
+                if (cat.id === 4 && !isAdmin) {
+                    option.disabled = true;
+                }
+                categorySelect.appendChild(option);
+            });
+        } catch (error) {
+            logger.error('카테고리 로드 실패', error);
+        }
     }
 
     /**
@@ -57,6 +92,13 @@ class EditController {
 
             this.originalData.title = post.title;
             this.originalData.content = post.content;
+            this.originalData.category_id = post.category_id || null;
+
+            // 카테고리 선택 상태 설정
+            const categorySelect = document.getElementById('category-select');
+            if (categorySelect && post.category_id) {
+                categorySelect.value = post.category_id;
+            }
 
             if (post.image_urls && post.image_urls.length > 0) {
                 this.originalData.image_url = post.image_urls[0];
@@ -92,6 +134,12 @@ class EditController {
             onFileChange: (e) => this._handleFileChange(e),
             onSubmit: (e) => this._handleSubmit(e)
         });
+
+        // 카테고리 변경 감지
+        const categorySelect = document.getElementById('category-select');
+        if (categorySelect) {
+            categorySelect.addEventListener('change', () => this._checkChanges());
+        }
 
         // 뒤로가기 버튼
         const backBtn = document.getElementById('back-btn');
@@ -144,11 +192,15 @@ class EditController {
         const content = this.view.getContent();
         const hasImageChanged = !!this.currentData.image_file;
 
+        const categorySelect = document.getElementById('category-select');
+        const currentCategoryId = categorySelect ? Number(categorySelect.value) : null;
+        const isCategoryChanged = currentCategoryId !== this.originalData.category_id;
+
         const isTitleChanged = title !== this.originalData.title;
         const isContentChanged = content !== this.originalData.content;
 
         const isValid = title.length > 0 && content.length > 0;
-        const isChanged = isTitleChanged || isContentChanged || hasImageChanged;
+        const isChanged = isTitleChanged || isContentChanged || hasImageChanged || isCategoryChanged;
 
         this.view.updateButtonState(isValid && isChanged);
         this.view.toggleValidationHelper(!(isValid && isChanged));
@@ -177,13 +229,19 @@ class EditController {
                 }
             }
 
+            const categorySelect = document.getElementById('category-select');
+            const categoryId = categorySelect ? Number(categorySelect.value) : null;
+
             const payload = {
                 title: title,
-                content: content
+                content: content,
             };
 
             if (newImageUrl) {
                 payload.image_url = newImageUrl;
+            }
+            if (categoryId && categoryId !== this.originalData.category_id) {
+                payload.category_id = categoryId;
             }
 
             const result = await PostModel.updatePost(this.postId, payload);

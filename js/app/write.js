@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const headerController = new HeaderController();
     await headerController.init();
 
-    // 작성 페이지 초기화
+    // 작성 페이지 초기화 (카테고리 로드를 위해 사용자 정보 전달)
     const writeController = new WriteController();
-    writeController.init();
+    await writeController.init(headerController.getCurrentUser());
 });

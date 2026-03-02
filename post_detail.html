@@ -33,6 +33,7 @@
     <main class="main-container post-detail-container">
         <!-- 게시글 내용 섹션 (Post Content Section) -->
         <article class="post-content-wrapper">
+            <div id="post-badges" class="post-badges"></div>
             <h1 id="post-title" class="detail-title">Loading...</h1>
 
             <div class="post-info-row">
@@ -68,6 +69,11 @@
                     <div class="stat-label">댓글</div>
                 </div>
             </div>
+
+            <div class="post-extra-actions">
+                <button id="pin-post-btn" class="action-btn pin-btn" style="display:none">고정</button>
+                <button id="report-post-btn" class="action-btn report-btn" style="display:none">신고</button>
+            </div>
         </article>
 
         <div class="post-divider"></div>
@@ -90,6 +96,28 @@
             </ul>
         </section>
     </main>
+
+    <!-- 신고 모달 (Report Modal) -->
+    <div id="report-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>게시글 신고</h3>
+            <div class="report-form">
+                <label for="report-reason">신고 사유</label>
+                <select id="report-reason" class="category-select">
+                    <option value="spam">스팸</option>
+                    <option value="abuse">욕설/비방</option>
+                    <option value="inappropriate">부적절한 내용</option>
+                    <option value="other">기타</option>
+                </select>
+                <label for="report-description">상세 설명 (선택)</label>
+                <textarea id="report-description" placeholder="신고 사유를 자세히 설명해주세요." maxlength="500" rows="3"></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button id="report-cancel-btn" class="secondary-btn">취소</button>
+                <button id="report-submit-btn" class="primary-btn">신고</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 모달 (Modal) -->
     <div id="confirm-modal" class="modal hidden">

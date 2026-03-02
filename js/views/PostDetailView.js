@@ -4,7 +4,7 @@
 import { formatDate, formatCount, escapeCssUrl } from '../utils/formatters.js';
 import { getImageUrl, showToast } from './helpers.js';
 import { resolveNavPath } from '../config.js';
-import { NAV_PATHS } from '../constants.js';
+import { NAV_PATHS, CATEGORY_LABELS } from '../constants.js';
 
 /**
  * 게시글 상세 View 클래스
@@ -15,6 +15,24 @@ class PostDetailView {
      * @param {object} post - 게시글 데이터
      */
     static renderPost(post) {
+        // 카테고리 + 고정 배지
+        const badgeArea = document.getElementById('post-badges');
+        if (badgeArea) {
+            badgeArea.textContent = '';
+            if (post.is_pinned) {
+                const pinBadge = document.createElement('span');
+                pinBadge.className = 'pin-badge';
+                pinBadge.textContent = '고정';
+                badgeArea.appendChild(pinBadge);
+            }
+            if (post.category_id) {
+                const catBadge = document.createElement('span');
+                catBadge.className = 'category-badge';
+                catBadge.textContent = post.category_name || CATEGORY_LABELS[post.category_id] || '';
+                badgeArea.appendChild(catBadge);
+            }
+        }
+
         // 제목
         const titleEl = document.getElementById('post-title');
         if (titleEl) titleEl.innerText = post.title;
@@ -94,13 +112,53 @@ class PostDetailView {
     }
 
     /**
-     * 작성자 액션 버튼 표시/숨기기
+     * 작성자/관리자 액션 버튼 표시/숨기기
      * @param {boolean} isOwner - 작성자 여부
+     * @param {boolean} [isAdmin=false] - 관리자 여부
      */
-    static toggleActionButtons(isOwner) {
+    static toggleActionButtons(isOwner, isAdmin = false) {
         const actionsDiv = document.getElementById('post-actions');
-        if (actionsDiv) {
-            actionsDiv.style.display = isOwner ? 'flex' : 'none';
+        if (!actionsDiv) return;
+
+        const editBtn = document.getElementById('edit-post-btn');
+        const deleteBtn = document.getElementById('delete-post-btn');
+
+        if (isOwner) {
+            // 작성자: 수정 + 삭제
+            actionsDiv.style.display = 'flex';
+            if (editBtn) editBtn.style.display = '';
+            if (deleteBtn) deleteBtn.style.display = '';
+        } else if (isAdmin) {
+            // 관리자: 삭제만 (수정 권한 없음)
+            actionsDiv.style.display = 'flex';
+            if (editBtn) editBtn.style.display = 'none';
+            if (deleteBtn) deleteBtn.style.display = '';
+        } else {
+            actionsDiv.style.display = 'none';
+        }
+    }
+
+    /**
+     * 신고 버튼 표시/숨기기
+     * @param {boolean} show - 표시 여부
+     */
+    static toggleReportButton(show) {
+        const reportBtn = document.getElementById('report-post-btn');
+        if (reportBtn) {
+            reportBtn.style.display = show ? '' : 'none';
+        }
+    }
+
+    /**
+     * 고정/해제 버튼 표시/숨기기
+     * @param {boolean} show - 표시 여부
+     * @param {boolean} isPinned - 현재 고정 상태
+     */
+    static togglePinButton(show, isPinned) {
+        const pinBtn = document.getElementById('pin-post-btn');
+        if (pinBtn) {
+            pinBtn.style.display = show ? '' : 'none';
+            pinBtn.textContent = isPinned ? '고정 해제' : '고정';
         }
     }
 

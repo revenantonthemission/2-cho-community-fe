@@ -4,7 +4,7 @@
 import { formatDate, formatCount, truncateTitle, escapeCssUrl } from '../utils/formatters.js';
 import { getImageUrl } from './helpers.js';
 import { createElement } from '../utils/dom.js';
-import { UI_MESSAGES, NAV_PATHS } from '../constants.js';
+import { UI_MESSAGES, NAV_PATHS, CATEGORY_LABELS } from '../constants.js';
 import { resolveNavPath } from '../config.js';
 
 /**
@@ -33,8 +33,23 @@ class PostListView {
         const profileImgUrl = getImageUrl(post.author?.profileImageUrl);
         const nickname = post.author?.nickname || '';
 
+        // 배지 요소들
+        const badges = [];
+        if (post.is_pinned) {
+            badges.push(createElement('span', { className: 'pin-badge' }, ['고정']));
+        }
+        if (post.category_id && CATEGORY_LABELS[post.category_id]) {
+            badges.push(createElement('span', { className: 'category-badge' }, [
+                post.category_name || CATEGORY_LABELS[post.category_id]
+            ]));
+        }
+
         // DOM 생성 (createElement 사용)
-        const card = createElement('li', { className: 'post-card' }, [
+        const card = createElement('li', { className: `post-card${post.is_pinned ? ' pinned' : ''}` }, [
+            // Badges
+            ...(badges.length > 0 ? [
+                createElement('div', { className: 'post-badges' }, badges)
+            ] : []),
             // Header: Title & Date
             createElement('div', { className: 'post-card-header' }, [
                 createElement('h3', { className: 'post-title' }, [titleText]),
@@ -143,6 +158,32 @@ class PostListView {
                 createElement('p', {}, [`'${searchTerm}' — ${UI_MESSAGES.SEARCH_NO_RESULTS}`])
             ])
         );
+    }
+
+    /**
+     * 카테고리 탭 렌더링
+     * @param {HTMLElement} container - 탭 컨테이너
+     * @param {Array} categories - 카테고리 목록
+     * @param {number|null} activeCategoryId - 현재 선택된 카테고리 ID
+     * @param {Function} onSelect - 카테고리 선택 핸들러
+     */
+    static renderCategoryTabs(container, categories, activeCategoryId, onSelect) {
+        container.textContent = '';
+
+        // '전체' 탭
+        const allTab = createElement('button', {
+            className: `category-tab${activeCategoryId === null ? ' active' : ''}`,
+            onClick: () => onSelect(null),
+        }, ['전체']);
+        container.appendChild(allTab);
+
+        categories.forEach(cat => {
+            const tab = createElement('button', {
+                className: `category-tab${activeCategoryId === cat.id ? ' active' : ''}`,
+                onClick: () => onSelect(cat.id),
+            }, [cat.name]);
+            container.appendChild(tab);
+        });
     }
 }
 
