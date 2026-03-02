@@ -43,6 +43,24 @@ class CommentModel {
     static async deleteComment(postId, commentId) {
         return ApiService.delete(API_ENDPOINTS.COMMENTS.DETAIL(postId, commentId));
     }
+
+    /**
+     * 댓글 좋아요
+     * @param {string|number} postId - 게시글 ID
+     * @param {string|number} commentId - 댓글 ID
+     */
+    static async likeComment(postId, commentId) {
+        return ApiService.post(API_ENDPOINTS.COMMENT_LIKES.ROOT(postId, commentId), {});
+    }
+
+    /**
+     * 댓글 좋아요 취소
+     * @param {string|number} postId - 게시글 ID
+     * @param {string|number} commentId - 댓글 ID
+     */
+    static async unlikeComment(postId, commentId) {
+        return ApiService.delete(API_ENDPOINTS.COMMENT_LIKES.ROOT(postId, commentId));
+    }
 }
 
 export default CommentModel;

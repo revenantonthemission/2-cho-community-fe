@@ -74,3 +74,22 @@
 .clickable-nickname:hover {
     text-decoration: underline;
 }
+
+/* ============================= */
+/* 차단 버튼 (Block Button)     */
+/* ============================= */
+.user-profile-header .block-btn {
+    background-color: #888;
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.user-profile-header .block-btn:hover {
+    background-color: #666;
+}

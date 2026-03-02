@@ -60,7 +60,7 @@ class PostListView {
             createElement('div', { className: 'post-stats' }, [
                 createElement('span', {}, [`좋아요 ${formatCount(likes)}`]),
                 createElement('span', {}, [`댓글 ${formatCount(comments)}`]),
-                createElement('span', {}, [`조회수 ${formatCount(views)}`])
+                createElement('span', {}, [`조회수 ${formatCount(views)}`]),
             ]),
             
             // Divider

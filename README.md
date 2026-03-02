@@ -4,7 +4,7 @@ AWS AI School 2기 과제: 커뮤니티 프론트엔드
 
 ## 요약 (Summary)
 
-커뮤니티 포럼 "아무 말 대잔치"를 구축합니다. FastAPI를 기반으로 하는 비동기 백엔드와 Vanilla JavaScript 프론트엔드(순수 정적 파일)로 구성된 모노레포 구조이며, JWT 기반 인증(Access Token + Refresh Token)과 MySQL 데이터베이스를 사용합니다. 게시글 CRUD, 댓글(대댓글 포함), 좋아요, 검색/정렬, 이메일 인증, 알림, 내 활동 조회, 사용자 프로필 기능을 제공합니다.
+커뮤니티 포럼 "아무 말 대잔치"를 구축합니다. FastAPI를 기반으로 하는 비동기 백엔드와 Vanilla JavaScript 프론트엔드(순수 정적 파일)로 구성된 모노레포 구조이며, JWT 기반 인증(Access Token + Refresh Token)과 MySQL 데이터베이스를 사용합니다. 게시글 CRUD, 댓글(대댓글 포함), 좋아요, 북마크, 댓글 좋아요, 공유, 다중 이미지, 사용자 차단, 검색/정렬(최신순·좋아요순·조회수순·댓글순·인기순), 이메일 인증, 알림, 내 활동 조회, 사용자 프로필 기능을 제공합니다.
 
 **개발 환경**: 프론트엔드는 `npm serve`를 사용하여 정적 파일을 서빙하며, Python 의존성이 없습니다. 프로덕션에서는 S3 + CloudFront를 사용합니다.
 
@@ -28,6 +28,12 @@ AWS AI School 2기의 개인 프로젝트로 커뮤니티 서비스를 개발해
 - 알림 페이지를 제공한다. (읽음/삭제 처리, 무한 스크롤, 헤더 뱃지 30초 폴링)
 - 내 활동 페이지를 제공한다. (탭 UI: 내가 쓴 글/댓글/좋아요한 글)
 - 타 사용자 프로필 페이지를 제공한다. (닉네임 클릭으로 프로필 이동, 작성 글 목록)
+- 게시글 북마크/북마크 취소 기능을 제공한다. (낙관적 UI 업데이트)
+- 댓글 좋아요/좋아요 취소 기능을 제공한다. (서버 리프레시 방식)
+- 게시글 공유 기능을 제공한다. (모바일 Web Share API, 데스크톱 클립보드 복사)
+- 다중 이미지 업로드를 지원한다. (게시글당 최대 5장, 갤러리 뷰)
+- 사용자 차단/해제 기능을 제공한다. (차단된 사용자의 게시글/댓글 숨김)
+- 인기순(Hot) 정렬을 제공한다. (좋아요·댓글·조회수 가중 + 시간 감쇠)
 
 ## 목표가 아닌 것 (Non-Goals)
 
@@ -56,7 +62,7 @@ flowchart TD
     Backend -->|"Async Connection Pool"| DB
 
     subgraph DB["MySQL Database"]
-        Tables["user, refresh_token, post, comment,<br/>post_like, email_verification, notification"]
+        Tables["user, refresh_token, post, comment, post_like,<br/>post_bookmark, comment_like, user_block, post_image,<br/>category, report, email_verification, notification"]
     end
 ```
 
@@ -73,8 +79,14 @@ erDiagram
     user ||--o{ email_verification : "verifies"
     user ||--o{ notification : "receives"
     user ||--o{ report : "reports"
+    user ||--o{ post_bookmark : "bookmarks"
+    user ||--o{ comment_like : "likes comment"
+    user ||--o{ user_block : "blocks"
     post ||--o{ comment : "has"
     post ||--o{ post_like : "receives"
+    post ||--o{ post_bookmark : "bookmarked"
+    post ||--o{ post_image : "has images"
+    comment ||--o{ comment_like : "receives"
     category ||--o{ post : "classifies"
 
     user {
@@ -167,6 +179,35 @@ erDiagram
         boolean is_read "default FALSE"
         datetime created_at
     }
+
+    post_bookmark {
+        int id PK
+        int user_id FK
+        int post_id FK
+        datetime created_at
+    }
+
+    comment_like {
+        int id PK
+        int user_id FK
+        int comment_id FK
+        datetime created_at
+    }
+
+    user_block {
+        int id PK
+        int blocker_id FK
+        int blocked_id FK
+        datetime created_at
+    }
+
+    post_image {
+        int id PK
+        int post_id FK
+        varchar image_url
+        tinyint sort_order
+        datetime created_at
+    }
 ```
 
 #### 주요 설계 결정
@@ -182,6 +223,13 @@ erDiagram
   - `idx_post_category`: 카테고리별 게시글 목록 조회
   - `idx_post_pinned`: 고정 게시글 우선 정렬
   - `idx_report_status`: 신고 상태별 목록 조회
+  - `idx_post_bookmark_post_id`: 게시글별 북마크 수 집계
+  - `idx_post_bookmark_user`: 사용자별 북마크 목록 (최신순)
+  - `idx_comment_like_comment_id`: 댓글별 좋아요 수 집계
+  - `idx_comment_like_user`: 사용자별 댓글 좋아요 목록
+  - `idx_user_block_blocker`: 차단한 사용자 목록 조회
+  - `idx_user_block_blocked`: 차단당한 사용자 역조회
+  - `idx_post_image_post`: 게시글별 이미지 순서 조회
 
 ### 3. API 설계
 
@@ -211,7 +259,7 @@ erDiagram
 
 | Method | Endpoint | 설명 | 인증 |
 | ------ | -------- | ---- | ---- |
-| GET | `/v1/posts` | 게시글 목록 (페이지네이션, `?search=`, `?sort=`, `?category_id=`) | X |
+| GET | `/v1/posts` | 게시글 목록 (페이지네이션, `?search=`, `?sort=latest\|likes\|views\|comments\|hot`, `?category_id=`) | X |
 | POST | `/v1/posts` | 게시글 작성 (`category_id` 필수) | O (이메일 인증) |
 | GET | `/v1/posts/{post_id}` | 게시글 상세 조회 | X |
 | PATCH | `/v1/posts/{post_id}` | 게시글 수정 | O (작성자) |
@@ -223,7 +271,20 @@ erDiagram
 | POST | `/v1/posts/{post_id}/comments` | 댓글 작성 | O |
 | PUT | `/v1/posts/{post_id}/comments/{comment_id}` | 댓글 수정 | O (작성자) |
 | DELETE | `/v1/posts/{post_id}/comments/{comment_id}` | 댓글 삭제 | O (작성자/관리자) |
+| POST | `/v1/posts/{post_id}/bookmark` | 북마크 추가 | O (이메일 인증) |
+| DELETE | `/v1/posts/{post_id}/bookmark` | 북마크 해제 | O (이메일 인증) |
+| POST | `/v1/posts/{post_id}/comments/{comment_id}/like` | 댓글 좋아요 | O (이메일 인증) |
+| DELETE | `/v1/posts/{post_id}/comments/{comment_id}/like` | 댓글 좋아요 취소 | O (이메일 인증) |
 | POST | `/v1/posts/image` | 게시글 이미지 업로드 | O |
+
+#### 사용자 차단 API (`/v1/users`)
+
+| Method | Endpoint | 설명 | 인증 |
+| ------ | -------- | ---- | ---- |
+| POST | `/v1/users/{user_id}/block` | 사용자 차단 | O (이메일 인증) |
+| DELETE | `/v1/users/{user_id}/block` | 사용자 차단 해제 | O (이메일 인증) |
+| GET | `/v1/users/me/blocks` | 차단 목록 조회 | O |
+| GET | `/v1/users/me/bookmarks` | 북마크 목록 조회 | O |
 
 #### 카테고리 API (`/v1/categories`)
 
@@ -309,7 +370,7 @@ sequenceDiagram
 
 ```text
 2-cho-community-fe/
-├── html/                    # 13개 정적 HTML 페이지
+├── html/                    # 14개 정적 HTML 페이지
 │   ├── post_list.html       # 메인 피드
 │   ├── post_detail.html     # 게시글 상세
 │   ├── post_write.html      # 게시글 작성
@@ -322,7 +383,8 @@ sequenceDiagram
 │   ├── verify-email.html    # 이메일 인증
 │   ├── notifications.html   # 알림
 │   ├── my-activity.html     # 내 활동
-│   └── user-profile.html    # 타 사용자 프로필
+│   ├── user-profile.html    # 타 사용자 프로필
+│   └── admin-reports.html   # 관리자 신고 관리
 │
 ├── js/
 │   ├── app/                 # 페이지별 진입점
@@ -344,7 +406,7 @@ sequenceDiagram
 
 #### MVC 패턴
 
-- **Model**: API 호출 담당. `AuthModel`, `PostModel`, `UserModel`, `CommentModel`, `NotificationModel`, `ActivityModel`
+- **Model**: API 호출 담당. `AuthModel`, `PostModel`, `UserModel`, `CommentModel`, `NotificationModel`, `ActivityModel`, `ReportModel`, `CategoryModel`
 - **View**: DOM 렌더링. 정적 메서드로 HTML 생성 및 이벤트 바인딩
 - **Controller**: 비즈니스 로직. Model과 View 조정, 상태 관리 (`MainController`, `DetailController`, `WriteController`, `NotificationController`, `MyActivityController`, `UserProfileController` 등)
 
@@ -358,6 +420,11 @@ sequenceDiagram
   - **Lazy Loading**: `loading="lazy"` 속성으로 이미지 로딩 지연
   - **Debounce**: 입력 이벤트(회원가입 등) 제어로 불필요한 연산 방지
 - **에러 처리**: `ErrorBoundary`를 통한 재시도 로직 및 에러 복구 전략
+- **낙관적 UI (Optimistic UI)**: 좋아요/북마크 토글 시 API 응답 전에 즉시 UI 반영, 실패 시 롤백 (DetailController)
+- **서버 리프레시**: 댓글 좋아요는 트리 구조 재구축 필요 → `_notifyChange()` → `_reloadComments()`로 댓글 목록 갱신
+- **Web Share API**: 모바일 `navigator.share()` + 데스크톱 `navigator.clipboard.writeText()` 폴백
+- **이미지 갤러리**: 다중 이미지(`image_urls[]`) 갤러리 렌더링, 단일 이미지(`image_url`) 하위 호환
+- **비동기 응답 무효화**: 검색/정렬 변경 시 `loadGeneration` 카운터로 in-flight 응답 폐기
 
 ### 6. 보안 고려사항
 
@@ -396,6 +463,15 @@ sequenceDiagram
 ## Changelog
 
 ### 2026-03 (Mar)
+
+- **03-02: 핵심 커뮤니티 기능 (북마크, 댓글 좋아요, 공유, 다중 이미지, 사용자 차단, 인기 게시글)**
+  - 북마크: 게시글 상세 stat-box + 낙관적 UI 토글, 내 활동 > 북마크 탭 추가
+  - 댓글 좋아요: 댓글/대댓글 ♡ 버튼 + 카운트, 서버 리프레시 방식 (트리 재구축)
+  - 공유: 모바일 Web Share API + 데스크톱 클립보드 복사, 토스트 피드백
+  - 다중 이미지: 게시글 작성/수정 시 최대 5장 업로드, 상세 갤러리 뷰, `image_url` 하위 호환
+  - 사용자 차단: 게시글 상세 차단/해제 버튼, 차단된 사용자 게시글·댓글 숨김
+  - 인기순 정렬: "핫" 정렬 옵션 추가 (좋아요×3 + 댓글×2 + 조회수×0.5, 시간 감쇠)
+  - 카드 UI 확장: 북마크 카운트 표시, 정렬 버튼에 "핫" 추가
 
 - **03-02: 관리자 역할, 신고, 카테고리, 게시글 고정 UI**
   - 카테고리 탭: 게시글 목록 상단 가로 스크롤 탭, 카테고리별 필터링

@@ -90,6 +90,31 @@ class UserModel {
     static async getUserById(userId) {
         return ApiService.get(`${API_ENDPOINTS.USERS.ROOT}/${userId}`);
     }
+
+    /**
+     * 사용자 차단
+     * @param {number} userId - 차단할 사용자 ID
+     */
+    static async blockUser(userId) {
+        return ApiService.post(API_ENDPOINTS.BLOCKS.BLOCK(userId), {});
+    }
+
+    /**
+     * 사용자 차단 해제
+     * @param {number} userId - 차단 해제할 사용자 ID
+     */
+    static async unblockUser(userId) {
+        return ApiService.delete(API_ENDPOINTS.BLOCKS.BLOCK(userId));
+    }
+
+    /**
+     * 내 차단 목록 조회
+     * @param {number} offset
+     * @param {number} limit
+     */
+    static async getMyBlocks(offset = 0, limit = 10) {
+        return ApiService.get(`${API_ENDPOINTS.ACTIVITY.MY_BLOCKS}?offset=${offset}&limit=${limit}`);
+    }
 }
 
 export default UserModel;

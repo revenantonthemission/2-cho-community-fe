@@ -31,6 +31,18 @@ export const API_ENDPOINTS = {
         REPORTS: '/v1/admin/reports',
         RESOLVE_REPORT: (id) => `/v1/admin/reports/${id}`,
     },
+    LIKES: {
+        ROOT: (postId) => `/v1/posts/${postId}/likes`,
+    },
+    BOOKMARKS: {
+        ROOT: (postId) => `/v1/posts/${postId}/bookmark`,
+    },
+    COMMENT_LIKES: {
+        ROOT: (postId, commentId) => `/v1/posts/${postId}/comments/${commentId}/like`,
+    },
+    BLOCKS: {
+        BLOCK: (userId) => `/v1/users/${userId}/block`,
+    },
     COMMENTS: {
         /**
          * 댓글 목록/생성 엔드포인트
@@ -61,6 +73,8 @@ export const API_ENDPOINTS = {
         MY_POSTS: '/v1/users/me/posts',
         MY_COMMENTS: '/v1/users/me/comments',
         MY_LIKES: '/v1/users/me/likes',
+        MY_BOOKMARKS: '/v1/users/me/bookmarks',
+        MY_BLOCKS: '/v1/users/me/blocks',
     },
 };
 
@@ -101,6 +115,13 @@ export const UI_MESSAGES = {
     REPORT_RESOLVE_SUCCESS: '신고가 처리되었습니다.',
     REPORT_DISMISS_SUCCESS: '신고가 기각되었습니다.',
     ADMIN_REQUIRED: '관리자 권한이 필요합니다.',
+    BOOKMARK_FAIL: '북마크 처리에 실패했습니다.',
+    COMMENT_LIKE_FAIL: '댓글 좋아요 처리에 실패했습니다.',
+    BLOCK_SUCCESS: '사용자를 차단했습니다.',
+    UNBLOCK_SUCCESS: '차단이 해제되었습니다.',
+    BLOCK_FAIL: '차단 처리에 실패했습니다.',
+    BLOCK_SELF: '자기 자신을 차단할 수 없습니다.',
+    SHARE_COPIED: '링크가 복사되었습니다.',
 };
 
 export const NAV_PATHS = {
@@ -125,6 +146,7 @@ export const SORT_OPTIONS = {
     LIKES: 'likes',
     VIEWS: 'views',
     COMMENTS: 'comments',
+    HOT: 'hot',
 };
 
 export const SORT_LABELS = {
@@ -132,6 +154,7 @@ export const SORT_LABELS = {
     likes: '인기순',
     views: '조회순',
     comments: '댓글순',
+    hot: '핫',
 };
 
 // 클린 URL → 실제 HTML 파일 매핑

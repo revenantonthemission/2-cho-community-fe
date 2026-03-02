@@ -17,8 +17,8 @@ const logger = Logger.createLogger('EditController');
 class EditController {
     constructor() {
         this.view = new EditView();
-        this.originalData = { title: '', content: '', image_url: null, category_id: null };
-        this.currentData = { title: '', content: '', image_file: null };
+        this.originalData = { title: '', content: '', image_url: null, image_urls: [], category_id: null };
+        this.currentData = { title: '', content: '', image_file: null, image_files: [] };
         this.postId = null;
         this.currentUser = null;
     }
@@ -172,11 +172,17 @@ class EditController {
      * @private
      */
     _handleFileChange(event) {
-        const file = event.target.files[0];
-        if (file) {
-            this.currentData.image_file = file;
-            this.view.setFileName(file.name);
-            readFileAsDataURL(file, (dataUrl) => {
+        const files = Array.from(event.target.files);
+        if (files.length > 0) {
+            const selected = files.slice(0, 5);
+            this.currentData.image_files = selected;
+            this.currentData.image_file = selected[0]; // 하위 호환
+            this.view.setFileName(
+                selected.length === 1
+                    ? selected[0].name
+                    : `${selected.length}개 파일 선택됨`
+            );
+            readFileAsDataURL(selected[0], (dataUrl) => {
                 this.view.showImagePreview(dataUrl);
             });
         }
@@ -190,7 +196,7 @@ class EditController {
     _checkChanges() {
         const title = this.view.getTitle();
         const content = this.view.getContent();
-        const hasImageChanged = !!this.currentData.image_file;
+        const hasImageChanged = this.currentData.image_files.length > 0;
 
         const categorySelect = document.getElementById('category-select');
         const currentCategoryId = categorySelect ? Number(categorySelect.value) : null;
@@ -217,15 +223,18 @@ class EditController {
         const content = this.view.getContent();
 
         try {
-            let newImageUrl = null;
+            const imageUrls = [];
 
-            if (this.currentData.image_file) {
-                const uploadResult = await PostModel.uploadImage(this.currentData.image_file);
-                newImageUrl = extractUploadedImageUrl(uploadResult);
-
-                if (!newImageUrl) {
-                    this.view.showToast(UI_MESSAGES.IMAGE_UPLOAD_FAIL);
-                    return;
+            // 다중 이미지 업로드
+            if (this.currentData.image_files.length > 0) {
+                for (const file of this.currentData.image_files) {
+                    const uploadResult = await PostModel.uploadImage(file);
+                    const url = extractUploadedImageUrl(uploadResult);
+                    if (!url) {
+                        this.view.showToast(UI_MESSAGES.IMAGE_UPLOAD_FAIL);
+                        return;
+                    }
+                    imageUrls.push(url);
                 }
             }
 
@@ -237,8 +246,8 @@ class EditController {
                 content: content,
             };
 
-            if (newImageUrl) {
-                payload.image_url = newImageUrl;
+            if (imageUrls.length > 0) {
+                payload.image_urls = imageUrls;
             }
             if (categoryId && categoryId !== this.originalData.category_id) {
                 payload.category_id = categoryId;

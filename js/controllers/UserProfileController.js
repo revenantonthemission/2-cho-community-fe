@@ -7,7 +7,7 @@ import UserProfileView from '../views/UserProfileView.js';
 import PostListView from '../views/PostListView.js';
 import { showToast } from '../views/helpers.js';
 import { resolveNavPath } from '../config.js';
-import { NAV_PATHS } from '../constants.js';
+import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
 import Logger from '../utils/Logger.js';
 
 const logger = Logger.createLogger('UserProfileController');
@@ -45,10 +45,12 @@ class UserProfileController {
             return;
         }
 
+        this.currentUser = currentUser;
         this.listEl = document.getElementById('user-posts-list');
         this.emptyEl = document.getElementById('user-posts-empty');
 
         await this._loadProfile();
+        this._setupBlockButton();
         this._setupInfiniteScroll();
         await this._loadPosts();
     }
@@ -73,6 +75,51 @@ class UserProfileController {
         } catch (error) {
             logger.error('프로필 로드 실패', error);
             showToast('프로필을 불러오지 못했습니다.');
+        }
+    }
+
+    /**
+     * 차단 버튼 설정
+     * @private
+     */
+    _setupBlockButton() {
+        const blockBtn = document.getElementById('block-user-btn');
+        if (!blockBtn || !this.currentUser) return;
+
+        // 자기 자신 차단 방지
+        const myId = this.currentUser.user_id || this.currentUser.id;
+        if (myId === this.userId) return;
+
+        blockBtn.classList.remove('hidden');
+        blockBtn.addEventListener('click', () => this._handleBlock());
+    }
+
+    /**
+     * 사용자 차단/해제 토글
+     * @private
+     */
+    async _handleBlock() {
+        const blockBtn = document.getElementById('block-user-btn');
+        if (!blockBtn) return;
+
+        const isBlocked = blockBtn.textContent === '차단 해제';
+
+        try {
+            const result = isBlocked
+                ? await UserModel.unblockUser(this.userId)
+                : await UserModel.blockUser(this.userId);
+
+            if (result.ok) {
+                blockBtn.textContent = isBlocked ? '차단' : '차단 해제';
+                showToast(isBlocked ? UI_MESSAGES.UNBLOCK_SUCCESS : UI_MESSAGES.BLOCK_SUCCESS);
+            } else if (result.status === 400) {
+                showToast(UI_MESSAGES.BLOCK_SELF);
+            } else {
+                showToast(UI_MESSAGES.BLOCK_FAIL);
+            }
+        } catch (error) {
+            logger.error('차단 처리 실패', error);
+            showToast(UI_MESSAGES.BLOCK_FAIL);
         }
     }
 

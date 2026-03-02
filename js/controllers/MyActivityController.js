@@ -109,6 +109,8 @@ class MyActivityController {
                 result = await ActivityModel.getMyPosts(this.currentOffset, this.LIMIT);
             } else if (this.currentTab === 'comments') {
                 result = await ActivityModel.getMyComments(this.currentOffset, this.LIMIT);
+            } else if (this.currentTab === 'bookmarks') {
+                result = await ActivityModel.getMyBookmarks(this.currentOffset, this.LIMIT);
             } else {
                 result = await ActivityModel.getMyLikes(this.currentOffset, this.LIMIT);
             }
@@ -122,6 +124,7 @@ class MyActivityController {
             // 응답에서 항목과 페이지네이션 추출
             const responseData = result.data?.data;
             const dataKey = this.currentTab === 'comments' ? 'comments' : 'posts';
+            // bookmarks 탭도 'posts' 키로 응답됨
             const items = responseData?.[dataKey] || [];
             const pagination = responseData?.pagination;
 

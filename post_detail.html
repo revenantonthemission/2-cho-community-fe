@@ -52,6 +52,7 @@
 
             <div class="post-body">
                 <img id="post-image" src="" alt="Post Image" class="post-image hidden">
+                <div id="image-gallery" class="image-gallery hidden"></div>
                 <p id="post-content"></p>
             </div>
 
@@ -59,6 +60,10 @@
                 <div class="stat-box" id="like-box">
                     <div class="stat-value" id="like-count">0</div>
                     <div class="stat-label">좋아요</div>
+                </div>
+                <div class="stat-box" id="bookmark-box">
+                    <div class="stat-value" id="bookmark-count">0</div>
+                    <div class="stat-label">북마크</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-value" id="view-count">0</div>
@@ -71,7 +76,9 @@
             </div>
 
             <div class="post-extra-actions">
+                <button id="share-post-btn" class="action-btn share-btn">공유</button>
                 <button id="pin-post-btn" class="action-btn pin-btn" style="display:none">고정</button>
+                <button id="block-user-btn" class="action-btn block-btn" style="display:none">차단</button>
                 <button id="report-post-btn" class="action-btn report-btn" style="display:none">신고</button>
             </div>
         </article>

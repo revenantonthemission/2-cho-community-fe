@@ -43,6 +43,18 @@ class ActivityModel {
             `${API_ENDPOINTS.ACTIVITY.MY_LIKES}?offset=${offset}&limit=${limit}`
         );
     }
+
+    /**
+     * 북마크한 게시글 목록 조회
+     * @param {number} [offset=0] - 시작 위치
+     * @param {number} [limit=10] - 조회 개수
+     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     */
+    static async getMyBookmarks(offset = 0, limit = 10) {
+        return ApiService.get(
+            `${API_ENDPOINTS.ACTIVITY.MY_BOOKMARKS}?offset=${offset}&limit=${limit}`
+        );
+    }
 }
 
 export default ActivityModel;

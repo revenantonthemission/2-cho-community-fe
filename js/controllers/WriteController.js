@@ -18,6 +18,7 @@ class WriteController {
     constructor() {
         this.view = new WriteView();
         this.selectedFile = null;
+        this.selectedFiles = []; // 다중 이미지 지원
         this.currentUser = null;
     }
 
@@ -104,19 +105,28 @@ class WriteController {
     }
 
     /**
-     * 파일 변경 처리
+     * 파일 변경 처리 (다중 이미지 지원)
      * @private
      */
     _handleFileChange(event) {
-        const file = event.target.files[0];
-        if (file) {
-            this.selectedFile = file;
-            this.view.setFileName(file.name);
-            readFileAsDataURL(file, (dataUrl) => {
+        const files = Array.from(event.target.files);
+        if (files.length > 0) {
+            // 최대 5개 제한
+            const selected = files.slice(0, 5);
+            this.selectedFiles = selected;
+            this.selectedFile = selected[0]; // 하위 호환
+            this.view.setFileName(
+                selected.length === 1
+                    ? selected[0].name
+                    : `${selected.length}개 파일 선택됨`
+            );
+            // 첫 번째 파일 미리보기
+            readFileAsDataURL(selected[0], (dataUrl) => {
                 this.view.showImagePreview(dataUrl);
             });
         } else {
             this.selectedFile = null;
+            this.selectedFiles = [];
             this.view.setFileName('파일을 선택해주세요.');
             this.view.hideImagePreview();
         }
@@ -149,16 +159,18 @@ class WriteController {
         if (!title || !content) return;
 
         try {
-            let imageUrl = null;
+            const imageUrls = [];
 
-            // 이미지 업로드
-            if (this.selectedFile) {
-                const uploadResult = await PostModel.uploadImage(this.selectedFile);
-                imageUrl = extractUploadedImageUrl(uploadResult);
-
-                if (!imageUrl && this.selectedFile) {
-                    this.view.showToast(UI_MESSAGES.IMAGE_UPLOAD_FAIL);
-                    return;
+            // 다중 이미지 업로드
+            if (this.selectedFiles.length > 0) {
+                for (const file of this.selectedFiles) {
+                    const uploadResult = await PostModel.uploadImage(file);
+                    const url = extractUploadedImageUrl(uploadResult);
+                    if (!url) {
+                        this.view.showToast(UI_MESSAGES.IMAGE_UPLOAD_FAIL);
+                        return;
+                    }
+                    imageUrls.push(url);
                 }
             }
 
@@ -169,9 +181,13 @@ class WriteController {
             const postPayload = {
                 title: title,
                 content: content,
-                image_url: imageUrl,
                 category_id: categoryId,
             };
+
+            // 이미지가 있으면 image_urls 배열로 전송
+            if (imageUrls.length > 0) {
+                postPayload.image_urls = imageUrls;
+            }
 
             const result = await PostModel.createPost(postPayload);
 

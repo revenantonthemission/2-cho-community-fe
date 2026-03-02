@@ -84,6 +84,22 @@ class CommentListView {
             );
         }
 
+        // 댓글 좋아요 버튼
+        const likeBtn = currentUserId && !comment.is_deleted
+            ? createElement('button', {
+                className: `comment-like-btn${comment.is_liked ? ' active' : ''}`,
+                onClick: (e) => {
+                    e.stopPropagation();
+                    if (handlers.onLike) handlers.onLike(comment);
+                },
+            }, [
+                createElement('span', { className: 'like-icon' }, [comment.is_liked ? '♥' : '♡']),
+                createElement('span', { className: 'like-count' }, [
+                    String(comment.likes_count || 0)
+                ]),
+            ])
+            : null;
+
         const children = [
             createElement('div', {
                 className: 'comment-author-img',
@@ -109,6 +125,7 @@ class CommentListView {
                     ] : []),
                 ]),
                 createElement('p', { className: 'comment-text' }, [content]),
+                ...(likeBtn ? [likeBtn] : []),
             ]),
         ];
 

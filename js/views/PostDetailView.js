@@ -64,17 +64,21 @@ class PostDetailView {
         const dateEl = document.getElementById('post-date');
         if (dateEl) dateEl.innerText = formatDate(new Date(post.created_at));
 
-        // 이미지
-        const imgEl = document.getElementById('post-image');
-        if (imgEl && post.image_url) {
-            imgEl.src = getImageUrl(post.image_url);
-            imgEl.loading = 'lazy'; // Lazy Loading 적용
-            imgEl.classList.remove('hidden');
+        // 이미지 (다중 이미지 우선, 단일 이미지 폴백)
+        const imageUrls = post.image_urls || (post.image_url ? [post.image_url] : []);
+        if (imageUrls.length > 0) {
+            PostDetailView.renderImageGallery(imageUrls);
+        } else {
+            const imgEl = document.getElementById('post-image');
+            if (imgEl) imgEl.classList.add('hidden');
         }
 
         // 통계
         const likeCount = document.getElementById('like-count');
         if (likeCount) likeCount.innerText = formatCount(post.likes_count);
+
+        const bookmarkCount = document.getElementById('bookmark-count');
+        if (bookmarkCount) bookmarkCount.innerText = formatCount(post.bookmarks_count || 0);
 
         const viewCount = document.getElementById('view-count');
         if (viewCount) viewCount.innerText = formatCount(post.views_count);
@@ -86,6 +90,12 @@ class PostDetailView {
         const likeBox = document.getElementById('like-box');
         if (likeBox && post.is_liked) {
             likeBox.classList.add('active');
+        }
+
+        // 북마크 상태
+        const bookmarkBox = document.getElementById('bookmark-box');
+        if (bookmarkBox && post.is_bookmarked) {
+            bookmarkBox.classList.add('active');
         }
     }
 
@@ -193,6 +203,70 @@ class PostDetailView {
             button.style.backgroundColor = '#ACA0EB';
         }
     }
+    /**
+     * 북마크 상태 업데이트
+     * @param {boolean} isBookmarked - 북마크 여부
+     * @param {number} count - 북마크 수
+     */
+    static updateBookmarkState(isBookmarked, count) {
+        const bookmarkBox = document.getElementById('bookmark-box');
+        const countEl = document.getElementById('bookmark-count');
+
+        if (bookmarkBox) {
+            if (isBookmarked) {
+                bookmarkBox.classList.add('active');
+            } else {
+                bookmarkBox.classList.remove('active');
+            }
+        }
+
+        if (countEl) {
+            countEl.innerText = count;
+        }
+    }
+
+    /**
+     * 이미지 갤러리 렌더링
+     * @param {string[]} imageUrls - 이미지 URL 배열
+     */
+    static renderImageGallery(imageUrls) {
+        const gallery = document.getElementById('image-gallery');
+        const singleImg = document.getElementById('post-image');
+
+        // 단일 이미지 요소 숨기기
+        if (singleImg) singleImg.classList.add('hidden');
+
+        if (!gallery || imageUrls.length === 0) return;
+
+        gallery.textContent = '';
+        gallery.className = imageUrls.length === 1
+            ? 'image-gallery single-image'
+            : 'image-gallery multi-image';
+
+        imageUrls.forEach(url => {
+            const img = document.createElement('img');
+            img.src = getImageUrl(url);
+            img.alt = 'Post Image';
+            img.loading = 'lazy';
+            gallery.appendChild(img);
+        });
+
+        gallery.classList.remove('hidden');
+    }
+
+    /**
+     * 차단 버튼 표시/숨기기
+     * @param {boolean} show - 표시 여부
+     * @param {boolean} isBlocked - 현재 차단 상태
+     */
+    static toggleBlockButton(show, isBlocked = false) {
+        const blockBtn = document.getElementById('block-user-btn');
+        if (blockBtn) {
+            blockBtn.style.display = show ? '' : 'none';
+            blockBtn.textContent = isBlocked ? '차단 해제' : '차단';
+        }
+    }
+
     /**
      * 토스트 메시지 표시
      * @param {string} message - 메세지

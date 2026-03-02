@@ -2,6 +2,7 @@
 // 게시글 상세 페이지 컨트롤러
 
 import PostModel from '../models/PostModel.js';
+import UserModel from '../models/UserModel.js';
 import ReportModel from '../models/ReportModel.js';
 import PostDetailView from '../views/PostDetailView.js';
 import ModalView from '../views/ModalView.js';
@@ -23,6 +24,7 @@ class DetailController {
         this.currentUser = null;
         this.deleteTargetId = null; // 오직 게시글 삭제 대상 ID만 저장
         this.isLiking = false;
+        this.isBookmarking = false;
         this.commentController = null;
         this.currentPost = null; // 현재 게시글 데이터 (pin 상태 등)
         this.reportTarget = null; // { type: 'post'|'comment', id: number }
@@ -122,6 +124,9 @@ class DetailController {
             // 고정/해제 버튼 (관리자만)
             PostDetailView.togglePinButton(this._isAdmin, post.is_pinned);
 
+            // 차단 버튼 (로그인 + 본인 게시글 아닌 경우)
+            PostDetailView.toggleBlockButton(this.currentUserId && !isOwner, post.is_blocked);
+
             // 댓글 컨트롤러 초기화 및 렌더링 위임
             if (!this.commentController) {
                 this.commentController = new CommentController(
@@ -210,10 +215,28 @@ class DetailController {
             likeBox.addEventListener('click', () => this._handleLike());
         }
 
+        // 북마크
+        const bookmarkBox = document.getElementById('bookmark-box');
+        if (bookmarkBox) {
+            bookmarkBox.addEventListener('click', () => this._handleBookmark());
+        }
+
+        // 공유
+        const shareBtn = document.getElementById('share-post-btn');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', () => this._handleShare());
+        }
+
         // 고정/해제 버튼 (관리자)
         const pinBtn = document.getElementById('pin-post-btn');
         if (pinBtn) {
             pinBtn.addEventListener('click', () => this._handlePinToggle());
+        }
+
+        // 차단 버튼
+        const blockBtn = document.getElementById('block-user-btn');
+        if (blockBtn) {
+            blockBtn.addEventListener('click', () => this._handleBlock());
         }
 
         // 신고 버튼
@@ -278,6 +301,101 @@ class DetailController {
             PostDetailView.showToast(UI_MESSAGES.SERVER_ERROR);
         } finally {
             this.isLiking = false;
+        }
+    }
+
+    /**
+     * 북마크 토글 처리 (낙관적 UI)
+     * @private
+     */
+    async _handleBookmark() {
+        if (this.isBookmarking) return;
+
+        const bookmarkBox = document.getElementById('bookmark-box');
+        const countEl = document.getElementById('bookmark-count');
+        const originalCount = parseInt(countEl.innerText) || 0;
+        const wasBookmarked = bookmarkBox.classList.contains('active');
+
+        // 낙관적 UI 업데이트
+        const newCount = wasBookmarked ? Math.max(0, originalCount - 1) : originalCount + 1;
+        PostDetailView.updateBookmarkState(!wasBookmarked, newCount);
+
+        this.isBookmarking = true;
+
+        try {
+            const result = wasBookmarked
+                ? await PostModel.unbookmarkPost(this.currentPostId)
+                : await PostModel.bookmarkPost(this.currentPostId);
+
+            if (!result.ok) {
+                PostDetailView.updateBookmarkState(wasBookmarked, originalCount);
+                PostDetailView.showToast(UI_MESSAGES.BOOKMARK_FAIL);
+            }
+        } catch (error) {
+            logger.error('북마크 처리 실패', error);
+            PostDetailView.updateBookmarkState(wasBookmarked, originalCount);
+            PostDetailView.showToast(UI_MESSAGES.SERVER_ERROR);
+        } finally {
+            this.isBookmarking = false;
+        }
+    }
+
+    /**
+     * 공유 처리 (Web Share API 또는 클립보드)
+     * @private
+     */
+    async _handleShare() {
+        const url = window.location.href;
+
+        // 모바일: Web Share API 지원 시 사용
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: this.currentPost?.title || '게시글',
+                    url: url,
+                });
+                return;
+            } catch {
+                // 사용자 취소 등 — 무시
+            }
+        }
+
+        // 데스크톱: 클립보드 복사
+        try {
+            await navigator.clipboard.writeText(url);
+            PostDetailView.showToast(UI_MESSAGES.SHARE_COPIED);
+        } catch {
+            PostDetailView.showToast(UI_MESSAGES.UNKNOWN_ERROR);
+        }
+    }
+
+    /**
+     * 사용자 차단/해제 토글
+     * @private
+     */
+    async _handleBlock() {
+        if (!this.currentPost?.author?.user_id) return;
+
+        const authorId = this.currentPost.author.user_id;
+        const blockBtn = document.getElementById('block-user-btn');
+        const isBlocked = blockBtn?.textContent === '차단 해제';
+
+        try {
+            const result = isBlocked
+                ? await UserModel.unblockUser(authorId)
+                : await UserModel.blockUser(authorId);
+
+            if (result.ok) {
+                PostDetailView.toggleBlockButton(true, !isBlocked);
+                showToast(isBlocked ? UI_MESSAGES.UNBLOCK_SUCCESS : UI_MESSAGES.BLOCK_SUCCESS);
+            } else if (result.status === 400) {
+                showToast(UI_MESSAGES.BLOCK_SELF);
+            } else {
+                showToast(UI_MESSAGES.BLOCK_FAIL);
+            }
+        } catch (error) {
+            logger.error('차단 처리 실패', error);
+            showToast(UI_MESSAGES.BLOCK_FAIL);
         }
     }
 

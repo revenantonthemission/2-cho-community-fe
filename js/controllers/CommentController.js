@@ -41,6 +41,7 @@ class CommentController {
             onDelete: (commentId) => this.confirmDelete(commentId),
             onReply: (comment) => this.startReply(comment),
             onReport: (comment) => this._reportComment(comment),
+            onLike: (comment) => this._handleCommentLike(comment),
         }, this.isAdmin);
     }
 
@@ -231,6 +232,30 @@ class CommentController {
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('btn-loading');
             }
+        }
+    }
+
+    /**
+     * 댓글 좋아요 토글 — 전체 목록 새로고침으로 상태 반영
+     * @param {object} comment - 좋아요 대상 댓글
+     * @private
+     */
+    async _handleCommentLike(comment) {
+        try {
+            const wasLiked = comment.is_liked;
+            const result = wasLiked
+                ? await CommentModel.unlikeComment(this.postId, comment.comment_id)
+                : await CommentModel.likeComment(this.postId, comment.comment_id);
+
+            if (result.ok) {
+                // 댓글 목록 새로고침으로 정확한 상태 반영
+                this._notifyChange();
+            } else {
+                PostDetailView.showToast(UI_MESSAGES.COMMENT_LIKE_FAIL);
+            }
+        } catch (error) {
+            logger.error('댓글 좋아요 처리 실패', error);
+            PostDetailView.showToast(UI_MESSAGES.COMMENT_LIKE_FAIL);
         }
     }
 

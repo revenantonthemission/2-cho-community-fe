@@ -87,6 +87,22 @@ class PostModel {
     }
 
     /**
+     * 게시글 북마크
+     * @param {string|number} postId - 게시글 ID
+     */
+    static async bookmarkPost(postId) {
+        return ApiService.post(API_ENDPOINTS.BOOKMARKS.ROOT(postId), {});
+    }
+
+    /**
+     * 게시글 북마크 해제
+     * @param {string|number} postId - 게시글 ID
+     */
+    static async unbookmarkPost(postId) {
+        return ApiService.delete(API_ENDPOINTS.BOOKMARKS.ROOT(postId));
+    }
+
+    /**
      * 게시글 고정
      * @param {string|number} postId - 게시글 ID
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
