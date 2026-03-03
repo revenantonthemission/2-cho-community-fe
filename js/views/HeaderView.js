@@ -7,6 +7,7 @@
 import { getImageUrl } from './helpers.js';
 import { escapeCssUrl } from '../utils/formatters.js';
 import { createElement } from '../utils/dom.js';
+import { Icons } from '../utils/icons.js';
 
 /**
  * 헤더 View 클래스
@@ -143,7 +144,7 @@ class HeaderView {
         btn.id = 'theme-toggle';
         btn.className = 'theme-toggle-btn';
         btn.setAttribute('aria-label', '다크 모드 전환');
-        btn.textContent = currentTheme === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+        btn.appendChild(currentTheme === 'dark' ? Icons.sun(20) : Icons.moon(20));
         return btn;
     }
 
@@ -154,7 +155,8 @@ class HeaderView {
     static updateThemeToggle(theme) {
         const btn = document.getElementById('theme-toggle');
         if (btn) {
-            btn.textContent = theme === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+            btn.textContent = '';
+            btn.appendChild(theme === 'dark' ? Icons.sun(20) : Icons.moon(20));
         }
     }
 

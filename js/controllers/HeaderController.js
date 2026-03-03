@@ -9,6 +9,7 @@ import { showToast } from '../views/helpers.js';
 import Logger from '../utils/Logger.js';
 import { resolveNavPath } from '../config.js';
 import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
+import { Icons } from '../utils/icons.js';
 
 const logger = Logger.createLogger('HeaderController');
 
@@ -228,10 +229,10 @@ class HeaderController {
                     badge.className = 'notification-badge';
                     badge.textContent = count > 99 ? '99+' : String(count);
 
-                    // 벨 아이콘
+                    // 벨 아이콘 (SVG)
                     const bell = document.createElement('span');
                     bell.className = 'notification-bell';
-                    bell.textContent = '\uD83D\uDD14';
+                    bell.appendChild(Icons.bell(20));
 
                     notifBtn.appendChild(bell);
                     notifBtn.appendChild(badge);
