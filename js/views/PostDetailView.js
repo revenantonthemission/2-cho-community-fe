@@ -62,7 +62,18 @@ class PostDetailView {
 
         // 날짜
         const dateEl = document.getElementById('post-date');
-        if (dateEl) dateEl.innerText = formatDate(new Date(post.created_at));
+        if (dateEl) {
+            const dateText = formatDate(new Date(post.created_at));
+            dateEl.innerText = dateText;
+
+            if (post.updated_at && post.updated_at !== post.created_at) {
+                const editBadge = document.createElement('span');
+                editBadge.className = 'post-edited-badge';
+                editBadge.textContent = '(수정됨)';
+                editBadge.title = `수정일: ${formatDate(new Date(post.updated_at))}`;
+                dateEl.appendChild(editBadge);
+            }
+        }
 
         // 이미지 (다중 이미지 우선, 단일 이미지 폴백)
         const imageUrls = post.image_urls || (post.image_url ? [post.image_url] : []);
