@@ -7,42 +7,42 @@
 .input-group {
     display: flex;
     flex-direction: column;
-    margin-bottom: 16px;
+    margin-bottom: var(--spacing-lg);
 }
 
 .input-group label {
-    font-weight: 600;
-    font-size: 14px;
-    color: #333;
-    margin-bottom: 8px;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-sm);
 }
 
 /* 폼 구분선 - 회색 가로선 (Form Divider - Gray horizontal line) */
 .form-divider {
     width: 100%;
     height: 1px;
-    background-color: #ddd;
-    margin: 24px 0;
+    background-color: var(--color-border);
+    margin: var(--spacing-2xl) 0;
 }
 
 .input-group input {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border-dark);
+    border-radius: var(--radius-md);
     font-size: 14px;
     box-sizing: border-box;
 }
 
 .input-group input:focus {
     outline: none;
-    border-color: #ACA0EB;
+    border-color: var(--color-primary);
 }
 
 .input-group span {
-    font-size: 12px;
-    color: #FF3333;
-    margin-top: 4px;
+    font-size: var(--font-size-sm);
+    color: var(--color-error);
+    margin-top: var(--spacing-xs);
     min-height: 16px;
 }
 
@@ -50,7 +50,7 @@
 /* 프로필 업로드 (Profile Upload) */
 /* ============================= */
 .profile-upload-container {
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-xl);
 }
 
 .profile-section-header {
@@ -62,15 +62,15 @@
 }
 
 .profile-section-header .profile-label {
-    font-weight: 700;
-    font-size: 14px;
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-base);
     margin-bottom: 4px;
-    color: #333;
+    color: var(--color-text-primary);
 }
 
 .profile-section-header .helper-text {
-    font-size: 12px;
-    color: #FF3333;
+    font-size: var(--font-size-sm);
+    color: var(--color-error);
     display: none;
 }
 
@@ -81,8 +81,8 @@
 .profile-preview {
     width: 100px;
     height: 100px;
-    border-radius: 50%;
-    background-color: #f0f0f0;
+    border-radius: var(--radius-full);
+    background-color: var(--color-bg-tertiary);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -107,26 +107,26 @@
 /* 프로필 폼 그룹 (Profile Form Group) */
 /* ============================= */
 .profile-form-group {
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-xl);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
 }
 
 .profile-label {
-    font-weight: 700;
-    font-size: 14px;
-    margin-bottom: 8px;
-    color: #333;
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-text-primary);
 }
 
 .profile-input {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: #f9f9f9;
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border-dark);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-base);
+    background-color: var(--color-bg-input);
 }
 
 .profile-input:disabled {
@@ -139,39 +139,39 @@
 /* 이미지 업로드 (Image Upload) */
 /* ============================= */
 .image-upload-section {
-    margin-top: 20px;
+    margin-top: var(--spacing-xl);
 }
 
 .image-upload-box {
-    border: 1px dashed #ccc;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    padding: 20px;
+    border: 1px dashed var(--color-border-dark);
+    background-color: var(--color-bg-input);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-xl);
     text-align: center;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background var(--transition-fast);
 }
 
 .image-upload-box:hover {
-    background-color: #f0f0f0;
+    background-color: var(--color-bg-tertiary);
 }
 
 .upload-label {
     display: inline-block;
     padding: 10px 20px;
     background-color: #e0e0e0;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
 }
 
 .image-preview {
     margin-top: 10px;
     max-height: 200px;
     overflow: hidden;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
 }
 
 .preview-img {
@@ -199,8 +199,8 @@
 #post-title {
     width: 100%;
     border: none;
-    font-size: 24px;
-    font-weight: 700;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
     padding: 10px 0;
     outline: none;
     background: transparent;
@@ -216,7 +216,7 @@
     width: 100%;
     min-height: 300px;
     border: none;
-    font-size: 16px;
+    font-size: var(--font-size-md);
     line-height: 1.6;
     padding: 10px 0;
     outline: none;
@@ -242,10 +242,10 @@
 .content-textarea {
     width: 100%;
     min-height: 200px;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 14px;
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border-dark);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
     font-family: inherit;
     resize: vertical;
     box-sizing: border-box;
@@ -253,7 +253,7 @@
 
 .content-textarea:focus {
     outline: none;
-    border-color: #ACA0EB;
+    border-color: var(--color-primary);
 }
 
 /* ============================= */
@@ -265,28 +265,28 @@
 }
 
 .file-upload-label {
-    font-weight: 600;
-    font-size: 14px;
-    color: #333;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: var(--spacing-sm);
 }
 
 .file-upload-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--spacing-md);
 }
 
 .file-select-btn {
     display: inline-block;
-    padding: 8px 16px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background-color: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border-dark);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-base);
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color var(--transition-fast);
 }
 
 .file-select-btn:hover {
@@ -294,6 +294,6 @@
 }
 
 .file-name-text {
-    font-size: 14px;
-    color: #666;
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
 }
