@@ -41,7 +41,7 @@
 .result-box {
     margin-top: var(--spacing-lg);
     padding: var(--spacing-lg);
-    background-color: #f8f7ff;
+    background-color: var(--color-primary-bg);
     border-radius: var(--radius-md);
     border: 1px solid var(--color-primary-subtle);
     text-align: center;

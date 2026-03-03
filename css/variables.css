@@ -86,6 +86,11 @@
   --color-primary-lightest: #dccaff;
   --color-primary-subtle: #e0ddf5;
   --color-primary-deep: #651FFF;
+  --color-primary-bg: #f8f7ff;
+
+  /* Toast */
+  --color-toast-bg: #333;
+  --color-toast-text: #fff;
 
   /* ============================= */
   /* Spacing (4px 기반)             */
@@ -183,7 +188,7 @@
   --color-text-primary: #E0E0E0;
   --color-text-secondary: #B0B0B0;
   --color-text-tertiary: #808080;
-  --color-text-placeholder: #666;
+  --color-text-placeholder: #888;
   --color-text-white: #fff;
 
   /* Background */
@@ -239,6 +244,13 @@
   --color-warning-bg: #3E2E1A;
   --color-warning-bg-light: #4E3822;
   --color-warning-dark: #FFB74D;
+
+  /* Primary extended (dark) */
+  --color-primary-bg: #252040;
+
+  /* Toast (dark) */
+  --color-toast-bg: #E0E0E0;
+  --color-toast-text: #1a1a2e;
 
   /* Shadow */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
