@@ -115,7 +115,9 @@
 }
 
 .notification-bell {
-    font-size: var(--font-size-lg);
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-text-primary);
 }
 
 .notification-badge {
