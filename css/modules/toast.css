@@ -6,7 +6,7 @@
     position: fixed;
     left: 50%;
     bottom: 40px;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(10px);
     background-color: var(--color-text-primary);
     color: var(--color-text-white);
     text-align: center;
@@ -23,4 +23,5 @@
 #toast.show {
     visibility: visible;
     opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }
