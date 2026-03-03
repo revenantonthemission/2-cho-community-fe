@@ -217,7 +217,7 @@
     min-height: 300px;
     border: none;
     font-size: var(--font-size-md);
-    line-height: 1.6;
+    line-height: var(--line-height-relaxed);
     padding: 10px 0;
     outline: none;
     background: transparent;
