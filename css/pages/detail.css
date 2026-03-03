@@ -217,3 +217,13 @@
 .comment-like-btn .like-icon {
     font-size: 14px;
 }
+
+/* ============================= */
+/* 수정됨 배지 (Edited Badge) */
+/* ============================= */
+.post-edited-badge {
+    margin-left: var(--spacing-xs);
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-sm);
+    cursor: help;
+}
