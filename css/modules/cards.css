@@ -10,27 +10,27 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--spacing-xl);
 }
 
 /* ============================= */
 /* 게시글 카드 (Post Card) */
 /* ============================= */
 .post-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-2xl);
+    box-shadow: var(--shadow-sm);
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid #eee;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    border: 1px solid var(--color-border-light);
     display: flex;
     flex-direction: column;
 }
 
 .post-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
 }
 
 .post-card-header {
@@ -41,18 +41,18 @@
 }
 
 .post-title {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
     margin: 0;
     line-height: 1.4;
     word-break: break-word;
     flex: 1;
-    margin-right: 20px;
+    margin-right: var(--spacing-xl);
 }
 
 .post-date {
-    font-size: 12px;
-    color: #888;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
     white-space: nowrap;
 }
 
@@ -61,9 +61,9 @@
 /* ============================= */
 .post-stats {
     display: flex;
-    gap: 16px;
-    font-size: 12px;
-    color: #666;
+    gap: var(--spacing-lg);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
     margin-bottom: 10px;
 }
 
@@ -78,23 +78,23 @@
 .post-author {
     display: flex;
     align-items: center;
-    padding-top: 4px;
+    padding-top: var(--spacing-xs);
 }
 
 .author-profile-img {
     width: 36px;
     height: 36px;
-    border-radius: 50%;
-    background-color: #ddd;
+    border-radius: var(--radius-full);
+    background-color: var(--color-border);
     object-fit: cover;
-    margin-right: 12px;
-    border: 1px solid #eee;
+    margin-right: var(--spacing-md);
+    border: 1px solid var(--color-border-light);
 }
 
 .author-nickname {
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
 }
 
 /* ============================= */
@@ -103,32 +103,32 @@
 .post-badges {
     display: flex;
     gap: 6px;
-    margin-bottom: 8px;
+    margin-bottom: var(--spacing-sm);
     flex-wrap: wrap;
 }
 
 .pin-badge {
     display: inline-block;
-    padding: 2px 8px;
-    background: #FF6D00;
-    color: white;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 700;
+    padding: var(--spacing-2xs) var(--spacing-sm);
+    background: var(--color-warning);
+    color: var(--color-text-white);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
 }
 
 .category-badge {
     display: inline-block;
-    padding: 2px 8px;
-    background: #EDE7F6;
-    color: #5E35B1;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
+    padding: var(--spacing-2xs) var(--spacing-sm);
+    background: var(--color-badge-category-bg);
+    color: var(--color-badge-category-text);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
 }
 
 .post-card.pinned {
-    border-left: 3px solid #FF6D00;
+    border-left: 3px solid var(--color-warning);
 }
 
 /* ============================= */
@@ -138,7 +138,7 @@
     height: 20px;
     margin: 20px 0;
     text-align: center;
-    color: #888;
-    font-size: 14px;
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-base);
     display: block;
 }

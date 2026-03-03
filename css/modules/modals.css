@@ -10,11 +10,11 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--color-overlay);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2000;
+    z-index: var(--z-modal);
 }
 
 .modal.hidden {
@@ -25,26 +25,26 @@
 /* 모달 내용 (Modal Content) */
 /* ============================= */
 .modal-content {
-    background: #fff;
+    background: var(--color-bg-primary);
     padding: 30px;
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     width: 90%;
     max-width: 400px;
     text-align: center;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-lg);
 }
 
 .modal-content h3 {
     margin-top: 0;
-    font-size: 20px;
-    font-weight: 700;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
 }
 
 .modal-content p,
 .modal-desc {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 20px;
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xl);
 }
 
 /* ============================= */
@@ -59,17 +59,17 @@
 
 .modal-buttons button {
     padding: 10px 30px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     border: none;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color var(--transition-fast);
 }
 
 /* 취소 버튼 - 어두운색/검정 (Cancel Button - Dark/Black) */
 .modal-buttons .secondary-btn {
-    background-color: #333;
-    color: #fff;
+    background-color: var(--color-text-primary);
+    color: var(--color-text-white);
 }
 
 .modal-buttons .secondary-btn:hover {
@@ -78,12 +78,12 @@
 
 /* 확인 버튼 - 보라색 (Confirm Button - Purple) */
 .modal-buttons .primary-btn {
-    background-color: #ACA0EB;
-    color: #fff;
+    background-color: var(--color-primary);
+    color: var(--color-text-white);
 }
 
 .modal-buttons .primary-btn:hover {
-    background-color: #7F6AEE;
+    background-color: var(--color-primary-hover);
 }
 
 /* ============================= */
@@ -93,8 +93,8 @@
     width: 80%;
     padding: 10px;
     margin: 20px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid var(--color-border-dark);
+    border-radius: var(--radius-sm);
 }
 
 /* ============================= */
