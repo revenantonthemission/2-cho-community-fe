@@ -34,7 +34,7 @@
 
 | 계층 | 기술 | 선택 근거 | 운영 고려사항 |
 | ------ | ------ | ----------- | ------------- |
-| **프론트엔드** | Vanilla JavaScript (MPA) | 프레임워크 없이 JS 기본기 학습 | S3 + CloudFront로 정적 배포, 서버 부하 0 |
+| **프론트엔드** | Vanilla JavaScript (MPA) + Vite | 프레임워크 없이 JS 기본기 학습, Vite로 번들링 | S3 + CloudFront로 정적 배포, 해시된 에셋 장기 캐싱 |
 | **백엔드** | FastAPI (Python 3.13) | 비동기 I/O, 자동 API 문서화 | Lambda 컨테이너 실행, 콜드 스타트 영향 |
 | **데이터베이스** | MySQL 8.0 (aiomysql) | FULLTEXT 검색(ngram), 트랜잭션 격리 | 커넥션 풀 관리, Lambda 스케일링 시 폭발 위험 |
 | **인증** | JWT (Access 30분 + Refresh 7일) | Stateless 인증, XSS 방어 | 토큰 저장소 DB 의존, 만료 토큰 주기적 정리 |
@@ -382,7 +382,8 @@ flowchart LR
     end
 
     subgraph Frontend_Deploy["프론트엔드 배포"]
-        S3_Sync["S3 Sync<br/>(allowlist 기반)"]
+        FE_Build["Vite Build<br/>(npm ci && npm run build)"]
+        S3_Sync["S3 Sync<br/>(dist/ → S3)"]
         CF_Inv["CloudFront Invalidation"]
     end
 
@@ -395,7 +396,8 @@ flowchart LR
     Docker --> ECR_Push
     ECR_Push --> Lambda_Update
 
-    Code --> S3_Sync
+    Code --> FE_Build
+    FE_Build --> S3_Sync
     S3_Sync --> CF_Inv
 ```
 
@@ -404,7 +406,7 @@ flowchart LR
 - **OIDC 인증**: 장기 자격 증명(AWS Access Key) 대신 GitHub Actions가 임시 토큰으로 AWS에 인증합니다. 키 유출 위험이 원천 차단됩니다.
 - **`--provenance=false`**: Docker 빌드 시 생성되는 출처 증명 메타데이터를 Lambda가 지원하지 않으므로 비활성화해야 합니다.
 - **SHA 태그**: `sha-<커밋해시>` 형식의 고유 태그로 Lambda를 업데이트하여 동시 배포 충돌을 방지합니다. `latest` 태그도 병행 push합니다.
-- **허용 목록 기반 S3 동기화**: `*.html`, `*.css`, `*.js`, 이미지, 폰트만 업로드하여 불필요한 파일(.git 등)이 배포되지 않습니다.
+- **Vite 빌드 후 S3 동기화**: `npm run build`로 번들링된 `dist/` 디렉토리를 S3에 동기화합니다. 해시된 에셋 파일명(`login-DfG12kL3.js`)으로 CDN 장기 캐싱이 가능합니다.
 - **Prod 배포 제한**: 프로덕션 환경은 upstream 레포지토리에서만 배포 가능하도록 OIDC 조건을 설정했습니다.
 
 ### 2.5 기술 스택 정리표
@@ -920,8 +922,8 @@ aws rds restore-db-instance-to-point-in-time \
 
 ```bash
 # Git에서 재배포 (GitHub Actions 또는 수동)
-aws s3 sync ./html s3://my-community-prod-frontend/ \
-  --include "*.html" --include "*.css" --include "*.js"
+npm ci && npm run build
+aws s3 sync dist/ s3://my-community-prod-frontend/ --delete
 aws cloudfront create-invalidation \
   --distribution-id {dist_id} --paths "/*"
 ```

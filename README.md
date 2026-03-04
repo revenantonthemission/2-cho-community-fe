@@ -6,7 +6,7 @@ AWS AI School 2기 과제: 커뮤니티 프론트엔드
 
 커뮤니티 포럼 "아무 말 대잔치"를 구축합니다. FastAPI를 기반으로 하는 비동기 백엔드와 Vanilla JavaScript 프론트엔드(순수 정적 파일)로 구성된 모노레포 구조이며, JWT 기반 인증(Access Token + Refresh Token)과 MySQL 데이터베이스를 사용합니다. 게시글 CRUD, 댓글(대댓글 포함), 좋아요, 북마크, 댓글 좋아요, 공유, 다중 이미지, 사용자 차단, 검색/정렬(최신순·좋아요순·조회수순·댓글순·인기순), 이메일 인증, 알림, 내 활동 조회, 사용자 프로필 기능을 제공합니다.
 
-**개발 환경**: 프론트엔드는 `npm serve`를 사용하여 정적 파일을 서빙하며, Python 의존성이 없습니다. 프로덕션에서는 S3 + CloudFront를 사용합니다.
+**개발 환경**: 프론트엔드는 Vite 개발 서버(HMR)를 사용하며, Python 의존성이 없습니다. 프로덕션 빌드(`npm run build`)는 해시된 에셋을 생성하고, S3 + CloudFront로 배포됩니다.
 
 ## 배경 (Background)
 
@@ -465,6 +465,13 @@ sequenceDiagram
 
 ### 2026-03 (Mar)
 
+- **03-04: Vite 빌드 시스템 도입**
+  - `vite.config.js` 신규: 14개 HTML MPA 엔트리포인트 + 클린 URL 리라이트 플러그인
+  - `package.json` 스크립트 전환: `serve` → `vite` (dev/build/preview)
+  - Dockerfile 멀티 스테이지 빌드: `node:20-alpine` → `nginx:alpine`
+  - `nginx.conf`에 `/assets/` 장기 캐싱 규칙 추가 (해시된 에셋, 1년 만료)
+  - CD 워크플로우: Node.js 빌드 스텝 + `dist/` S3 sync
+
 - **03-03: CSS 디자인 토큰 시스템 (Design System Cleanup Stage 1)**
   - `css/variables.css` 신규: 60+ 디자인 토큰 (색상, 타이포그래피, 간격, 반경, 그림자, z-index, 트랜지션)
   - 21개 CSS 파일 하드코딩 값 → `var()` 참조 전환 (200+ 교체)
@@ -513,9 +520,9 @@ sequenceDiagram
   - Dead code 정리: `escapeHtml()`, `CommentModel.getComments()`, `FormValidator.updateButtonState()` 제거
 
 - **02-27: GitHub Actions CD 파이프라인 구축**
-  - `deploy-frontend.yml`: `workflow_dispatch` → S3 sync (allowlist 기반) → CloudFront invalidation
+  - `deploy-frontend.yml`: `workflow_dispatch` → Vite build (`npm ci && npm run build`) → `dist/` S3 sync → CloudFront invalidation
   - OIDC 인증 (GitHub → AWS IAM Role), 환경 선택 (dev/staging/prod)
-  - 허용 목록: `*.html`, `*.css`, `*.js`, 이미지, 폰트 파일만 업로드
+  - Vite 빌드 결과(`dist/`)를 S3에 동기화, 해시된 에셋으로 CDN 장기 캐싱
 
 - **02-25: JWT 인증 전환**
   - 세션 기반 → JWT (Access Token 30분 + Refresh Token 7일)
