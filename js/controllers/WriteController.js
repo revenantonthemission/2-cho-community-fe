@@ -6,9 +6,12 @@ import CategoryModel from '../models/CategoryModel.js';
 import WriteView from '../views/WriteView.js';
 import { extractUploadedImageUrl, readFileAsDataURL, showToastAndRedirect } from '../views/helpers.js';
 import Logger from '../utils/Logger.js';
+import DraftService from '../services/DraftService.js';
 import { NAV_PATHS, UI_MESSAGES, NOTICE_CATEGORY_SLUG } from '../constants.js';
 
 const logger = Logger.createLogger('WriteController');
+const DRAFT_KEY = 'draft:write';
+const DRAFT_SAVE_DELAY = 5000;
 
 /**
  * 게시글 작성 페이지 컨트롤러
@@ -20,6 +23,7 @@ class WriteController {
         this.selectedFile = null;
         this.selectedFiles = []; // 다중 이미지 지원
         this.currentUser = null;
+        this._draftTimer = null;
     }
 
     /**
@@ -33,6 +37,7 @@ class WriteController {
         if (!this.view.initialize()) return;
 
         await this._loadCategories();
+        this._restoreDraft();
         this._setupEventListeners();
     }
 
@@ -78,6 +83,12 @@ class WriteController {
             onSubmit: (e) => this._handleSubmit(e)
         });
 
+        // 카테고리 변경 시 임시 저장
+        const categorySelect = document.getElementById('category-select');
+        if (categorySelect) {
+            categorySelect.addEventListener('change', () => this._scheduleDraftSave());
+        }
+
         // 뒤로가기 버튼
         const backBtn = document.getElementById('back-btn');
         if (backBtn) {
@@ -94,6 +105,7 @@ class WriteController {
     _handleTitleInput() {
         this.view.enforceTitleMaxLength(26);
         this._validateForm();
+        this._scheduleDraftSave();
     }
 
     /**
@@ -102,6 +114,7 @@ class WriteController {
      */
     _handleContentInput() {
         this._validateForm();
+        this._scheduleDraftSave();
     }
 
     /**
@@ -192,6 +205,7 @@ class WriteController {
             const result = await PostModel.createPost(postPayload);
 
             if (result.ok) {
+                DraftService.clear(DRAFT_KEY);
                 showToastAndRedirect(UI_MESSAGES.POST_CREATE_SUCCESS, NAV_PATHS.MAIN);
             } else {
                 this.view.showToast(UI_MESSAGES.POST_CREATE_FAIL);
@@ -201,6 +215,47 @@ class WriteController {
             logger.error('게시글 작성 실패', error);
             this.view.showToast(UI_MESSAGES.UNKNOWN_ERROR);
         }
+    }
+
+    /**
+     * 임시 저장된 초안 복원
+     * @private
+     */
+    _restoreDraft() {
+        const draft = DraftService.load(DRAFT_KEY);
+        if (!draft) return;
+
+        const timeStr = DraftService.formatSavedAt(draft.savedAt);
+        const restore = confirm(`임시 저장된 글이 있습니다 (${timeStr}). 불러올까요?`);
+
+        if (restore) {
+            this.view.setTitle(draft.title || '');
+            this.view.setContent(draft.content || '');
+            const categorySelect = document.getElementById('category-select');
+            if (categorySelect && draft.categoryId) {
+                categorySelect.value = draft.categoryId;
+            }
+            this._validateForm();
+        } else {
+            DraftService.clear(DRAFT_KEY);
+        }
+    }
+
+    /**
+     * 디바운스된 임시 저장 예약
+     * @private
+     */
+    _scheduleDraftSave() {
+        clearTimeout(this._draftTimer);
+        this._draftTimer = setTimeout(() => {
+            const title = this.view.getTitle();
+            const content = this.view.getContent();
+            if (!title && !content) return;
+
+            const categorySelect = document.getElementById('category-select');
+            const categoryId = categorySelect ? Number(categorySelect.value) : 1;
+            DraftService.save(DRAFT_KEY, { title, content, categoryId });
+        }, DRAFT_SAVE_DELAY);
     }
 }
 
