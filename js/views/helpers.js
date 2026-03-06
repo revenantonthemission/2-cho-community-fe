@@ -39,7 +39,12 @@ export function getImageUrl(url) {
         return url;
     }
 
-    // 상대 경로: API_BASE_URL 추가
+    // 프론트엔드 CDN에서 서빙되는 정적 에셋 (API_BASE_URL 불필요)
+    if (url.startsWith('/assets/profiles/')) {
+        return url;
+    }
+
+    // 상대 경로: API_BASE_URL 추가 (/uploads/ 등 백엔드 서빙 경로)
     return `${API_BASE_URL}${url}`;
 }
 
