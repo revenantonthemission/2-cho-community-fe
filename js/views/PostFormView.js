@@ -357,6 +357,154 @@ class PostFormView {
     showToast(message) {
         showToast(message);
     }
+
+    /**
+     * 투표 폼 섹션 생성 및 DOM에 삽입
+     * @param {HTMLElement} insertAfter - 이 요소 뒤에 투표 섹션 삽입
+     */
+    static createPollSection(insertAfter) {
+        const section = createElement('div', { id: 'poll-section', className: 'poll-form-section' });
+
+        // 투표 추가 토글 체크박스
+        const toggleRow = createElement('label', { className: 'poll-toggle' }, [
+            createElement('input', {
+                type: 'checkbox',
+                id: 'poll-toggle-checkbox',
+                onChange: (e) => {
+                    const formBody = document.getElementById('poll-form-body');
+                    if (formBody) {
+                        formBody.style.display = e.target.checked ? '' : 'none';
+                    }
+                },
+            }),
+            '투표 추가',
+        ]);
+        section.appendChild(toggleRow);
+
+        // 투표 폼 본체 (기본 숨김)
+        const formBody = createElement('div', {
+            id: 'poll-form-body',
+            style: { display: 'none' },
+        });
+
+        // 질문 입력
+        const questionGroup = createElement('div', { className: 'input-group' }, [
+            createElement('label', { for: 'poll-question' }, ['투표 질문']),
+            createElement('input', {
+                type: 'text',
+                id: 'poll-question',
+                placeholder: '투표 질문을 입력하세요',
+                maxlength: '200',
+            }),
+        ]);
+        formBody.appendChild(questionGroup);
+
+        // 옵션 목록 컨테이너
+        const optionsContainer = createElement('div', { id: 'poll-options-container' });
+
+        // 기본 2개 옵션
+        optionsContainer.appendChild(PostFormView._createOptionInput(1));
+        optionsContainer.appendChild(PostFormView._createOptionInput(2));
+        formBody.appendChild(optionsContainer);
+
+        // 옵션 추가 버튼
+        const addBtn = createElement('button', {
+            type: 'button',
+            className: 'poll-add-option-btn',
+            onClick: () => {
+                const container = document.getElementById('poll-options-container');
+                if (!container) return;
+                const count = container.querySelectorAll('.poll-option-input').length;
+                if (count >= 10) return; // 최대 10개
+                container.appendChild(PostFormView._createOptionInput(count + 1));
+            },
+        }, ['+ 옵션 추가']);
+        formBody.appendChild(addBtn);
+
+        // 만료일 입력 (선택)
+        const expiryGroup = createElement('div', { className: 'input-group' }, [
+            createElement('label', { for: 'poll-expires' }, ['만료일 (선택)' ]),
+            createElement('input', {
+                type: 'datetime-local',
+                id: 'poll-expires',
+            }),
+        ]);
+        formBody.appendChild(expiryGroup);
+
+        section.appendChild(formBody);
+
+        // DOM에 삽입
+        if (insertAfter && insertAfter.parentNode) {
+            insertAfter.parentNode.insertBefore(section, insertAfter.nextSibling);
+        }
+
+        return section;
+    }
+
+    /**
+     * 투표 옵션 입력 행 생성
+     * @param {number} index - 옵션 번호
+     * @returns {HTMLElement}
+     * @private
+     */
+    static _createOptionInput(index) {
+        const row = createElement('div', { className: 'poll-option-input' });
+
+        const input = createElement('input', {
+            type: 'text',
+            placeholder: `옵션 ${index}`,
+            maxlength: '100',
+            className: 'poll-option-text',
+        });
+        row.appendChild(input);
+
+        // 3번째부터 삭제 버튼 표시 (최소 2개 유지)
+        if (index > 2) {
+            const removeBtn = createElement('button', {
+                type: 'button',
+                className: 'poll-option-remove-btn',
+                onClick: () => {
+                    row.remove();
+                },
+            }, ['X']);
+            row.appendChild(removeBtn);
+        }
+
+        return row;
+    }
+
+    /**
+     * 투표 폼 데이터 읽기
+     * @param {HTMLElement} container - 투표 섹션 컨테이너
+     * @returns {{ question: string, options: string[], expires_at: string|null }|null}
+     */
+    static getPollData(container) {
+        if (!container) return null;
+
+        const checkbox = container.querySelector('#poll-toggle-checkbox');
+        if (!checkbox || !checkbox.checked) return null;
+
+        const question = container.querySelector('#poll-question')?.value?.trim() || '';
+        if (!question) return null;
+
+        const optionInputs = container.querySelectorAll('.poll-option-text');
+        const options = [];
+        optionInputs.forEach(input => {
+            const val = input.value.trim();
+            if (val) options.push(val);
+        });
+
+        // 최소 2개 옵션 필요
+        if (options.length < 2) return null;
+
+        const expiresInput = container.querySelector('#poll-expires');
+        let expiresAt = null;
+        if (expiresInput && expiresInput.value) {
+            expiresAt = new Date(expiresInput.value).toISOString();
+        }
+
+        return { question, options, expires_at: expiresAt };
+    }
 }
 
 export default PostFormView;

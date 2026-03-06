@@ -127,6 +127,9 @@ class DetailController {
             // 차단 버튼 (로그인 + 본인 게시글 아닌 경우)
             PostDetailView.toggleBlockButton(this.currentUserId && !isOwner, post.is_blocked);
 
+            // 투표 버튼 이벤트 바인딩
+            this._setupPollVoteListener();
+
             // 댓글 컨트롤러 초기화 및 렌더링 위임
             if (!this.commentController) {
                 this.commentController = new CommentController(
@@ -513,6 +516,49 @@ class DetailController {
             showToast(UI_MESSAGES.UNKNOWN_ERROR);
         } finally {
             this.reportTarget = null;
+        }
+    }
+
+    /**
+     * 투표 버튼 이벤트 리스너 설정
+     * @private
+     */
+    _setupPollVoteListener() {
+        const voteBtn = document.getElementById('poll-vote-btn');
+        if (!voteBtn) return;
+
+        voteBtn.addEventListener('click', () => this._handlePollVote());
+    }
+
+    /**
+     * 투표 처리
+     * @private
+     */
+    async _handlePollVote() {
+        const form = document.getElementById('poll-vote-form');
+        if (!form) return;
+
+        const selected = form.querySelector('input[name="poll-vote"]:checked');
+        if (!selected) {
+            showToast(UI_MESSAGES.POLL_SELECT_REQUIRED);
+            return;
+        }
+
+        const optionId = Number(selected.value);
+
+        try {
+            const result = await PostModel.votePoll(this.currentPostId, optionId);
+
+            if (result.ok) {
+                showToast(UI_MESSAGES.POLL_VOTE_SUCCESS);
+                // 게시글 다시 로드하여 투표 결과 표시
+                await this._loadPostDetail();
+            } else {
+                showToast(UI_MESSAGES.POLL_VOTE_FAIL);
+            }
+        } catch (error) {
+            logger.error('투표 처리 실패', error);
+            showToast(UI_MESSAGES.POLL_VOTE_FAIL);
         }
     }
 

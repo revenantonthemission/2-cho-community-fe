@@ -60,6 +60,18 @@ class PostDetailView {
         const contentEl = document.getElementById('post-content');
         if (contentEl) renderMarkdownTo(contentEl, post.content);
 
+        // 투표 렌더링 (기존 투표 UI 제거 후 재생성)
+        const existingPoll = document.getElementById('poll-container');
+        if (existingPoll) existingPoll.remove();
+
+        if (post.poll) {
+            const pollEl = PostDetailView.renderPoll(post.poll, post.post_id);
+            const postBody = document.querySelector('.post-body');
+            if (postBody && pollEl) {
+                postBody.appendChild(pollEl);
+            }
+        }
+
         // 작성자
         const authorNickname = document.getElementById('post-author-nickname');
         if (authorNickname) authorNickname.innerText = post.author.nickname;
@@ -295,6 +307,107 @@ class PostDetailView {
             blockBtn.style.display = show ? '' : 'none';
             blockBtn.textContent = isBlocked ? '차단 해제' : '차단';
         }
+    }
+
+    /**
+     * 투표 UI 렌더링
+     * @param {object} poll - 투표 데이터
+     * @param {string|number} postId - 게시글 ID
+     * @returns {HTMLElement} - 투표 컨테이너 DOM
+     */
+    static renderPoll(poll, postId) {
+        const container = createElement('div', { className: 'poll-container', id: 'poll-container' });
+
+        // 질문
+        const question = createElement('div', { className: 'poll-question' }, [poll.question]);
+        container.appendChild(question);
+
+        const showResults = (poll.my_vote !== null && poll.my_vote !== undefined) || poll.is_expired;
+
+        if (showResults) {
+            // 결과 보기 모드 (투표 완료 또는 만료)
+            const optionsList = createElement('div', { className: 'poll-options-results' });
+
+            poll.options.forEach(opt => {
+                const pct = poll.total_votes > 0
+                    ? Math.round((opt.vote_count / poll.total_votes) * 100)
+                    : 0;
+
+                const isVoted = poll.my_vote === opt.option_id;
+
+                const optionRow = createElement('div', {
+                    className: isVoted ? 'poll-option voted' : 'poll-option',
+                });
+
+                // 배경 바 (퍼센트 너비)
+                const bar = createElement('div', {
+                    className: 'poll-bar',
+                    style: { width: `${pct}%` },
+                });
+                optionRow.appendChild(bar);
+
+                // 옵션 텍스트
+                const label = createElement('span', { className: 'poll-option-label' }, [opt.option_text]);
+                optionRow.appendChild(label);
+
+                // 퍼센트 + 투표 수
+                const stats = createElement('span', { className: 'poll-option-stats' }, [
+                    `${pct}% (${opt.vote_count})`,
+                ]);
+                optionRow.appendChild(stats);
+
+                optionsList.appendChild(optionRow);
+            });
+
+            container.appendChild(optionsList);
+        } else {
+            // 투표 모드 (라디오 버튼)
+            const form = createElement('div', { className: 'poll-vote-form', id: 'poll-vote-form' });
+
+            poll.options.forEach(opt => {
+                const radioId = `poll-opt-${opt.option_id}`;
+                const row = createElement('label', {
+                    className: 'poll-vote-option',
+                    for: radioId,
+                }, [
+                    createElement('input', {
+                        type: 'radio',
+                        name: 'poll-vote',
+                        id: radioId,
+                        value: String(opt.option_id),
+                    }),
+                    createElement('span', {}, [opt.option_text]),
+                ]);
+                form.appendChild(row);
+            });
+
+            container.appendChild(form);
+
+            // 투표 버튼
+            const voteBtn = createElement('button', {
+                className: 'poll-vote-btn',
+                id: 'poll-vote-btn',
+                dataset: { postId: String(postId) },
+            }, ['투표']);
+            container.appendChild(voteBtn);
+        }
+
+        // 하단 정보 (총 투표 수 + 만료 정보)
+        const infoItems = [`${poll.total_votes}명 참여`];
+
+        if (poll.expires_at) {
+            if (poll.is_expired) {
+                infoItems.push('투표 마감');
+            } else {
+                const expiryDate = formatDate(new Date(poll.expires_at));
+                infoItems.push(`${expiryDate} 마감`);
+            }
+        }
+
+        const totalInfo = createElement('div', { className: 'poll-total' }, [infoItems.join(' · ')]);
+        container.appendChild(totalInfo);
+
+        return container;
     }
 
     /**
