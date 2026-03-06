@@ -150,6 +150,40 @@ class UserModel {
     static async unsuspendUser(userId) {
         return ApiService.delete(API_ENDPOINTS.ADMIN.UNSUSPEND_USER(userId));
     }
+
+    /**
+     * 사용자 팔로우
+     * @param {number} userId - 팔로우할 사용자 ID
+     */
+    static async followUser(userId) {
+        return ApiService.post(API_ENDPOINTS.FOLLOW.FOLLOW(userId), {});
+    }
+
+    /**
+     * 사용자 팔로우 해제
+     * @param {number} userId - 팔로우 해제할 사용자 ID
+     */
+    static async unfollowUser(userId) {
+        return ApiService.delete(API_ENDPOINTS.FOLLOW.FOLLOW(userId));
+    }
+
+    /**
+     * 내 팔로잉 목록 조회
+     * @param {number} offset
+     * @param {number} limit
+     */
+    static async getMyFollowing(offset = 0, limit = 10) {
+        return ApiService.get(`${API_ENDPOINTS.FOLLOW.MY_FOLLOWING}?offset=${offset}&limit=${limit}`);
+    }
+
+    /**
+     * 내 팔로워 목록 조회
+     * @param {number} offset
+     * @param {number} limit
+     */
+    static async getMyFollowers(offset = 0, limit = 10) {
+        return ApiService.get(`${API_ENDPOINTS.FOLLOW.MY_FOLLOWERS}?offset=${offset}&limit=${limit}`);
+    }
 }
 
 export default UserModel;

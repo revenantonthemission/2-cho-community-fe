@@ -38,6 +38,8 @@ class UserProfileView {
             { label: '게시글', value: user.posts_count ?? 0 },
             { label: '댓글', value: user.comments_count ?? 0 },
             { label: '좋아요', value: user.likes_received_count ?? 0 },
+            { label: '팔로워', value: user.followers_count ?? 0 },
+            { label: '팔로잉', value: user.following_count ?? 0 },
         ];
 
         container.textContent = '';
