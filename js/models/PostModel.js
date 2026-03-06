@@ -137,6 +137,16 @@ class PostModel {
     }
 
     /**
+     * 투표 참여
+     * @param {string|number} postId - 게시글 ID
+     * @param {number} optionId - 선택한 옵션 ID
+     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     */
+    static async votePoll(postId, optionId) {
+        return ApiService.post(API_ENDPOINTS.POSTS.VOTE_POLL(postId), { option_id: optionId });
+    }
+
+    /**
      * 이미지 업로드
      * @param {File} file - 이미지 파일
      * @returns {Promise<{ok: boolean, status: number, data: any}>}

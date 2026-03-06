@@ -21,6 +21,7 @@ export const API_ENDPOINTS = {
         ROOT: '/v1/posts',
         IMAGE: '/v1/posts/image',
         PIN: (postId) => `/v1/posts/${postId}/pin`,
+        VOTE_POLL: (postId) => `/v1/posts/${postId}/poll/vote`,
     },
     CATEGORIES: {
         ROOT: '/v1/categories',
@@ -143,6 +144,9 @@ export const UI_MESSAGES = {
     UNSUSPEND_SUCCESS: '정지가 해제되었습니다.',
     SUSPEND_FAIL: '정지 처리에 실패했습니다.',
     ACCOUNT_SUSPENDED: '계정이 정지되었습니다.',
+    POLL_VOTE_SUCCESS: '투표가 완료되었습니다.',
+    POLL_VOTE_FAIL: '투표 처리에 실패했습니다.',
+    POLL_SELECT_REQUIRED: '투표할 항목을 선택해주세요.',
 };
 
 export const NAV_PATHS = {
