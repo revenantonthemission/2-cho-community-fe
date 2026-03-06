@@ -29,6 +29,8 @@ export const API_ENDPOINTS = {
         ROOT: '/v1/reports',
     },
     ADMIN: {
+        DASHBOARD: '/v1/admin/dashboard',
+        USERS: '/v1/admin/users',
         REPORTS: '/v1/admin/reports',
         RESOLVE_REPORT: (id) => `/v1/admin/reports/${id}`,
         // POST/DELETE 메서드로 구분 (같은 URL)
@@ -158,6 +160,7 @@ export const NAV_PATHS = {
     VERIFY_EMAIL: '/verify-email',
     USER_PROFILE: (id) => `/user-profile?id=${id}`,
     ADMIN_REPORTS: '/admin/reports',
+    ADMIN_DASHBOARD: '/admin/dashboard',
 };
 
 export const SORT_OPTIONS = {
@@ -193,6 +196,7 @@ export const HTML_PATHS = {
     '/verify-email': '/verify-email.html',
     '/user-profile': '/user-profile.html',
     '/admin/reports': '/admin_reports.html',
+    '/admin/dashboard': '/admin_dashboard.html',
 };
 
 export const CATEGORY_LABELS = {

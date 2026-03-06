@@ -19,6 +19,7 @@ function mpaRewritePlugin() {
     '/verify-email': '/verify-email.html',
     '/user-profile': '/user-profile.html',
     '/admin/reports': '/admin_reports.html',
+    '/admin/dashboard': '/admin_dashboard.html',
   };
 
   function rewriteMiddleware(req, _res, next) {
@@ -58,6 +59,7 @@ export default defineConfig({
         'my-activity': resolve(__dirname, 'my-activity.html'),
         'verify-email': resolve(__dirname, 'verify-email.html'),
         admin_reports: resolve(__dirname, 'admin_reports.html'),
+        admin_dashboard: resolve(__dirname, 'admin_dashboard.html'),
       },
     },
   },
