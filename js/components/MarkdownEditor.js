@@ -41,15 +41,20 @@ class MarkdownEditor {
      * @param {HTMLTextAreaElement} textarea - 래핑할 textarea 요소
      * @param {object} [options]
      * @param {boolean} [options.compact=false] - 컴팩트 모드 (댓글용)
+     * @param {Function|null} [options.onImageUpload=null] - 이미지 업로드 콜백 (file → Promise<url>)
      */
     constructor(textarea, options = {}) {
         this.textarea = textarea;
         this.compact = options.compact || false;
+        this.onImageUpload = options.onImageUpload || null;
         this.isPreviewing = false;
         this.previewEl = null;
 
         this._build();
         this._bindKeyboard();
+        if (this.onImageUpload) {
+            this._bindImageDrop();
+        }
     }
 
     /** 에디터 UI 구성 */
@@ -191,6 +196,63 @@ class MarkdownEditor {
 
         this.textarea.focus();
         this.textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    /** 드래그 앤 드롭 + 클립보드 붙여넣기 이벤트 바인딩 */
+    _bindImageDrop() {
+        const wrapper = this.textarea.closest('.md-editor-wrapper');
+
+        wrapper.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            wrapper.classList.add('md-editor--dragover');
+        });
+
+        wrapper.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!wrapper.contains(e.relatedTarget)) {
+                wrapper.classList.remove('md-editor--dragover');
+            }
+        });
+
+        wrapper.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            wrapper.classList.remove('md-editor--dragover');
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            if (files.length > 0) this._handleImageFiles(files);
+        });
+
+        this.textarea.addEventListener('paste', (e) => {
+            const items = Array.from(e.clipboardData?.items || []);
+            const imageItems = items.filter(item => item.type.startsWith('image/'));
+            if (imageItems.length > 0) {
+                e.preventDefault();
+                const files = imageItems.map(item => item.getAsFile()).filter(Boolean);
+                this._handleImageFiles(files);
+            }
+        });
+    }
+
+    /**
+     * 이미지 파일 업로드 처리 — 플레이스홀더 삽입 후 업로드 완료 시 교체
+     * @param {File[]} files - 업로드할 이미지 파일 목록
+     */
+    async _handleImageFiles(files) {
+        for (const file of files) {
+            const placeholder = `![업로드 중...](uploading-${Date.now()})`;
+            this._insertText(placeholder);
+
+            try {
+                const url = await this.onImageUpload(file);
+                const markdown = `![이미지](${url})`;
+                this.textarea.value = this.textarea.value.replace(placeholder, markdown);
+            } catch {
+                this.textarea.value = this.textarea.value.replace(placeholder, '');
+            }
+            this.textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        }
     }
 
     /** 미리보기 토글 */
