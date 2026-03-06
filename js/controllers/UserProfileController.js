@@ -52,6 +52,7 @@ class UserProfileController {
         this.emptyEl = document.getElementById('user-posts-empty');
 
         await this._loadProfile();
+        this._setupFollowButton();
         this._setupBlockButton();
         this._setupSuspendButton();
         this._setupInfiniteScroll();
@@ -79,6 +80,74 @@ class UserProfileController {
         } catch (error) {
             logger.error('프로필 로드 실패', error);
             showToast('프로필을 불러오지 못했습니다.');
+        }
+    }
+
+    /**
+     * 팔로우 버튼 설정
+     * @private
+     */
+    _setupFollowButton() {
+        const followBtn = document.getElementById('follow-user-btn');
+        if (!followBtn || !this.currentUser) return;
+
+        // 자기 자신 팔로우 방지
+        const myId = this.currentUser.user_id || this.currentUser.id;
+        if (myId === this.userId) return;
+
+        followBtn.classList.remove('hidden');
+        this._updateFollowButton();
+        followBtn.addEventListener('click', () => this._handleFollow());
+    }
+
+    /**
+     * 팔로우 버튼 상태 업데이트
+     * @private
+     */
+    _updateFollowButton() {
+        const followBtn = document.getElementById('follow-user-btn');
+        if (!followBtn) return;
+
+        const isFollowing = !!this.profileData?.is_following;
+        followBtn.textContent = isFollowing ? '팔로잉' : '팔로우';
+        if (isFollowing) {
+            followBtn.classList.add('following');
+        } else {
+            followBtn.classList.remove('following');
+        }
+    }
+
+    /**
+     * 팔로우/언팔로우 토글
+     * @private
+     */
+    async _handleFollow() {
+        const followBtn = document.getElementById('follow-user-btn');
+        if (!followBtn) return;
+
+        const isFollowing = followBtn.classList.contains('following');
+
+        try {
+            const result = isFollowing
+                ? await UserModel.unfollowUser(this.userId)
+                : await UserModel.followUser(this.userId);
+
+            if (result.ok) {
+                // 프로필 데이터 갱신 후 버튼 + 통계 업데이트
+                if (this.profileData) {
+                    this.profileData.is_following = !isFollowing;
+                    const countDelta = isFollowing ? -1 : 1;
+                    this.profileData.followers_count = (this.profileData.followers_count ?? 0) + countDelta;
+                }
+                this._updateFollowButton();
+                UserProfileView.renderStats(this.profileData);
+                showToast(isFollowing ? UI_MESSAGES.UNFOLLOW_SUCCESS : UI_MESSAGES.FOLLOW_SUCCESS);
+            } else {
+                showToast(UI_MESSAGES.FOLLOW_FAIL);
+            }
+        } catch (error) {
+            logger.error('팔로우 처리 실패', error);
+            showToast(UI_MESSAGES.FOLLOW_FAIL);
         }
     }
 

@@ -47,6 +47,11 @@ export const API_ENDPOINTS = {
     BLOCKS: {
         BLOCK: (userId) => `/v1/users/${userId}/block`,
     },
+    FOLLOW: {
+        FOLLOW: (userId) => `/v1/users/${userId}/follow`,
+        MY_FOLLOWING: '/v1/users/me/following',
+        MY_FOLLOWERS: '/v1/users/me/followers',
+    },
     COMMENTS: {
         /**
          * 댓글 목록/생성 엔드포인트
@@ -128,6 +133,9 @@ export const UI_MESSAGES = {
     UNBLOCK_SUCCESS: '차단이 해제되었습니다.',
     BLOCK_FAIL: '차단 처리에 실패했습니다.',
     BLOCK_SELF: '자기 자신을 차단할 수 없습니다.',
+    FOLLOW_SUCCESS: '팔로우했습니다.',
+    UNFOLLOW_SUCCESS: '팔로우를 취소했습니다.',
+    FOLLOW_FAIL: '팔로우 처리에 실패했습니다.',
     SHARE_COPIED: '링크가 복사되었습니다.',
     SUSPEND_SUCCESS: '사용자가 정지되었습니다.',
     UNSUSPEND_SUCCESS: '정지가 해제되었습니다.',

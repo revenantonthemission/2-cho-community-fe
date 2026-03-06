@@ -26,20 +26,27 @@ class NotificationView {
             comment: '댓글을 남겼습니다',
             like: '좋아요를 눌렀습니다',
             mention: '회원님을 언급했습니다',
+            follow: '회원님을 팔로우했습니다',
         };
         const typeText = typeTextMap[notification.type] || '알림이 있습니다';
 
         const message = createElement('p', { className: 'notification-message' });
         const actorSpan = createElement('strong', { textContent: actorName });
         message.appendChild(actorSpan);
-        message.appendChild(document.createTextNode('님이 '));
 
-        const titleSpan = createElement('span', {
-            className: 'notification-post-title',
-            textContent: notification.post_title,
-        });
-        message.appendChild(titleSpan);
-        message.appendChild(document.createTextNode(`에 ${typeText}.`));
+        // 팔로우 알림은 게시글 제목 없이 표시
+        if (notification.type === 'follow') {
+            message.appendChild(document.createTextNode(`님이 ${typeText}.`));
+        } else {
+            message.appendChild(document.createTextNode('님이 '));
+
+            const titleSpan = createElement('span', {
+                className: 'notification-post-title',
+                textContent: notification.post_title,
+            });
+            message.appendChild(titleSpan);
+            message.appendChild(document.createTextNode(`에 ${typeText}.`));
+        }
 
         const time = createElement('span', {
             className: 'notification-time',
