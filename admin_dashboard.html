@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <script>(function(){var t=localStorage.getItem("theme");if(!t){t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t)})()</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아무 말 대잔치 - 관리자 대시보드</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/pages/admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+KR:wght@100..900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="header-title-wrapper">
+            <button id="back-btn" class="back-button">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 19L8 12L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+            <h2>아무 말 대잔치</h2>
+            <div id="auth-section" class="header-auth"></div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <h2 class="page-title admin-page-title">관리자 대시보드</h2>
+
+        <!-- 통계 카드 -->
+        <section id="stats-cards" class="dashboard-stats">
+            <!-- JS로 렌더링 -->
+        </section>
+
+        <!-- 일별 통계 -->
+        <section class="dashboard-section">
+            <h3 class="dashboard-section-title">일별 통계 (최근 7일)</h3>
+            <div class="dashboard-table-wrapper">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>날짜</th>
+                            <th>가입</th>
+                            <th>게시글</th>
+                            <th>댓글</th>
+                        </tr>
+                    </thead>
+                    <tbody id="daily-stats-body">
+                        <!-- JS로 렌더링 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 사용자 관리 -->
+        <section class="dashboard-section">
+            <h3 class="dashboard-section-title">사용자 관리</h3>
+            <input type="text" id="user-search" class="user-search-input"
+                   placeholder="닉네임 또는 이메일로 검색...">
+            <div id="user-list">
+                <!-- JS로 렌더링 -->
+            </div>
+            <div id="user-loading-sentinel">loading...</div>
+        </section>
+    </main>
+
+    <!-- 정지 모달 -->
+    <div id="suspend-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="suspend-modal-title">사용자 정지</h3>
+            <div class="suspend-modal-form">
+                <label class="suspend-modal-label" for="suspend-days">정지 기간 (일)</label>
+                <input type="number" id="suspend-days" class="modal-input"
+                       min="1" max="365" value="7" placeholder="정지 기간 (일)">
+                <label class="suspend-modal-label" for="suspend-reason">정지 사유</label>
+                <textarea id="suspend-reason" class="modal-textarea"
+                          rows="3" placeholder="정지 사유를 입력하세요"></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button id="suspend-cancel-btn" class="secondary-btn">취소</button>
+                <button id="suspend-confirm-btn" class="primary-btn">정지</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script type="module" src="/js/app/adminDashboard.js"></script>
+</body>
+
+</html>
