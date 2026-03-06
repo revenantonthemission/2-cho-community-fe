@@ -90,9 +90,10 @@ class ApiService {
      * GET 요청 (자동 재시도 적용)
      * @param {string} endpoint - API 엔드포인트 (예: '/v1/users/me')
      * @param {boolean} [_isRetry=false] - 401 refresh 후 재시도 여부 (내부용)
+     * @param {object} [extraHeaders] - 추가 헤더 (예: ETag용 If-None-Match)
      * @returns {Promise<any>} - 응답 데이터
      */
-    static async get(endpoint, _isRetry = false) {
+    static async get(endpoint, _isRetry = false, extraHeaders = undefined) {
         logger.debug(`GET 요청: ${endpoint}`);
 
         try {
@@ -100,7 +101,7 @@ class ApiService {
             return await ErrorBoundary.withRetry(async () => {
                 const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                     method: 'GET',
-                    headers: ApiService._buildHeaders(),
+                    headers: ApiService._buildHeaders(extraHeaders),
                     credentials: 'include'
                 });
 
@@ -112,7 +113,7 @@ class ApiService {
                 }
 
                 return ApiService._handleResponse(response, 'GET', endpoint, {
-                    retryFn: () => ApiService.get(endpoint, true),
+                    retryFn: () => ApiService.get(endpoint, true, extraHeaders),
                     _isRetry
                 });
             }, {
@@ -292,8 +293,8 @@ class ApiService {
             data = { message: '응답을 처리할 수 없습니다.' };
         }
 
-        // 응답 로깅
-        if (response.ok) {
+        // 응답 로깅 (304 Not Modified는 정상 캐시 응답)
+        if (response.ok || response.status === 304) {
             logger.info(`${method} ${endpoint} 성공 (${response.status})`);
         } else {
             logger.error(`${method} ${endpoint} 실패 (${response.status})`, data);
@@ -322,11 +323,19 @@ class ApiService {
             }));
         }
 
-        return {
+        const result = {
             ok: response.ok,
             status: response.status,
             data: data
         };
+
+        // ETag 헤더가 있으면 결과에 포함 (폴링 최적화용)
+        const etag = response.headers.get('etag');
+        if (etag) {
+            result.etag = etag;
+        }
+
+        return result;
     }
 
     /**

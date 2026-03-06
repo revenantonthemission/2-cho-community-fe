@@ -7,6 +7,7 @@ import WriteView from '../views/WriteView.js';
 import { extractUploadedImageUrl, readFileAsDataURL, showToastAndRedirect } from '../views/helpers.js';
 import Logger from '../utils/Logger.js';
 import DraftService from '../services/DraftService.js';
+import PostFormView from '../views/PostFormView.js';
 import { NAV_PATHS, UI_MESSAGES, NOTICE_CATEGORY_SLUG } from '../constants.js';
 
 const logger = Logger.createLogger('WriteController');
@@ -43,6 +44,13 @@ class WriteController {
 
         await this._loadCategories();
         this.view.initializeTags();
+
+        // 투표 섹션 삽입 (파일 업로드 섹션 앞에)
+        const fileSection = document.querySelector('.file-upload-section');
+        if (fileSection) {
+            PostFormView.createPollSection(fileSection.previousElementSibling || fileSection);
+        }
+
         this._setupEventListeners();
     }
 
@@ -206,6 +214,12 @@ class WriteController {
             // 이미지가 있으면 image_urls 배열로 전송
             if (imageUrls.length > 0) {
                 postPayload.image_urls = imageUrls;
+            }
+
+            // 투표 데이터 포함
+            const pollData = PostFormView.getPollData(document.getElementById('poll-section'));
+            if (pollData) {
+                postPayload.poll = pollData;
             }
 
             const result = await PostModel.createPost(postPayload);

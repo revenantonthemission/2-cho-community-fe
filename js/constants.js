@@ -21,6 +21,7 @@ export const API_ENDPOINTS = {
         ROOT: '/v1/posts',
         IMAGE: '/v1/posts/image',
         PIN: (postId) => `/v1/posts/${postId}/pin`,
+        VOTE_POLL: (postId) => `/v1/posts/${postId}/poll/vote`,
     },
     CATEGORIES: {
         ROOT: '/v1/categories',
@@ -29,6 +30,8 @@ export const API_ENDPOINTS = {
         ROOT: '/v1/reports',
     },
     ADMIN: {
+        DASHBOARD: '/v1/admin/dashboard',
+        USERS: '/v1/admin/users',
         REPORTS: '/v1/admin/reports',
         RESOLVE_REPORT: (id) => `/v1/admin/reports/${id}`,
         // POST/DELETE 메서드로 구분 (같은 URL)
@@ -46,6 +49,11 @@ export const API_ENDPOINTS = {
     },
     BLOCKS: {
         BLOCK: (userId) => `/v1/users/${userId}/block`,
+    },
+    FOLLOW: {
+        FOLLOW: (userId) => `/v1/users/${userId}/follow`,
+        MY_FOLLOWING: '/v1/users/me/following',
+        MY_FOLLOWERS: '/v1/users/me/followers',
     },
     COMMENTS: {
         /**
@@ -128,11 +136,17 @@ export const UI_MESSAGES = {
     UNBLOCK_SUCCESS: '차단이 해제되었습니다.',
     BLOCK_FAIL: '차단 처리에 실패했습니다.',
     BLOCK_SELF: '자기 자신을 차단할 수 없습니다.',
+    FOLLOW_SUCCESS: '팔로우했습니다.',
+    UNFOLLOW_SUCCESS: '팔로우를 취소했습니다.',
+    FOLLOW_FAIL: '팔로우 처리에 실패했습니다.',
     SHARE_COPIED: '링크가 복사되었습니다.',
     SUSPEND_SUCCESS: '사용자가 정지되었습니다.',
     UNSUSPEND_SUCCESS: '정지가 해제되었습니다.',
     SUSPEND_FAIL: '정지 처리에 실패했습니다.',
     ACCOUNT_SUSPENDED: '계정이 정지되었습니다.',
+    POLL_VOTE_SUCCESS: '투표가 완료되었습니다.',
+    POLL_VOTE_FAIL: '투표 처리에 실패했습니다.',
+    POLL_SELECT_REQUIRED: '투표할 항목을 선택해주세요.',
 };
 
 export const NAV_PATHS = {
@@ -150,6 +164,7 @@ export const NAV_PATHS = {
     VERIFY_EMAIL: '/verify-email',
     USER_PROFILE: (id) => `/user-profile?id=${id}`,
     ADMIN_REPORTS: '/admin/reports',
+    ADMIN_DASHBOARD: '/admin/dashboard',
 };
 
 export const SORT_OPTIONS = {
@@ -185,6 +200,7 @@ export const HTML_PATHS = {
     '/verify-email': '/verify-email.html',
     '/user-profile': '/user-profile.html',
     '/admin/reports': '/admin_reports.html',
+    '/admin/dashboard': '/admin_dashboard.html',
 };
 
 export const CATEGORY_LABELS = {

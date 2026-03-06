@@ -26,20 +26,26 @@ class NotificationView {
             comment: '댓글을 남겼습니다',
             like: '좋아요를 눌렀습니다',
             mention: '회원님을 언급했습니다',
+            follow: '새 게시글을 작성했습니다',
         };
         const typeText = typeTextMap[notification.type] || '알림이 있습니다';
 
         const message = createElement('p', { className: 'notification-message' });
         const actorSpan = createElement('strong', { textContent: actorName });
         message.appendChild(actorSpan);
+
         message.appendChild(document.createTextNode('님이 '));
 
-        const titleSpan = createElement('span', {
-            className: 'notification-post-title',
-            textContent: notification.post_title,
-        });
-        message.appendChild(titleSpan);
-        message.appendChild(document.createTextNode(`에 ${typeText}.`));
+        if (notification.post_title) {
+            const titleSpan = createElement('span', {
+                className: 'notification-post-title',
+                textContent: notification.post_title,
+            });
+            message.appendChild(titleSpan);
+            message.appendChild(document.createTextNode(` — ${typeText}.`));
+        } else {
+            message.appendChild(document.createTextNode(`${typeText}.`));
+        }
 
         const time = createElement('span', {
             className: 'notification-time',
