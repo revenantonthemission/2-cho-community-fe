@@ -17,7 +17,7 @@ class PostModel {
      * @param {number|null} [authorId=null] - 작성자 ID 필터
      * @returns {Promise<{ok: boolean, status: number, data: any}>}
      */
-    static async getPosts(offset = 0, limit = 10, search = null, sort = 'latest', authorId = null, categoryId = null) {
+    static async getPosts(offset = 0, limit = 10, search = null, sort = 'latest', authorId = null, categoryId = null, tag = null) {
         let url = `${API_ENDPOINTS.POSTS.ROOT}/?offset=${offset}&limit=${limit}&sort=${sort}`;
         if (search) {
             url += `&search=${encodeURIComponent(search)}`;
@@ -27,6 +27,9 @@ class PostModel {
         }
         if (categoryId) {
             url += `&category_id=${categoryId}`;
+        }
+        if (tag) {
+            url += `&tag=${encodeURIComponent(tag)}`;
         }
         return ApiService.get(url);
     }
@@ -122,6 +125,15 @@ class PostModel {
      */
     static async unpinPost(postId) {
         return ApiService.delete(API_ENDPOINTS.POSTS.PIN(postId));
+    }
+
+    /**
+     * 태그 자동완성 검색
+     * @param {string} search - 검색어
+     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     */
+    static async searchTags(search) {
+        return ApiService.get(`${API_ENDPOINTS.TAGS.ROOT}?search=${encodeURIComponent(search)}`);
     }
 
     /**

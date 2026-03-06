@@ -45,6 +45,7 @@ class EditController {
         if (!this.view.initialize()) return;
 
         await this._loadCategories();
+        this.view.initializeTags();
         await this._loadPostData();
         this._restoreDraft();
         this._setupEventListeners();
@@ -93,6 +94,7 @@ class EditController {
 
             this.view.setTitle(post.title);
             this.view.setContent(post.content);
+            this.view.setTags(post.tags || []);
 
             this.originalData.title = post.title;
             this.originalData.content = post.content;
@@ -253,6 +255,7 @@ class EditController {
             const payload = {
                 title: title,
                 content: content,
+                tags: this.view.getTags(),
             };
 
             if (imageUrls.length > 0) {
