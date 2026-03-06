@@ -29,6 +29,7 @@ class NotificationController {
 
         this._setupEventListeners();
         this._setupInfiniteScroll();
+        this._setupAutoRefresh();
         await this._loadNotifications();
     }
 
@@ -74,12 +75,61 @@ class NotificationController {
     }
 
     /**
-     * 컨트롤러 정리 (스크롤 핸들러 제거)
+     * 새 알림 자동 갱신 설정
+     * HeaderController가 발생시키는 'notification:new' 이벤트를 수신하여
+     * 알림 목록 상단에 새 알림을 추가합니다.
+     * @private
+     */
+    _setupAutoRefresh() {
+        this._onNewNotification = () => this._prependNewNotifications();
+        window.addEventListener('notification:new', this._onNewNotification);
+    }
+
+    /**
+     * 새 알림을 목록 상단에 추가
+     * @private
+     */
+    async _prependNewNotifications() {
+        try {
+            const result = await NotificationModel.getNotifications(0, 5);
+            if (!result.ok) return;
+
+            const notifications = result.data?.data?.notifications || [];
+            const existingIds = new Set(
+                Array.from(this.listEl?.querySelectorAll('.notification-item') || [])
+                    .map(el => el.dataset.id)
+            );
+
+            // 새 알림만 상단에 추가 (기존에 없는 ID)
+            const newItems = notifications.filter(
+                n => !existingIds.has(String(n.notification_id))
+            );
+
+            if (newItems.length > 0) {
+                this.emptyEl?.classList.add('hidden');
+                for (const n of newItems.reverse()) {
+                    const li = NotificationView.createNotificationItem(n);
+                    li.dataset.postId = n.post_id;
+                    this.listEl?.prepend(li);
+                }
+                this.currentOffset += newItems.length;
+            }
+        } catch (error) {
+            logger.error('새 알림 자동 갱신 실패', error);
+        }
+    }
+
+    /**
+     * 컨트롤러 정리 (스크롤 핸들러 + 이벤트 리스너 제거)
      */
     destroy() {
         if (this._scrollHandler) {
             window.removeEventListener('scroll', this._scrollHandler);
             this._scrollHandler = null;
+        }
+        if (this._onNewNotification) {
+            window.removeEventListener('notification:new', this._onNewNotification);
+            this._onNewNotification = null;
         }
     }
 

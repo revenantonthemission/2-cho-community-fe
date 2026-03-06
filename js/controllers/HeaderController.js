@@ -13,6 +13,10 @@ import { Icons } from '../utils/icons.js';
 
 const logger = Logger.createLogger('HeaderController');
 
+/** 폴링 주기 (ms) */
+const POLL_INTERVAL_ACTIVE = 10_000;   // 포커스 상태: 10초
+const POLL_INTERVAL_INACTIVE = 60_000; // 비포커스 상태: 60초
+
 /**
  * 헤더 컨트롤러
  */
@@ -20,6 +24,10 @@ class HeaderController {
     constructor() {
         this.currentUser = null;
         this._notifInterval = null;
+        this._lastUnreadCount = null;
+        this._lastLatestId = null;
+        this._lastETag = null;
+        this._polling = false;
         this._setupGlobalEvents();
     }
 
@@ -179,16 +187,55 @@ class HeaderController {
     }
 
     /**
-     * 알림 폴링 시작 (30초 간격)
+     * 알림 폴링 시작 (가변 주기)
+     * - 포커스: 10초, 비포커스: 60초, 숨김 탭: 중단
      * @private
      */
     _startNotificationPolling() {
-        this._pollNotifications();  // 즉시 1회
-        this._notifInterval = setInterval(() => this._pollNotifications(), 30000);
+        this._pollNotifications();
+        this._setPollingRate(document.hidden ? 'hidden' : 'active');
+
+        this._onVisibilityChange = () => {
+            if (document.hidden) {
+                this._setPollingRate('hidden');
+            } else {
+                this._pollNotifications();
+                this._setPollingRate('active');
+            }
+        };
+
+        this._onFocus = () => {
+            this._pollNotifications();
+            this._setPollingRate('active');
+        };
+
+        this._onBlur = () => {
+            this._setPollingRate('inactive');
+        };
+
+        document.addEventListener('visibilitychange', this._onVisibilityChange);
+        window.addEventListener('focus', this._onFocus);
+        window.addEventListener('blur', this._onBlur);
     }
 
     /**
-     * 알림 폴링 중지
+     * 폴링 주기 설정
+     * @param {'active'|'inactive'|'hidden'} mode
+     * @private
+     */
+    _setPollingRate(mode) {
+        if (this._notifInterval) {
+            clearInterval(this._notifInterval);
+            this._notifInterval = null;
+        }
+        if (mode === 'hidden') return; // 숨김 탭: 폴링 중단
+
+        const interval = mode === 'active' ? POLL_INTERVAL_ACTIVE : POLL_INTERVAL_INACTIVE;
+        this._notifInterval = setInterval(() => this._pollNotifications(), interval);
+    }
+
+    /**
+     * 알림 폴링 중지 + 이벤트 리스너 정리
      * @private
      */
     _stopNotificationPolling() {
@@ -196,22 +243,84 @@ class HeaderController {
             clearInterval(this._notifInterval);
             this._notifInterval = null;
         }
+        if (this._onVisibilityChange) {
+            document.removeEventListener('visibilitychange', this._onVisibilityChange);
+            this._onVisibilityChange = null;
+        }
+        if (this._onFocus) {
+            window.removeEventListener('focus', this._onFocus);
+            this._onFocus = null;
+        }
+        if (this._onBlur) {
+            window.removeEventListener('blur', this._onBlur);
+            this._onBlur = null;
+        }
+        this._lastUnreadCount = null;
+        this._lastLatestId = null;
+        this._lastETag = null;
     }
 
     /**
-     * 읽지 않은 알림 수 조회
+     * 읽지 않은 알림 수 조회 + 새 알림 토스트
      * @private
      */
     async _pollNotifications() {
+        if (this._polling) return; // visibilitychange + focus 이중 발생 방지
+        this._polling = true;
         try {
-            const result = await NotificationModel.getUnreadCount();
-            if (result.ok) {
-                const count = result.data?.data?.unread_count || 0;
-                this._updateNotificationBadge(count);
+            const result = await NotificationModel.getUnreadCount(this._lastETag);
+
+            // 304 Not Modified — 변경 없음
+            if (result.status === 304) return;
+            if (!result.ok) return;
+
+            // ETag 저장
+            if (result.etag) {
+                this._lastETag = result.etag;
             }
+
+            const data = result.data?.data;
+            const count = data?.unread_count || 0;
+            const latest = data?.latest || null;
+
+            this._updateNotificationBadge(count);
+
+            // 새 알림 감지: count 증가 + 최신 알림 ID 변경
+            const isNewNotification =
+                this._lastUnreadCount !== null &&
+                count > this._lastUnreadCount &&
+                latest &&
+                latest.notification_id !== this._lastLatestId;
+
+            if (isNewNotification) {
+                this._showNotificationToast(latest);
+                window.dispatchEvent(new CustomEvent('notification:new'));
+            }
+
+            this._lastUnreadCount = count;
+            this._lastLatestId = latest?.notification_id || null;
         } catch {
             // 폴링 실패는 무시
+        } finally {
+            this._polling = false;
         }
+    }
+
+    /**
+     * 새 알림 토스트 표시
+     * @param {object} latest - 최신 알림 데이터
+     * @private
+     */
+    _showNotificationToast(latest) {
+        const typeTextMap = {
+            comment: '댓글을 남겼습니다',
+            like: '좋아요를 눌렀습니다',
+            mention: '회원님을 언급했습니다',
+            follow: '새 게시글을 작성했습니다',
+        };
+        const actor = latest.actor_nickname || '알 수 없는 사용자';
+        const action = typeTextMap[latest.type] || '알림이 있습니다';
+        showToast(`${actor}님이 ${action}`);
     }
 
     /**

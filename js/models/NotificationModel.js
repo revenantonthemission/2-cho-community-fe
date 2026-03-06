@@ -21,11 +21,17 @@ class NotificationModel {
     }
 
     /**
-     * 읽지 않은 알림 수 조회
-     * @returns {Promise<{ok: boolean, status: number, data: any}>}
+     * 읽지 않은 알림 수 + 최신 알림 조회
+     * @param {string|null} [etag=null] - 이전 ETag (변경 없으면 304 반환)
+     * @returns {Promise<{ok: boolean, status: number, data: any, etag: string|null}>}
      */
-    static async getUnreadCount() {
-        return ApiService.get(API_ENDPOINTS.NOTIFICATIONS.UNREAD_COUNT);
+    static async getUnreadCount(etag = null) {
+        const result = await ApiService.get(
+            API_ENDPOINTS.NOTIFICATIONS.UNREAD_COUNT,
+            false,
+            etag ? { 'If-None-Match': etag } : undefined
+        );
+        return result;
     }
 
     /**
