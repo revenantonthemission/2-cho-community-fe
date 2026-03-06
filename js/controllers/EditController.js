@@ -6,9 +6,11 @@ import CategoryModel from '../models/CategoryModel.js';
 import EditView from '../views/EditView.js';
 import { extractUploadedImageUrl, readFileAsDataURL, showToastAndRedirect } from '../views/helpers.js';
 import Logger from '../utils/Logger.js';
+import DraftService from '../services/DraftService.js';
 import { NAV_PATHS, UI_MESSAGES, NOTICE_CATEGORY_SLUG } from '../constants.js';
 
 const logger = Logger.createLogger('EditController');
+const DRAFT_SAVE_DELAY = 5000;
 
 /**
  * 게시글 수정 페이지 컨트롤러
@@ -21,6 +23,7 @@ class EditController {
         this.currentData = { title: '', content: '', image_file: null, image_files: [] };
         this.postId = null;
         this.currentUser = null;
+        this._draftTimer = null;
     }
 
     /**
@@ -44,6 +47,7 @@ class EditController {
         await this._loadCategories();
         this.view.initializeTags();
         await this._loadPostData();
+        this._restoreDraft();
         this._setupEventListeners();
     }
 
@@ -140,7 +144,10 @@ class EditController {
         // 카테고리 변경 감지
         const categorySelect = document.getElementById('category-select');
         if (categorySelect) {
-            categorySelect.addEventListener('change', () => this._checkChanges());
+            categorySelect.addEventListener('change', () => {
+                this._checkChanges();
+                this._scheduleDraftSave();
+            });
         }
 
         // 뒤로가기 버튼
@@ -159,6 +166,7 @@ class EditController {
     _handleTitleInput() {
         this.view.enforceTitleMaxLength(26);
         this._checkChanges();
+        this._scheduleDraftSave();
     }
 
     /**
@@ -167,6 +175,7 @@ class EditController {
      */
     _handleContentInput() {
         this._checkChanges();
+        this._scheduleDraftSave();
     }
 
     /**
@@ -259,6 +268,7 @@ class EditController {
             const result = await PostModel.updatePost(this.postId, payload);
 
             if (result.ok) {
+                DraftService.clear(this._getDraftKey());
                 showToastAndRedirect(UI_MESSAGES.POST_UPDATE_SUCCESS, NAV_PATHS.DETAIL(this.postId));
             } else {
                 this.view.showToast(UI_MESSAGES.POST_UPDATE_FAIL);
@@ -267,6 +277,64 @@ class EditController {
             logger.error('게시글 수정 실패', error);
             this.view.showToast(UI_MESSAGES.UNKNOWN_ERROR);
         }
+    }
+
+    /**
+     * 임시 저장 키 반환
+     * @private
+     * @returns {string}
+     */
+    _getDraftKey() {
+        return `draft:edit:${this.postId}`;
+    }
+
+    /**
+     * 임시 저장된 수정 내용 복원
+     * 서버 데이터와 동일하면 복원하지 않음
+     * @private
+     */
+    _restoreDraft() {
+        const draft = DraftService.load(this._getDraftKey());
+        if (!draft) return;
+
+        // 서버 데이터와 동일하면 복원 불필요
+        if (draft.title === this.originalData.title &&
+            draft.content === this.originalData.content &&
+            draft.categoryId === this.originalData.category_id) {
+            DraftService.clear(this._getDraftKey());
+            return;
+        }
+
+        const timeStr = DraftService.formatSavedAt(draft.savedAt);
+        const restore = confirm(`임시 저장된 수정 내용이 있습니다 (${timeStr}). 불러올까요?`);
+
+        if (restore) {
+            this.view.setTitle(draft.title || '');
+            this.view.setContent(draft.content || '');
+            const categorySelect = document.getElementById('category-select');
+            if (categorySelect && draft.categoryId) {
+                categorySelect.value = draft.categoryId;
+            }
+            this._checkChanges();
+        } else {
+            DraftService.clear(this._getDraftKey());
+        }
+    }
+
+    /**
+     * 임시 저장 디바운스 스케줄링
+     * @private
+     */
+    _scheduleDraftSave() {
+        clearTimeout(this._draftTimer);
+        this._draftTimer = setTimeout(() => {
+            const title = this.view.getTitle();
+            const content = this.view.getContent();
+            if (!title && !content) return;
+            const categorySelect = document.getElementById('category-select');
+            const categoryId = categorySelect ? Number(categorySelect.value) : null;
+            DraftService.save(this._getDraftKey(), { title, content, categoryId });
+        }, DRAFT_SAVE_DELAY);
     }
 }
 
