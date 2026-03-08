@@ -185,10 +185,14 @@ class WebSocketService {
             this._ws.onclose = (event) => {
                 this._stopHeartbeat();
                 const wasConnected = this._state === 'connected';
+                const wasHandshaking = this._state === 'connecting' || this._state === 'authenticating';
                 this._state = 'disconnected';
                 logger.info('WebSocket 연결 종료 (code=%d)', event.code);
 
-                if (wasConnected) {
+                if (wasHandshaking) {
+                    // 핸드셰이크 중 연결 종료 → Promise 결착시켜 폴링 폴백 트리거
+                    reject(new Error('Connection closed during handshake'));
+                } else if (wasConnected) {
                     this._scheduleReconnect();
                 }
             };
