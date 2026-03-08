@@ -3,6 +3,7 @@
 
 import UserModel from '../models/UserModel.js';
 import PostModel from '../models/PostModel.js';
+import DMModel from '../models/DMModel.js';
 import UserProfileView from '../views/UserProfileView.js';
 import PostListView from '../views/PostListView.js';
 import { showToast } from '../views/helpers.js';
@@ -52,6 +53,7 @@ class UserProfileController {
         this.emptyEl = document.getElementById('user-posts-empty');
 
         await this._loadProfile();
+        this._setupDmButton();
         this._setupFollowButton();
         this._setupBlockButton();
         this._setupSuspendButton();
@@ -80,6 +82,51 @@ class UserProfileController {
         } catch (error) {
             logger.error('프로필 로드 실패', error);
             showToast('프로필을 불러오지 못했습니다.');
+        }
+    }
+
+    /**
+     * 메시지 보내기 버튼 설정
+     * @private
+     */
+    _setupDmButton() {
+        const dmBtn = document.getElementById('send-dm-btn');
+        if (!dmBtn || !this.currentUser) return;
+
+        const myId = this.currentUser.user_id || this.currentUser.id;
+        if (myId === this.userId) return;
+
+        dmBtn.classList.remove('hidden');
+        dmBtn.addEventListener('click', () => this._handleSendDm());
+    }
+
+    /**
+     * DM 대화 시작 → 대화 페이지로 이동
+     * @private
+     */
+    async _handleSendDm() {
+        try {
+            const result = await DMModel.createConversation(this.userId);
+            if (result.ok) {
+                const convId = result.data?.data?.conversation?.id;
+                if (convId) {
+                    // 상대방 정보를 sessionStorage에 저장 (상세 페이지에서 사용)
+                    if (this.profileData) {
+                        sessionStorage.setItem(`dm_other_user_${convId}`, JSON.stringify({
+                            nickname: this.profileData.nickname,
+                            profile_image_url: this.profileData.profile_image_url,
+                        }));
+                    }
+                    location.href = resolveNavPath(NAV_PATHS.DM_DETAIL(convId));
+                }
+            } else if (result.status === 403) {
+                showToast(UI_MESSAGES.DM_BLOCKED);
+            } else {
+                showToast(UI_MESSAGES.DM_SEND_FAIL);
+            }
+        } catch (error) {
+            logger.error('DM 대화 시작 실패', error);
+            showToast(UI_MESSAGES.DM_SEND_FAIL);
         }
     }
 

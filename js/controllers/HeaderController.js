@@ -3,6 +3,7 @@
 
 import AuthModel from '../models/AuthModel.js';
 import NotificationModel from '../models/NotificationModel.js';
+import DMModel from '../models/DMModel.js';
 import HeaderView from '../views/HeaderView.js';
 import { ThemeService } from '../services/ThemeService.js';
 import { showToast } from '../views/helpers.js';
@@ -31,6 +32,7 @@ class HeaderController {
         this._lastLatestId = null;
         this._lastETag = null;
         this._polling = false;
+        this._lastDmUnreadCount = null;
         /** @type {WebSocketService|null} */
         this._wsService = null;
         this._setupGlobalEvents();
@@ -208,6 +210,11 @@ class HeaderController {
             this._handleRealtimeNotification(data);
         });
 
+        // DM 이벤트 수신
+        this._wsService.on('dm', (data) => {
+            this._handleRealtimeDm(data);
+        });
+
         // 폴백: WebSocket 재연결 포기 시 폴링 전환
         this._wsService.onFallback(() => {
             logger.info('WebSocket 폴백 → 폴링 모드');
@@ -233,6 +240,7 @@ class HeaderController {
 
         // 초기 unread count는 한 번 폴링으로 가져옴
         this._pollNotifications();
+        this._pollDmUnreadCount();
     }
 
     /**
@@ -241,7 +249,10 @@ class HeaderController {
      */
     _startResync() {
         this._stopResync();
-        this._resyncInterval = setInterval(() => this._pollNotifications(), WS_RESYNC_INTERVAL);
+        this._resyncInterval = setInterval(() => {
+            this._pollNotifications();
+            this._pollDmUnreadCount();
+        }, WS_RESYNC_INTERVAL);
     }
 
     /**
@@ -411,6 +422,125 @@ class HeaderController {
         const actor = latest.actor_nickname || '알 수 없는 사용자';
         const action = typeTextMap[latest.type] || '알림이 있습니다';
         showToast(`${actor}님이 ${action}`);
+    }
+
+    /**
+     * 실시간 DM 수신 처리
+     * @param {object} data - DM 이벤트 데이터
+     * @private
+     */
+    _handleRealtimeDm(data) {
+        // DM 목록/상세 페이지 자동 갱신
+        window.dispatchEvent(new CustomEvent('dm:new-message', { detail: data }));
+
+        // 현재 해당 대화를 보고 있으면 배지 증가 안 함
+        const params = new URLSearchParams(location.search);
+        const viewingConvId = params.get('id');
+        const isDmDetailPage = location.pathname.includes('/messages/detail');
+        if (isDmDetailPage && viewingConvId && Number(viewingConvId) === data.conversation_id) {
+            return;
+        }
+
+        this._lastDmUnreadCount = (this._lastDmUnreadCount || 0) + 1;
+        this._updateDmBadge(this._lastDmUnreadCount);
+
+        if (data.sender_nickname) {
+            showToast(`${data.sender_nickname}님이 메시지를 보냈습니다`);
+        }
+    }
+
+    /**
+     * DM 읽지 않은 대화 수 조회
+     * @private
+     */
+    async _pollDmUnreadCount() {
+        try {
+            const result = await DMModel.getUnreadCount();
+            if (!result.ok) return;
+
+            const count = result.data?.data?.unread_count || 0;
+            this._lastDmUnreadCount = count;
+            this._updateDmBadge(count);
+        } catch {
+            // 폴링 실패는 무시
+        }
+    }
+
+    /**
+     * 헤더 DM 뱃지 업데이트
+     * @param {number} count - 읽지 않은 대화 수
+     * @private
+     */
+    _updateDmBadge(count) {
+        let badge = document.getElementById('dm-badge');
+        if (count > 0) {
+            if (!badge) {
+                const authSection = document.getElementById('auth-section');
+                if (authSection) {
+                    const dmBtn = document.createElement('a');
+                    dmBtn.href = resolveNavPath(NAV_PATHS.DM_LIST);
+                    dmBtn.className = 'notification-icon-wrapper';
+                    dmBtn.id = 'dm-link';
+
+                    badge = document.createElement('span');
+                    badge.id = 'dm-badge';
+                    badge.className = 'notification-badge';
+                    badge.textContent = count > 99 ? '99+' : String(count);
+
+                    const mailIcon = document.createElement('span');
+                    mailIcon.className = 'notification-bell';
+                    mailIcon.appendChild(Icons.mail(20));
+
+                    dmBtn.appendChild(mailIcon);
+                    dmBtn.appendChild(badge);
+
+                    // 알림 아이콘 뒤에 삽입 (없으면 맨 앞)
+                    const notifLink = document.getElementById('notification-link');
+                    if (notifLink && notifLink.nextSibling) {
+                        authSection.insertBefore(dmBtn, notifLink.nextSibling);
+                    } else if (notifLink) {
+                        authSection.appendChild(dmBtn);
+                    } else {
+                        authSection.insertBefore(dmBtn, authSection.firstChild);
+                    }
+                }
+            } else {
+                badge.textContent = count > 99 ? '99+' : String(count);
+                badge.classList.remove('hidden');
+            }
+        } else {
+            // count가 0이어도 아이콘은 유지, 배지만 숨김
+            if (badge) {
+                badge.classList.add('hidden');
+            } else {
+                // 배지 없이 아이콘만 표시
+                const dmLink = document.getElementById('dm-link');
+                if (!dmLink) {
+                    const authSection = document.getElementById('auth-section');
+                    if (authSection) {
+                        const dmBtn = document.createElement('a');
+                        dmBtn.href = resolveNavPath(NAV_PATHS.DM_LIST);
+                        dmBtn.className = 'notification-icon-wrapper';
+                        dmBtn.id = 'dm-link';
+
+                        const mailIcon = document.createElement('span');
+                        mailIcon.className = 'notification-bell';
+                        mailIcon.appendChild(Icons.mail(20));
+
+                        dmBtn.appendChild(mailIcon);
+
+                        const notifLink = document.getElementById('notification-link');
+                        if (notifLink && notifLink.nextSibling) {
+                            authSection.insertBefore(dmBtn, notifLink.nextSibling);
+                        } else if (notifLink) {
+                            authSection.appendChild(dmBtn);
+                        } else {
+                            authSection.insertBefore(dmBtn, authSection.firstChild);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
