@@ -218,6 +218,14 @@ export const Icons = {
         ]);
     },
 
+    /** 쪽지 (메일 봉투) */
+    mail(size = 20) {
+        return svg(size, [
+            rect(2, 4, 20, 16, 2),
+            polyline('22 4 12 13 2 4'),
+        ]);
+    },
+
     /** 미리보기 해제 (눈 감기) */
     eyeOff(size = 16) {
         return svg(size, [
