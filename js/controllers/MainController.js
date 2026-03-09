@@ -100,7 +100,9 @@ class MainController {
                 forYouBtn.classList.toggle('active', this.currentForYou);
 
                 if (this.currentForYou) {
-                    // 추천 활성화 시 정렬 버튼 비활성화
+                    // 추천 활성화 시 팔로잉 해제 + 정렬 버튼 비활성화
+                    this.currentFollowing = false;
+                    if (followingBtn) followingBtn.classList.remove('active');
                     if (sortButtons) {
                         sortButtons.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
                     }
@@ -120,6 +122,18 @@ class MainController {
             followingBtn.addEventListener('click', () => {
                 this.currentFollowing = !this.currentFollowing;
                 followingBtn.classList.toggle('active', this.currentFollowing);
+
+                // 팔로잉 활성화 시 추천 해제
+                if (this.currentFollowing && this.currentForYou) {
+                    this.currentForYou = false;
+                    if (forYouBtn) forYouBtn.classList.remove('active');
+                    // 정렬 버튼 복원
+                    this.currentSort = 'latest';
+                    if (sortButtons) {
+                        const latestBtn = sortButtons.querySelector('[data-sort="latest"]');
+                        if (latestBtn) latestBtn.classList.add('active');
+                    }
+                }
                 this._resetAndReload();
             });
         }
