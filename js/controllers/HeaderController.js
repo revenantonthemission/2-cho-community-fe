@@ -178,6 +178,10 @@ class HeaderController {
     async _handleLogout() {
         this._stopNotificationPolling();
         this._stopResync();
+        if (this._dmSendTypingHandler) {
+            window.removeEventListener('dm:send-typing', this._dmSendTypingHandler);
+            this._dmSendTypingHandler = null;
+        }
         if (this._wsService) {
             this._wsService.disconnect();
             this._wsService = null;
@@ -244,6 +248,14 @@ class HeaderController {
             logger.info('WebSocket 연결 실패 → 폴링 모드');
             this._startNotificationPolling();
         });
+
+        // DM 타이핑 이벤트 전송 요청 수신 → WebSocket으로 전달
+        this._dmSendTypingHandler = (e) => {
+            if (this._wsService) {
+                this._wsService.send(e.detail);
+            }
+        };
+        window.addEventListener('dm:send-typing', this._dmSendTypingHandler);
 
         // 초기 unread count는 한 번 폴링으로 가져옴
         this._pollNotifications();

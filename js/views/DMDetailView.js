@@ -145,6 +145,31 @@ class DMDetailView {
     }
 
     /**
+     * 이전 메시지를 컨테이너 상단에 prepend (위로 스크롤 페이지네이션)
+     * @param {Array} messages - 메시지 데이터 배열
+     * @param {number} currentUserId - 현재 로그인 사용자 ID
+     * @param {HTMLElement} container - #dm-messages 요소
+     */
+    static prependMessages(messages, currentUserId, container) {
+        if (!container || !messages.length) return;
+        const fragment = document.createDocumentFragment();
+        let lastDate = null;
+        messages.forEach(msg => {
+            const msgDate = DMDetailView._getDateString(msg.created_at);
+            if (msgDate && msgDate !== lastDate) {
+                const divider = createElement('div', {
+                    className: 'dm-date-divider',
+                    textContent: DMDetailView._formatDateDivider(msg.created_at),
+                });
+                fragment.appendChild(divider);
+                lastDate = msgDate;
+            }
+            fragment.appendChild(DMDetailView._createMessageElement(msg, currentUserId));
+        });
+        container.prepend(fragment);
+    }
+
+    /**
      * 단일 메시지를 컨테이너 끝에 추가 (실시간 업데이트)
      * @param {object} msg - 메시지 데이터
      * @param {number} currentUserId - 현재 로그인 사용자 ID
