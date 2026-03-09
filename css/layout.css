@@ -53,7 +53,11 @@ header {
 }
 
 .back-button:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    transform: translateY(-50%) translateY(-2px);
+}
+
+.back-button:active {
+    transform: translateY(-50%) translateY(0);
 }
 
 .back-button:hover svg path {
@@ -65,11 +69,24 @@ header {
 }
 
 /* Title: Exact Center */
-header h2 {
+.header-home-link {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    text-decoration: none;
+    color: inherit;
+}
+
+.header-home-link:hover {
+    transform: translate(-50%, -50%) translateY(-2px);
+}
+
+.header-home-link:active {
+    transform: translate(-50%, -50%) translateY(0);
+}
+
+.header-home-link h2 {
     font-family: "Noto Sans KR", sans-serif;
     font-weight: var(--font-weight-bold);
     font-size: var(--font-size-3xl);
