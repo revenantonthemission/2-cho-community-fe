@@ -178,6 +178,10 @@ class HeaderController {
     async _handleLogout() {
         this._stopNotificationPolling();
         this._stopResync();
+        if (this._dmSendTypingHandler) {
+            window.removeEventListener('dm:send-typing', this._dmSendTypingHandler);
+            this._dmSendTypingHandler = null;
+        }
         if (this._wsService) {
             this._wsService.disconnect();
             this._wsService = null;
@@ -215,6 +219,13 @@ class HeaderController {
             this._handleRealtimeDm(data);
         });
 
+        // DM 부가 이벤트 (타이핑, 삭제, 읽음) → CustomEvent 디스패치
+        for (const type of ['typing_start', 'typing_stop', 'message_deleted', 'message_read']) {
+            this._wsService.on(type, (data) => {
+                this._dispatchDmEvent(type, data);
+            });
+        }
+
         // 폴백: WebSocket 재연결 포기 시 폴링 전환
         this._wsService.onFallback(() => {
             logger.info('WebSocket 폴백 → 폴링 모드');
@@ -237,6 +248,14 @@ class HeaderController {
             logger.info('WebSocket 연결 실패 → 폴링 모드');
             this._startNotificationPolling();
         });
+
+        // DM 타이핑 이벤트 전송 요청 수신 → WebSocket으로 전달
+        this._dmSendTypingHandler = (e) => {
+            if (this._wsService) {
+                this._wsService.send(e.detail);
+            }
+        };
+        window.addEventListener('dm:send-typing', this._dmSendTypingHandler);
 
         // 초기 unread count는 한 번 폴링으로 가져옴
         this._pollNotifications();
@@ -425,6 +444,25 @@ class HeaderController {
     }
 
     /**
+     * DM 관련 WebSocket 이벤트를 CustomEvent로 디스패치합니다.
+     * @param {string} type - 이벤트 타입
+     * @param {object} data - 이벤트 데이터
+     * @private
+     */
+    _dispatchDmEvent(type, data) {
+        const eventMap = {
+            'typing_start': 'dm:typing',
+            'typing_stop': 'dm:typing',
+            'message_deleted': 'dm:message-deleted',
+            'message_read': 'dm:message-read',
+        };
+        const eventName = eventMap[type];
+        if (eventName) {
+            window.dispatchEvent(new CustomEvent(eventName, { detail: { ...data, type } }));
+        }
+    }
+
+    /**
      * 실시간 DM 수신 처리
      * @param {object} data - DM 이벤트 데이터
      * @private
@@ -434,11 +472,22 @@ class HeaderController {
         window.dispatchEvent(new CustomEvent('dm:new-message', { detail: data }));
 
         // 현재 해당 대화를 보고 있으면 배지 증가 안 함
-        const params = new URLSearchParams(location.search);
-        const viewingConvId = params.get('id');
-        const isDmDetailPage = location.pathname.includes('/messages/detail');
-        if (isDmDetailPage && viewingConvId && Number(viewingConvId) === data.conversation_id) {
-            return;
+        // 모바일: /messages/detail?id=N, 데스크톱: /messages/inbox (DMPageController가 관리)
+        const isDmPage = location.pathname.includes('/messages/detail')
+            || location.pathname.includes('/messages/inbox');
+        if (isDmPage) {
+            const params = new URLSearchParams(location.search);
+            const viewingConvId = params.get('id');
+            // 모바일: 쿼리 파라미터로 대화 식별
+            if (viewingConvId && Number(viewingConvId) === data.conversation_id) {
+                return;
+            }
+            // 데스크톱: DMPageController가 선택 중인 대화와 일치하면 무시
+            // (dm:new-message 이벤트에서 DMPageController가 직접 읽음 처리)
+            if (location.pathname.includes('/messages/inbox')
+                && document.querySelector('.dm-conversation-card.active[data-conv-id="' + data.conversation_id + '"]')) {
+                return;
+            }
         }
 
         this._lastDmUnreadCount = (this._lastDmUnreadCount || 0) + 1;

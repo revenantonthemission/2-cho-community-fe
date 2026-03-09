@@ -8,6 +8,7 @@ import MarkdownEditor from '../components/MarkdownEditor.js';
 import { showToast } from '../views/helpers.js';
 import { resolveNavPath } from '../config.js';
 import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
+import { createElement } from '../utils/dom.js';
 import Logger from '../utils/Logger.js';
 
 const logger = Logger.createLogger('DMDetailController');
@@ -18,6 +19,17 @@ let _currentUserId = null;
 let _editor = null;
 let _isSending = false;
 let _dmEventHandler = null;
+let _otherUserId = null;
+let _typingTimeout = null;
+let _isTyping = false;
+let _offset = 0;
+let _hasMore = false;
+let _isLoadingMore = false;
+let _scrollHandler = null;
+let _contextMenuHandler = null;
+let _typingEventHandler = null;
+let _deletedEventHandler = null;
+let _readEventHandler = null;
 
 /**
  * DM 대화 상세 페이지 컨트롤러
@@ -72,6 +84,16 @@ export class DMDetailController {
 
         // 메시지 로드
         await DMDetailController._loadMessages();
+
+        // 스크롤 페이지네이션 설정
+        DMDetailController._setupScrollPagination();
+
+        // 컨텍스트 메뉴 (메시지 삭제) 설정
+        DMDetailController._setupContextMenu();
+
+        // 타이핑 인디케이터 설정
+        DMDetailController._setupTypingEmitter();
+        DMDetailController._setupTypingReceiver();
     }
 
     /**
@@ -83,8 +105,7 @@ export class DMDetailController {
         if (!editorEl) return;
 
         // MarkdownEditor는 textarea를 래핑하므로 textarea 생성
-        const textarea = document.createElement('textarea');
-        textarea.className = 'dm-editor-textarea';
+        const textarea = createElement('textarea', { className: 'dm-editor-textarea' });
         textarea.placeholder = '메시지를 입력하세요...';
         textarea.rows = 3;
         editorEl.appendChild(textarea);
@@ -127,11 +148,19 @@ export class DMDetailController {
 
             const messages = result.data?.data?.messages || [];
 
-            // 상대방 정보 추출: 내가 아닌 메시지에서 sender 정보 가져오기
-            const otherUser = DMDetailController._extractOtherUser(messages);
+            // API 응답의 other_user 필드에서 상대방 정보 추출
+            const otherUser = result.data?.data?.other_user;
             if (otherUser) {
+                _otherUserId = otherUser.user_id;
                 DMDetailView.renderOtherUser(otherUser, otherUserEl);
+                // sessionStorage에 저장 (다른 페이지에서 활용)
+                sessionStorage.setItem(`dm_other_user_${_conversationId}`, JSON.stringify(otherUser));
             }
+
+            // 페이지네이션 정보 저장
+            const pagination = result.data?.data?.pagination;
+            _hasMore = pagination?.has_more || false;
+            _offset = messages.length;
 
             // 메시지 렌더링
             DMDetailView.renderMessages(messages, _currentUserId, messagesEl);
@@ -148,35 +177,166 @@ export class DMDetailController {
     }
 
     /**
-     * 메시지 목록에서 상대방 사용자 정보 추출
-     * @param {Array} messages - 메시지 배열
-     * @returns {object|null} - { nickname, profile_image_url }
+     * 위로 스크롤 시 이전 메시지 로드 (페이지네이션) 설정
      * @private
      */
-    static _extractOtherUser(messages) {
-        if (!messages || messages.length === 0) return null;
+    static _setupScrollPagination() {
+        const messagesEl = document.getElementById('dm-messages');
+        if (!messagesEl) return;
 
-        // 내가 아닌 발신자 정보를 찾기
-        const otherMsg = messages.find(m => m.sender_id !== _currentUserId);
-        if (otherMsg) {
-            return {
-                nickname: otherMsg.sender_nickname,
-                profile_image_url: otherMsg.sender_profile_image,
-            };
-        }
-
-        // 모든 메시지가 내 것이면 대화 목록에서 정보 가져오기 시도
-        // (sessionStorage에 저장된 정보 활용)
-        const stored = sessionStorage.getItem(`dm_other_user_${_conversationId}`);
-        if (stored) {
-            try {
-                return JSON.parse(stored);
-            } catch {
-                // 파싱 실패 시 무시
+        _scrollHandler = () => {
+            if (_isLoadingMore || !_hasMore) return;
+            if (messagesEl.scrollTop <= 50) {
+                DMDetailController._loadOlderMessages();
             }
+        };
+        messagesEl.addEventListener('scroll', _scrollHandler);
+    }
+
+    /**
+     * 이전 메시지 로드 (위로 스크롤 페이지네이션)
+     * @private
+     */
+    static async _loadOlderMessages() {
+        if (_isLoadingMore || !_hasMore) return;
+        _isLoadingMore = true;
+
+        const messagesEl = document.getElementById('dm-messages');
+        const prevScrollHeight = messagesEl.scrollHeight;
+
+        try {
+            const result = await DMModel.getMessages(_conversationId, _offset);
+            if (!result.ok) return;
+
+            const messages = result.data?.data?.messages || [];
+            const pagination = result.data?.data?.pagination;
+            _hasMore = pagination?.has_more || false;
+            _offset += messages.length;
+
+            // 이전 메시지를 상단에 prepend
+            if (messages.length > 0) {
+                DMDetailView.prependMessages(messages, _currentUserId, messagesEl);
+                // 스크롤 위치 유지
+                messagesEl.scrollTop = messagesEl.scrollHeight - prevScrollHeight;
+            }
+        } catch (error) {
+            logger.error('이전 메시지 로드 실패', error);
+        } finally {
+            _isLoadingMore = false;
+        }
+    }
+
+    /**
+     * 타이핑 인디케이터 발신 설정
+     * @private
+     */
+    static _setupTypingEmitter() {
+        const textarea = document.querySelector('.dm-editor-textarea');
+        if (!textarea || !_otherUserId) return;
+
+        textarea.addEventListener('input', () => {
+            DMDetailController._emitTyping();
+        });
+    }
+
+    /**
+     * 타이핑 이벤트 발신 (WebSocket 경유)
+     * @private
+     */
+    static _emitTyping() {
+        if (!_otherUserId) return;
+
+        // HeaderController가 WebSocket으로 전송하도록 CustomEvent 요청
+        if (!_isTyping) {
+            _isTyping = true;
+            window.dispatchEvent(new CustomEvent('dm:send-typing', {
+                detail: {
+                    type: 'typing_start',
+                    conversation_id: _conversationId,
+                    recipient_id: _otherUserId,
+                }
+            }));
         }
 
-        return null;
+        // 3초 무입력 시 typing_stop 전송
+        clearTimeout(_typingTimeout);
+        _typingTimeout = setTimeout(() => {
+            _isTyping = false;
+            window.dispatchEvent(new CustomEvent('dm:send-typing', {
+                detail: {
+                    type: 'typing_stop',
+                    conversation_id: _conversationId,
+                    recipient_id: _otherUserId,
+                }
+            }));
+        }, 3000);
+    }
+
+    /**
+     * 타이핑 인디케이터 수신 리스너 설정
+     * @private
+     */
+    static _setupTypingReceiver() {
+        const typingEl = document.getElementById('dm-typing');
+        let receiveTimeout = null;
+
+        _typingEventHandler = (e) => {
+            const data = e.detail;
+            if (!data || data.conversation_id !== _conversationId) return;
+
+            if (data.type === 'typing_start') {
+                DMDetailView.renderTypingIndicator(typingEl, true);
+                clearTimeout(receiveTimeout);
+                receiveTimeout = setTimeout(() => {
+                    DMDetailView.renderTypingIndicator(typingEl, false);
+                }, 3000);
+            } else {
+                clearTimeout(receiveTimeout);
+                DMDetailView.renderTypingIndicator(typingEl, false);
+            }
+        };
+        window.addEventListener('dm:typing', _typingEventHandler);
+    }
+
+    /**
+     * 메시지 삭제 컨텍스트 메뉴 설정
+     * @private
+     */
+    static _setupContextMenu() {
+        const messagesEl = document.getElementById('dm-messages');
+        if (!messagesEl) return;
+
+        _contextMenuHandler = (e) => {
+            const msgEl = e.target.closest('.dm-msg--mine:not(.dm-msg--deleted)');
+            if (!msgEl) return;
+            e.preventDefault();
+            const messageId = Number(msgEl.dataset.messageId);
+            if (!messageId) return;
+            DMDetailView.showContextMenu(e.clientX, e.clientY, () => {
+                DMDetailController._handleDeleteMessage(messageId);
+            });
+        };
+        messagesEl.addEventListener('contextmenu', _contextMenuHandler);
+    }
+
+    /**
+     * 개별 메시지 삭제 처리
+     * @param {number} messageId
+     * @private
+     */
+    static async _handleDeleteMessage(messageId) {
+        try {
+            const result = await DMModel.deleteMessage(_conversationId, messageId);
+            if (!result.ok) {
+                showToast(UI_MESSAGES.DELETE_FAIL);
+                return;
+            }
+            const messagesEl = document.getElementById('dm-messages');
+            DMDetailView.removeMessage(messageId, messagesEl);
+        } catch (error) {
+            logger.error('메시지 삭제 실패', error);
+            showToast(UI_MESSAGES.DELETE_FAIL);
+        }
     }
 
     /**
@@ -245,6 +405,24 @@ export class DMDetailController {
         };
 
         window.addEventListener('dm:new-message', _dmEventHandler);
+
+        // 메시지 삭제 실시간 수신
+        _deletedEventHandler = (e) => {
+            const data = e.detail;
+            if (!data || data.conversation_id !== _conversationId) return;
+            const messagesEl = document.getElementById('dm-messages');
+            DMDetailView.removeMessage(data.message_id, messagesEl);
+        };
+        window.addEventListener('dm:message-deleted', _deletedEventHandler);
+
+        // 읽음 확인 실시간 수신
+        _readEventHandler = (e) => {
+            const data = e.detail;
+            if (!data || data.conversation_id !== _conversationId) return;
+            const messagesEl = document.getElementById('dm-messages');
+            DMDetailView.updateReadStatus(messagesEl);
+        };
+        window.addEventListener('dm:message-read', _readEventHandler);
     }
 
     /**
@@ -279,9 +457,40 @@ export class DMDetailController {
             window.removeEventListener('dm:new-message', _dmEventHandler);
             _dmEventHandler = null;
         }
+        if (_typingEventHandler) {
+            window.removeEventListener('dm:typing', _typingEventHandler);
+            _typingEventHandler = null;
+        }
+        if (_deletedEventHandler) {
+            window.removeEventListener('dm:message-deleted', _deletedEventHandler);
+            _deletedEventHandler = null;
+        }
+        if (_readEventHandler) {
+            window.removeEventListener('dm:message-read', _readEventHandler);
+            _readEventHandler = null;
+        }
+        if (_scrollHandler || _contextMenuHandler) {
+            const messagesEl = document.getElementById('dm-messages');
+            if (messagesEl) {
+                if (_scrollHandler) messagesEl.removeEventListener('scroll', _scrollHandler);
+                if (_contextMenuHandler) messagesEl.removeEventListener('contextmenu', _contextMenuHandler);
+            }
+            _scrollHandler = null;
+            _contextMenuHandler = null;
+        }
+        if (_typingTimeout) {
+            clearTimeout(_typingTimeout);
+            _typingTimeout = null;
+        }
+        DMDetailView.hideContextMenu();
         _conversationId = null;
         _currentUserId = null;
+        _otherUserId = null;
         _editor = null;
         _isSending = false;
+        _isTyping = false;
+        _offset = 0;
+        _hasMore = false;
+        _isLoadingMore = false;
     }
 }
