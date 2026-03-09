@@ -418,8 +418,10 @@ class PostDetailView {
         const section = document.getElementById('related-posts-section');
         const listEl = document.getElementById('related-posts-list');
 
+        if (!section || !listEl) return;
+
         if (!posts || posts.length === 0) {
-            if (section) section.classList.add('hidden');
+            section.classList.add('hidden');
             return;
         }
 
