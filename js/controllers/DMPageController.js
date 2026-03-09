@@ -514,7 +514,7 @@ export class DMPageController {
             _selectedConvId = null;
             const noSelectionEl = document.getElementById('dm-no-selection');
             const chatAreaEl = document.getElementById('dm-chat-area');
-            if (noSelectionEl) noSelectionEl.style.display = 'flex';
+            if (noSelectionEl) noSelectionEl.style.display = '';
             if (chatAreaEl) chatAreaEl.style.display = 'none';
 
             // 목록이 비었으면 빈 상태 표시
@@ -860,9 +860,8 @@ export class DMPageController {
         const typingEl = document.getElementById('dm-typing');
         if (typingEl) clearElement(typingEl);
 
-        // 에디터 정리
+        // 에디터 정리 (_isSending은 비동기 전송 완료 시 finally에서 리셋)
         _editor = null;
-        _isSending = false;
         _isTyping = false;
         _otherUserId = null;
         _msgOffset = 0;
