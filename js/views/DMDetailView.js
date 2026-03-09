@@ -58,7 +58,17 @@ class DMDetailView {
             return;
         }
 
+        let lastDate = null;
         messages.forEach(msg => {
+            const msgDate = DMDetailView._getDateString(msg.created_at);
+            if (msgDate && msgDate !== lastDate) {
+                const divider = createElement('div', {
+                    className: 'dm-date-divider',
+                    textContent: DMDetailView._formatDateDivider(msg.created_at),
+                });
+                container.appendChild(divider);
+                lastDate = msgDate;
+            }
             const el = DMDetailView._createMessageElement(msg, currentUserId);
             container.appendChild(el);
         });
@@ -76,6 +86,7 @@ class DMDetailView {
         const wrapper = createElement('div', {
             className: `dm-msg ${isMine ? 'dm-msg--mine' : 'dm-msg--other'}`,
         });
+        wrapper.dataset.messageId = msg.id;
 
         // 상대방 메시지는 프로필 이미지 표시
         if (!isMine) {
@@ -88,6 +99,19 @@ class DMDetailView {
                 profileImg.style.backgroundImage = `url('${fullUrl}')`;
             }
             wrapper.appendChild(profileImg);
+        }
+
+        // 삭제된 메시지는 플레이스홀더만 표시
+        if (msg.is_deleted) {
+            wrapper.classList.add('dm-msg--deleted');
+            const body = createElement('div', { className: 'dm-msg__body' });
+            const content = createElement('div', {
+                className: 'dm-msg__content',
+                textContent: '삭제된 메시지입니다',
+            });
+            body.appendChild(content);
+            wrapper.appendChild(body);
+            return wrapper;
         }
 
         // 메시지 본체 (내용 + 시간)
@@ -106,6 +130,15 @@ class DMDetailView {
             textContent: DMDetailView.formatTime(msg.created_at),
         });
         body.appendChild(time);
+
+        // 내 메시지 읽음 상태 체크마크
+        if (isMine) {
+            const readStatus = createElement('span', {
+                className: `dm-msg__read-status${msg.is_read ? ' dm-msg__read-status--read' : ''}`,
+                textContent: msg.is_read ? '✓✓' : '✓',
+            });
+            body.appendChild(readStatus);
+        }
 
         wrapper.appendChild(body);
         return wrapper;
@@ -136,6 +169,126 @@ class DMDetailView {
     static scrollToBottom(container) {
         if (!container) return;
         container.scrollTop = container.scrollHeight;
+    }
+
+    /**
+     * 날짜 문자열 추출 (YYYY-MM-DD)
+     * @param {string} dateString
+     * @returns {string|null}
+     * @private
+     */
+    static _getDateString(dateString) {
+        if (!dateString) return null;
+        const d = new Date(dateString);
+        if (isNaN(d.getTime())) return null;
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    /**
+     * 날짜 구분선 포맷 (YYYY년 M월 D일)
+     * @param {string} dateString
+     * @returns {string}
+     * @private
+     */
+    static _formatDateDivider(dateString) {
+        const d = new Date(dateString);
+        return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+    }
+
+    /**
+     * 타이핑 인디케이터 표시/숨김
+     * @param {HTMLElement} container - #dm-typing 요소
+     * @param {boolean} show
+     * @param {string} [nickname] - 상대방 닉네임
+     */
+    static renderTypingIndicator(container, show, nickname) {
+        if (!container) return;
+        if (show) {
+            clearElement(container);
+            const text = createElement('span', {
+                textContent: `${nickname || '상대방'} 입력 중`,
+            });
+            const dots = createElement('span', { className: 'dm-typing-dots' });
+            for (let i = 0; i < 3; i++) {
+                dots.appendChild(createElement('span', { className: 'dm-typing-dot' }));
+            }
+            container.appendChild(text);
+            container.appendChild(dots);
+        } else {
+            clearElement(container);
+        }
+    }
+
+    /**
+     * 모든 내 메시지의 읽음 상태를 업데이트 (✓ → ✓✓)
+     * @param {HTMLElement} container - #dm-messages 요소
+     */
+    static updateReadStatus(container) {
+        if (!container) return;
+        const statuses = container.querySelectorAll('.dm-msg--mine .dm-msg__read-status:not(.dm-msg__read-status--read)');
+        statuses.forEach(el => {
+            el.classList.add('dm-msg__read-status--read');
+            el.textContent = '✓✓';
+        });
+    }
+
+    /**
+     * 메시지를 삭제 플레이스홀더로 교체
+     * @param {number} messageId
+     * @param {HTMLElement} container - #dm-messages 요소
+     */
+    static removeMessage(messageId, container) {
+        if (!container) return;
+        const msgEl = container.querySelector(`[data-message-id="${messageId}"]`);
+        if (!msgEl) return;
+        // 기존 내용을 삭제 플레이스홀더로 교체
+        msgEl.classList.add('dm-msg--deleted');
+        const body = msgEl.querySelector('.dm-msg__body');
+        if (body) {
+            clearElement(body);
+            const content = createElement('div', {
+                className: 'dm-msg__content',
+                textContent: '삭제된 메시지입니다',
+            });
+            body.appendChild(content);
+        }
+    }
+
+    /**
+     * 컨텍스트 메뉴 표시
+     * @param {number} x - 화면 X 좌표
+     * @param {number} y - 화면 Y 좌표
+     * @param {Function} onDelete - 삭제 콜백
+     */
+    static showContextMenu(x, y, onDelete) {
+        DMDetailView.hideContextMenu();
+        const menu = createElement('div', { className: 'dm-context-menu' });
+        const deleteBtn = createElement('button', {
+            className: 'dm-context-menu__item',
+            textContent: '삭제',
+        });
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            DMDetailView.hideContextMenu();
+            onDelete();
+        });
+        menu.appendChild(deleteBtn);
+        menu.style.left = `${x}px`;
+        menu.style.top = `${y}px`;
+        document.body.appendChild(menu);
+
+        // 메뉴 외부 클릭 시 닫기
+        setTimeout(() => {
+            document.addEventListener('click', DMDetailView.hideContextMenu, { once: true });
+        }, 0);
+    }
+
+    /**
+     * 컨텍스트 메뉴 숨김
+     */
+    static hideContextMenu() {
+        const existing = document.querySelector('.dm-context-menu');
+        if (existing) existing.remove();
     }
 
     /**
