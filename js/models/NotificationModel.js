@@ -32,7 +32,7 @@ class NotificationModel {
             false,
             etag ? { 'If-None-Match': etag } : undefined
         );
-        return result;
+        return /** @type {ApiResponseWithETag<UnreadCountWithLatest>} */ (result);
     }
 
     /**

@@ -62,8 +62,7 @@ class DMModel {
      * @returns {Promise<ApiResponse<void>>}
      */
     static async markRead(conversationId) {
-        // @ts-expect-error -- ApiService.patch의 data 파라미터가 선택적이지만 시그니처상 필수로 선언됨
-        return ApiService.patch(API_ENDPOINTS.DMS.READ(conversationId));
+        return ApiService.patch(API_ENDPOINTS.DMS.READ(conversationId), {});
     }
 
     /**

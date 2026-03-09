@@ -13,11 +13,11 @@ class ErrorBoundary {
     /**
      * 재시도 가능한 함수 실행
      * @param {Function} fn - 실행할 비동기 함수
-     * @param {Object} options - 재시도 옵션
-     * @param {number} options.maxRetries - 최대 재시도 횟수 (기본: 3)
-     * @param {number} options.delay - 재시도 간격 ms (기본: 1000)
-     * @param {number} options.backoff - 지수 백오프 배수 (기본: 2)
-     * @param {Function} options.onRetry - 재시도 시 콜백
+     * @param {Object} [options={}] - 재시도 옵션
+     * @param {number} [options.maxRetries=3] - 최대 재시도 횟수
+     * @param {number} [options.delay=1000] - 재시도 간격 ms
+     * @param {number} [options.backoff=2] - 지수 백오프 배수
+     * @param {Function} [options.onRetry] - 재시도 시 콜백
      * @returns {Promise} 함수 실행 결과
      */
     static async withRetry(fn, options = {}) {
