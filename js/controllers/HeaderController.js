@@ -472,11 +472,22 @@ class HeaderController {
         window.dispatchEvent(new CustomEvent('dm:new-message', { detail: data }));
 
         // 현재 해당 대화를 보고 있으면 배지 증가 안 함
-        const params = new URLSearchParams(location.search);
-        const viewingConvId = params.get('id');
-        const isDmDetailPage = location.pathname.includes('/messages/detail');
-        if (isDmDetailPage && viewingConvId && Number(viewingConvId) === data.conversation_id) {
-            return;
+        // 모바일: /messages/detail?id=N, 데스크톱: /messages/inbox (DMPageController가 관리)
+        const isDmPage = location.pathname.includes('/messages/detail')
+            || location.pathname.includes('/messages/inbox');
+        if (isDmPage) {
+            const params = new URLSearchParams(location.search);
+            const viewingConvId = params.get('id');
+            // 모바일: 쿼리 파라미터로 대화 식별
+            if (viewingConvId && Number(viewingConvId) === data.conversation_id) {
+                return;
+            }
+            // 데스크톱: DMPageController가 선택 중인 대화와 일치하면 무시
+            // (dm:new-message 이벤트에서 DMPageController가 직접 읽음 처리)
+            if (location.pathname.includes('/messages/inbox')
+                && document.querySelector('.dm-conversation-card.active[data-conv-id="' + data.conversation_id + '"]')) {
+                return;
+            }
         }
 
         this._lastDmUnreadCount = (this._lastDmUnreadCount || 0) + 1;

@@ -224,7 +224,8 @@
     border-radius: var(--radius-md);
     background: var(--color-bg-input);
     color: var(--color-text-primary);
-    font-size: var(--font-size-sm);
+    /* iOS Safari 자동 확대 방지: 모바일에서 16px 미만이면 포커스 시 확대됨 */
+    font-size: 16px;
     outline: none;
     transition: border-color var(--transition-fast);
 }
@@ -428,7 +429,7 @@
 /* 타이핑 인디케이터              */
 /* ============================= */
 
-.dm-typing-indicator {
+.dm-typing {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -438,7 +439,7 @@
     min-height: 24px;
 }
 
-.dm-typing-indicator:empty {
+.dm-typing:empty {
     display: none;
 }
 

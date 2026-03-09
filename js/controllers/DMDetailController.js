@@ -8,6 +8,7 @@ import MarkdownEditor from '../components/MarkdownEditor.js';
 import { showToast } from '../views/helpers.js';
 import { resolveNavPath } from '../config.js';
 import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
+import { createElement } from '../utils/dom.js';
 import Logger from '../utils/Logger.js';
 
 const logger = Logger.createLogger('DMDetailController');
@@ -104,8 +105,7 @@ export class DMDetailController {
         if (!editorEl) return;
 
         // MarkdownEditor는 textarea를 래핑하므로 textarea 생성
-        const textarea = document.createElement('textarea');
-        textarea.className = 'dm-editor-textarea';
+        const textarea = createElement('textarea', { className: 'dm-editor-textarea' });
         textarea.placeholder = '메시지를 입력하세요...';
         textarea.rows = 3;
         editorEl.appendChild(textarea);
@@ -469,10 +469,14 @@ export class DMDetailController {
             window.removeEventListener('dm:message-read', _readEventHandler);
             _readEventHandler = null;
         }
-        if (_scrollHandler) {
+        if (_scrollHandler || _contextMenuHandler) {
             const messagesEl = document.getElementById('dm-messages');
-            if (messagesEl) messagesEl.removeEventListener('scroll', _scrollHandler);
+            if (messagesEl) {
+                if (_scrollHandler) messagesEl.removeEventListener('scroll', _scrollHandler);
+                if (_contextMenuHandler) messagesEl.removeEventListener('contextmenu', _contextMenuHandler);
+            }
             _scrollHandler = null;
+            _contextMenuHandler = null;
         }
         if (_typingTimeout) {
             clearTimeout(_typingTimeout);
