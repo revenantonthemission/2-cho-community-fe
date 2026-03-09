@@ -354,14 +354,15 @@ class ApiService {
      */
     static _handleNetworkError(error, method, endpoint) {
         logger.error(`${method} ${endpoint} 네트워크 에러`, error);
-        return {
+        // 네트워크 에러는 백엔드 응답이 아니므로 ApiSuccessResponse 구조를 따르지 않음
+        return /** @type {any} */ ({
             ok: false,
             status: 0,
             data: {
                 message: '네트워크 연결을 확인해주세요.',
                 _isNetworkError: true
             }
-        };
+        });
     }
 }
 

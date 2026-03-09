@@ -94,7 +94,7 @@ class UserModel {
         const response = await ApiService.get(
             `${API_ENDPOINTS.USERS.SEARCH}?${params.toString()}`
         );
-        return response.data || [];
+        return /** @type {UserSearchResult[]} */ (response.data?.data) || [];
     }
 
     /**

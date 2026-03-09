@@ -9,11 +9,16 @@ interface ApiSuccessResponse<T = unknown> {
   timestamp: string;
 }
 
-/** ApiService가 반환하는 정규화된 응답 */
+/**
+ * ApiService가 반환하는 정규화된 응답.
+ * data는 백엔드 응답 전체(ApiSuccessResponse)를 담고 있으므로
+ * 실제 페이로드 접근은 result.data.data로 해야 합니다.
+ * 예: result.data?.data?.posts (NOT result.data.posts)
+ */
 interface ApiResponse<T = unknown> {
   ok: boolean;
   status: number;
-  data: T;
+  data: ApiSuccessResponse<T>;
 }
 
 /** ETag를 포함하는 응답 (알림 unread count 폴링용) */
@@ -91,7 +96,7 @@ interface AdminUserItem {
 interface FollowUser {
   user_id: number;
   nickname: string;
-  profileImageUrl: string;
+  profile_img: string;
 }
 
 // ===== 카테고리 =====
@@ -383,6 +388,6 @@ type WSEvent = WSNotificationEvent | WSDMEvent;
 interface BlockedUser {
   user_id: number;
   nickname: string;
-  profileImageUrl: string;
+  profile_img: string;
   blocked_at: string;
 }
