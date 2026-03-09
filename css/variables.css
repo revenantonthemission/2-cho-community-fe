@@ -122,7 +122,7 @@
   --dm-sidebar-active-border: var(--color-primary);
   --dm-divider-color: var(--color-border-light);
   --dm-typing-dot: var(--color-text-placeholder);
-  --dm-read-check: var(--color-primary-light);
+  --dm-read-check: var(--color-primary-lightest);
 
   /* ============================= */
   /* Spacing (4px 기반)             */
@@ -314,7 +314,7 @@
   --dm-sidebar-active-border: var(--color-primary);
   --dm-divider-color: var(--color-border-light);
   --dm-typing-dot: var(--color-text-placeholder);
-  --dm-read-check: var(--color-primary-light);
+  --dm-read-check: var(--color-primary-lightest);
 
   /* Shadow */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
