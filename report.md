@@ -1,6 +1,6 @@
 # 커뮤니티 서비스 "아무 말 대잔치" — 시스템 아키텍처 보고서
 
-> **작성일**: 2026-03-02
+> **작성일**: 2026-03-09
 > **프로젝트**: AWS AI School 2기 개인 프로젝트
 > **도메인**: my-community.shop
 > **리전**: ap-northeast-2 (서울)
@@ -38,8 +38,8 @@
 | **백엔드** | FastAPI (Python 3.13) | 비동기 I/O, 자동 API 문서화 | Lambda 컨테이너 실행, 콜드 스타트 영향 |
 | **데이터베이스** | MySQL 8.0 (aiomysql) | FULLTEXT 검색(ngram), 트랜잭션 격리 | 커넥션 풀 관리, Lambda 스케일링 시 폭발 위험 |
 | **인증** | JWT (Access 30분 + Refresh 7일) | Stateless 인증, XSS 방어 | 토큰 저장소 DB 의존, 만료 토큰 주기적 정리 |
-| **인프라** | AWS (Terraform 15개 모듈) | 서버리스 아키텍처, IaC 재현성 | 3개 환경(Dev/Staging/Prod) 차등 설계 |
-| **CI/CD** | GitHub Actions + OIDC | 장기 자격 증명 없는 배포 | 환경별 분리 배포, ECR 이미지 롤백 지원 |
+| **인프라** | AWS (Terraform 18개 모듈) | 서버리스 아키텍처, IaC 재현성 | 3개 환경(Dev/Staging/Prod) 차등 설계 |
+| **CI/CD** | GitHub Actions + OIDC | 장기 자격 증명 없는 배포 | Blue/Green 배포 (Lambda Alias), Health check 게이트, 롤백 워크플로우 |
 | **부하 테스트** | Locust (gevent 기반) | 3종 사용자 시나리오 | 병목 사전 식별, 50~200 동시 사용자 검증 완료 |
 
 ### 1.3 서비스 특성과 인프라 요구사항
@@ -51,7 +51,7 @@
 | **읽기 중심 워크로드** (게시글 목록·상세 조회가 전체 요청의 ~80%) | DB 읽기 부하 분산, 캐싱 전략 | RDS Read Replica (미적용), CloudFront 캐싱 고려 |
 | **이미지 업로드** (게시글당 최대 5장, 프로필 이미지) | 파일 저장소 내구성, 처리량 확보 | EFS 마운트 (3-AZ 자동 복제), 백업 필요 |
 | **FULLTEXT 검색** (한국어 ngram 파서) | DB CPU 부하 증가, 인덱스 유지 비용 | MySQL FULLTEXT INDEX, 대량 데이터 시 별도 검색 엔진 고려 |
-| **알림 폴링** (30초 간격, 로그인 사용자 전원) | 사용자 수에 비례하는 상시 요청 발생 | DAU 300+ 시 WebSocket 전환 검토 필요 |
+| **실시간 알림** (WebSocket 푸시 + 폴링 폴백) | WebSocket 연결 관리, 상태 저장소 필요 | DynamoDB 연결 매핑 + API GW Management API, 폴링 자동 폴백 |
 | **인증 토큰 관리** (JWT 발급·갱신·폐기) | 토큰 저장소 정합성, 브루트포스 방어 | DB 행 잠금, Rate Limiting (분산 환경 한계 존재) |
 | **동시 쓰기** (좋아요·북마크·댓글 동시 요청) | 경쟁 상태 방지, 트랜잭션 격리 | UNIQUE 제약, READ COMMITTED 격리 수준 |
 | **계정 정지** (관리자 기간 정지 + 신고 연동) | 정지 상태 3중 검증 (로그인·토큰·갱신) | `suspended_until` 시간 비교, 자동 해제 (배치 불필요) |
@@ -80,8 +80,16 @@ flowchart TD
         APIGW["API Gateway<br/>HTTP API · CORS"]
     end
 
+    subgraph WSLayer["실시간 알림"]
+        direction LR
+        R53_WS["Route 53<br/>ws.my-community.shop"]
+        APIGW_WS["WebSocket API GW<br/>$connect · $disconnect · $default"]
+    end
+
     subgraph Compute["컴퓨팅 (Private Subnet)"]
+        direction LR
         Lambda["Lambda Container<br/>FastAPI + Mangum<br/>Python 3.13 · 1024 MB"]
+        Lambda_WS["WebSocket Lambda<br/>Python 3.11 · 256 MB"]
     end
 
     subgraph Data["데이터 (Private Subnet)"]
@@ -89,6 +97,7 @@ flowchart TD
         RDS["RDS MySQL 8.0<br/>Multi-AZ Prod · gp3"]
         EFS["EFS<br/>/mnt/uploads"]
         SSM["SSM<br/>SecureString"]
+        DDB["DynamoDB<br/>ws_connections"]
     end
 
     subgraph Ops["운영"]
@@ -109,9 +118,15 @@ flowchart TD
     Browser -- "HTTPS (API 요청)<br/>Bearer Token + Cookie" --> R53
     R53 --> APIGW -- "Lambda 프록시 통합" --> Lambda
 
+    Browser -- "WSS (실시간 알림)" --> R53_WS
+    R53_WS --> APIGW_WS --> Lambda_WS
+
     Lambda -- "비동기 DB 커넥션 풀<br/>5~50개" --> RDS
     Lambda -- "파일 시스템 마운트" --> EFS
     Lambda -. "콜드 스타트 시<br/>시크릿 조회" .-> SSM
+    Lambda -- "알림 푸시<br/>ManageConnections" --> APIGW_WS
+    Lambda -- "연결 조회" --> DDB
+    Lambda_WS -- "연결 매핑" --> DDB
 
     Lambda -. "Metrics · Logs" .-> CW
     APIGW -. "Access Logs" .-> CW
@@ -120,6 +135,7 @@ flowchart TD
     GHA -- "S3 Sync" --> S3
     GHA -. "Invalidation" .-> CF
 
+    style WSLayer fill:#fce4ec,stroke:#c62828
     style Frontend fill:#e3f2fd,stroke:#1565c0
     style APILayer fill:#fff3e0,stroke:#e65100
     style Compute fill:#fce4ec,stroke:#c62828
@@ -141,6 +157,8 @@ flowchart TD
 | **SSM** | DB 비밀번호, JWT 시크릿 키 관리 | Lambda 환경변수에 평문 저장 방지, SecureString 암호화 |
 | **CloudWatch** | 메트릭 알람, 대시보드, 로그 집계 | Lambda 에러, RDS CPU, 스토리지, 커넥션 수 실시간 모니터링 |
 | **CloudTrail** | AWS API 호출 감사 로그 | 멀티리전 추적으로 us-east-1(CloudFront/ACM) 이벤트 포함 |
+| **DynamoDB** | WebSocket 연결 매핑 저장 | user_id GSI로 사용자별 연결 조회, best-effort 푸시 |
+| **WebSocket API GW** | 실시간 WebSocket 연결 관리 | $connect JWT 인증, $default heartbeat, ManageConnections API |
 
 #### API Gateway — Lambda 프록시 통합 (AWS_PROXY)
 
@@ -382,10 +400,12 @@ flowchart LR
         STS["AWS STS<br/>(임시 자격 증명 발급)"]
     end
 
-    subgraph Backend_Deploy["백엔드 배포"]
+    subgraph Backend_Deploy["백엔드 배포 (Blue/Green)"]
         Docker["Docker Build<br/>(--provenance=false)"]
         ECR_Push["ECR Push<br/>(sha-commit + latest)"]
-        Lambda_Update["Lambda UpdateFunctionCode"]
+        Lambda_Publish["Lambda Version Publish<br/>(--publish)"]
+        Health["Health Check<br/>(새 버전 직접 호출)"]
+        Alias_Switch["Alias 'live' 전환<br/>(update-alias)"]
     end
 
     subgraph Frontend_Deploy["프론트엔드 배포"]
@@ -401,7 +421,9 @@ flowchart LR
 
     Code --> Docker
     Docker --> ECR_Push
-    ECR_Push --> Lambda_Update
+    ECR_Push --> Lambda_Publish
+    Lambda_Publish --> Health
+    Health -->|"성공"| Alias_Switch
 
     Code --> FE_Build
     FE_Build --> S3_Sync
@@ -415,6 +437,8 @@ flowchart LR
 - **SHA 태그**: `sha-<커밋해시>` 형식의 고유 태그로 Lambda를 업데이트하여 동시 배포 충돌을 방지합니다. `latest` 태그도 병행 push합니다.
 - **Vite 빌드 후 S3 동기화**: `npm run build`로 번들링된 `dist/` 디렉토리를 S3에 동기화합니다. 해시된 에셋 파일명(`login-DfG12kL3.js`)으로 CDN 장기 캐싱이 가능합니다.
 - **Prod 배포 제한**: 프로덕션 환경은 upstream 레포지토리에서만 배포 가능하도록 OIDC 조건을 설정했습니다.
+- **Blue/Green 배포 (Lambda Alias)**: 새 Lambda 버전을 `--publish`로 발행한 뒤, `/health` 직접 호출로 검증을 거쳐 Alias `live`를 전환합니다. Health check 실패 시 alias가 이전 버전을 유지하므로 서비스 영향 없이 안전하게 롤백됩니다.
+- **동시 배포 방지**: GitHub Actions `concurrency` 그룹으로 같은 환경에 대한 병렬 배포/롤백을 차단합니다.
 
 ### 2.5 기술 스택 정리표
 
@@ -425,6 +449,7 @@ flowchart LR
 | **DNS** | Route 53 | 도메인 관리, ACM DNS 검증 |
 | **SSL** | ACM (서울 + 버지니아) | API Gateway용 + CloudFront용 인증서 |
 | **API 라우팅** | API Gateway (HTTP API) | CORS, Lambda 프록시, 접근 로깅 |
+| **실시간 알림** | API Gateway (WebSocket API) + DynamoDB | WebSocket 연결 관리, 실시간 이벤트 푸시 |
 | **컴퓨팅** | Lambda (Container Image) | FastAPI + Mangum 실행 |
 | **컨테이너 레지스트리** | ECR | Docker 이미지 저장, 라이프사이클 관리 |
 | **데이터베이스** | RDS MySQL 8.0 (gp3) | 관계형 데이터, FULLTEXT 검색 |
@@ -435,7 +460,7 @@ flowchart LR
 | **접근 관리** | IAM (MFA 강제) | 최소 권한 원칙, OIDC 역할 |
 | **네트워크** | VPC (2-AZ) | Private Subnet 격리, NAT Gateway |
 | **배포** | GitHub Actions + OIDC | 장기 자격 증명 없는 CI/CD |
-| **IaC** | Terraform (>= 1.5.0) | 15개 모듈, 3개 환경 |
+| **IaC** | Terraform (>= 1.5.0) | 18개 모듈, 3개 환경 |
 
 ---
 
@@ -656,6 +681,7 @@ flowchart TD
 5. **S3 99.999999999% 내구성**: 99.999999999% 데이터 내구성
 6. **Lambda 자동 스케일링**: 요청량에 따라 자동으로 인스턴스 생성
 7. **Terraform State 보호**: S3 버전 관리 + DynamoDB 동시 수정 잠금
+8. **Blue/Green 배포**: Lambda Alias `live` 기반 즉시 트래픽 전환 + Health check 게이트 + 수동 롤백 워크플로우
 
 ### 4.2 가용 영역 분산 전략
 
@@ -854,7 +880,7 @@ flowchart TD
 | **CloudFront** | 0 (AWS 관리형) | ~0 (자동) | AWS 글로벌 인프라 자동 복구 |
 | **S3 (프론트엔드)** | 0 (99.999999999%) | ~0 (자동) | Git에서 재배포 가능 (< 5분) |
 | **API Gateway** | 0 (AWS 관리형) | ~0 (자동) | AWS 관리형 자동 복구 |
-| **Lambda** | 0 (Stateless) | < 1분 | ECR 이미지에서 자동 복구 |
+| **Lambda** | 0 (Stateless) | **~10초** | Alias 전환으로 즉시 롤백 (Blue/Green) |
 | **RDS (Prod)** | ~0 (동기 복제) | **60~120초** | Multi-AZ 자동 페일오버 |
 | **RDS (Dev/Stg)** | **최대 24시간** | **수 시간** | 자동 백업에서 수동 복원 |
 | **EFS** | 0 (3-AZ 복제) | ~0 (자동) | AWS 관리형 자동 복구 |
@@ -863,13 +889,13 @@ flowchart TD
 
 #### 4.5.2 주요 장애 복구 절차
 
-##### Lambda 장애 복구 (롤백)
+##### Lambda 장애 복구 (Blue/Green 롤백)
 
 ```mermaid
 flowchart LR
     Detect["CloudWatch 알람<br/>Lambda Errors > 5"]
     Identify["원인 파악<br/>로그 분석"]
-    Rollback["이전 ECR 이미지 롤백<br/>sha-{prev_commit}"]
+    Rollback["Alias 'live' 롤백<br/>이전 Lambda 버전으로 전환"]
     Verify["헬스체크 확인<br/>GET /health → 200"]
 
     Detect --> Identify --> Rollback --> Verify
@@ -881,13 +907,23 @@ flowchart LR
 ```
 
 ```bash
-# 이전 버전으로 롤백
-aws lambda update-function-code \
+# 방법 1: GitHub Actions 롤백 워크플로우 (권장)
+# Actions → rollback-backend.yml → 환경 선택 → 버전 지정 (선택)
+
+# 방법 2: CLI로 직접 alias 전환
+# 현재 alias가 가리키는 버전 확인
+aws lambda get-alias \
   --function-name my-community-prod-backend \
-  --image-uri {account}.dkr.ecr.ap-northeast-2.amazonaws.com/my-community-prod:sha-{prev}
+  --name live
+
+# 이전 버전으로 alias 전환 (즉시 적용)
+aws lambda update-alias \
+  --function-name my-community-prod-backend \
+  --name live \
+  --function-version {prev_version}
 ```
 
-**RTO**: ~2분 (이미지 교체 + 콜드 스타트)
+**RTO**: ~10초 (Alias 전환 즉시, 콜드 스타트 없음 — 이전 버전이 이미 warm 상태)
 **RPO**: 0 (Stateless)
 
 ##### RDS 장애 복구
@@ -991,11 +1027,12 @@ flowchart TD
 | 강점 | 설명 |
 | ------ | ------ |
 | **완전 서버리스** | Lambda + API Gateway로 서버 관리 부담 제거, 유휴 시 비용 0 |
-| **IaC 완전 관리** | Terraform 15개 모듈로 전체 인프라 코드화, 환경 재현 가능 |
+| **IaC 완전 관리** | Terraform 18개 모듈로 전체 인프라 코드화, 환경 재현 가능 |
 | **보안 계층화** | VPC 격리, SSM 시크릿, OIDC 배포, MFA 강제, OAC 전용 S3 |
 | **환경별 차등 설계** | Dev(비용 최소) → Staging(중간) → Prod(HA 강화) 단계적 구성 |
 | **모니터링 기반** | CloudWatch 6개 알람 + 4개 위젯 대시보드 + CloudTrail 감사 |
 | **비용 효율** | Free Tier 활용(t3.micro), 단일 NAT(Dev), Provisioned Concurrency 최소화 |
+| **배포 안전성** | Blue/Green 배포로 Health check 통과 후에만 트래픽 전환, 실패 시 자동 유지 + 수동 롤백 워크플로우 |
 
 ### 5.2 현재 아키텍처의 약점
 
@@ -1043,7 +1080,7 @@ flowchart TD
 | Aurora Serverless v2 | RDS → Aurora | 자동 스케일링, 최대 128 ACU |
 | S3 이미지 마이그레이션 | EFS → S3 + CloudFront | 이미지 CDN 배포, 무제한 확장 |
 | 3-AZ 확장 | VPC 서브넷 3개 AZ로 확장 | 가용 영역 장애 내성 강화 |
-| 실시간 알림 | WebSocket (API Gateway WebSocket API) | 폴링 제거, 사용자 경험 개선 |
+| ~~실시간 알림~~ | ~~WebSocket (API Gateway WebSocket API)~~ | ~~구현 완료~~ (별도 WebSocket API GW + Lambda + DynamoDB) |
 
 ---
 
