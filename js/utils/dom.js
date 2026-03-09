@@ -6,7 +6,7 @@
  * DOM 요소를 생성하는 헬퍼 함수
  * @param {string} tag - 태그 이름 (예: 'div', 'span')
  * @param {object} [attributes={}] - 속성 객체 (예: { class: 'btn', id: 'submit' })
- * @param {Array<string|Node>} [children=[]] - 자식 요소 배열 (문자열 또는 DOM 노드)
+ * @param {Array<string|Node|false>} [children=[]] - 자식 요소 배열 (문자열, DOM 노드, 또는 false)
  * @returns {HTMLElement} - 생성된 DOM 요소
  */
 export function createElement(tag, attributes = {}, children = []) {
@@ -37,7 +37,7 @@ export function createElement(tag, attributes = {}, children = []) {
     children.forEach(child => {
         if (child instanceof Node) {
             element.appendChild(child);
-        } else if (child != null && child !== '') {
+        } else if (child != null && child !== false && child !== '') {
             // 문자열이나 숫자는 텍스트 노드로 추가 (XSS 방지)
             element.appendChild(document.createTextNode(String(child)));
         }
