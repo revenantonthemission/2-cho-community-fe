@@ -68,7 +68,7 @@
 
 /* 취소 버튼 - 어두운색/검정 (Cancel Button - Dark/Black) */
 .modal-buttons .secondary-btn {
-    background-color: var(--color-text-primary);
+    background-color: var(--color-gray-600);
     color: var(--color-text-white);
 }
 
