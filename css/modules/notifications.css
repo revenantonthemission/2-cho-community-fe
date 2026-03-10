@@ -99,7 +99,7 @@
 
 .notification-empty {
     text-align: center;
-    padding: 60px var(--spacing-xl);
+    padding: var(--spacing-6xl) var(--spacing-xl);
     color: var(--color-text-placeholder);
     font-size: var(--font-size-md);
 }
