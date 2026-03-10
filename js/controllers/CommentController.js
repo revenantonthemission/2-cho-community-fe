@@ -309,19 +309,25 @@ class CommentController {
      * @private
      */
     async _handleCommentLike(comment) {
-        try {
-            const wasLiked = comment.is_liked;
-            const result = wasLiked
-                ? await CommentModel.unlikeComment(this.postId, comment.comment_id)
-                : await CommentModel.likeComment(this.postId, comment.comment_id);
+        const commentId = comment.comment_id;
 
-            if (result.ok) {
-                // 댓글 목록 새로고침으로 정확한 상태 반영
-                this._notifyChange();
-            } else {
+        // 1. 즉시 UI 업데이트 (낙관적)
+        CommentListView.toggleLikeOptimistic(commentId);
+
+        try {
+            const result = comment.is_liked
+                ? await CommentModel.unlikeComment(this.postId, commentId)
+                : await CommentModel.likeComment(this.postId, commentId);
+
+            if (!result.ok) {
+                // 실패 시 롤백
+                CommentListView.toggleLikeOptimistic(commentId);
                 PostDetailView.showToast(UI_MESSAGES.COMMENT_LIKE_FAIL);
             }
+            // 성공 시: 전체 새로고침 불필요 — 낙관적 UI가 이미 반영됨
         } catch (error) {
+            // 에러 시 롤백
+            CommentListView.toggleLikeOptimistic(commentId);
             logger.error('댓글 좋아요 처리 실패', error);
             PostDetailView.showToast(UI_MESSAGES.COMMENT_LIKE_FAIL);
         }

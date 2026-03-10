@@ -90,6 +90,7 @@ class CommentListView {
         const likeBtn = currentUserId && !comment.is_deleted
             ? createElement('button', {
                 className: `comment-like-btn${comment.is_liked ? ' active' : ''}`,
+                dataset: { commentId: String(comment.comment_id) },
                 onClick: (e) => {
                     e.stopPropagation();
                     if (handlers.onLike) handlers.onLike(comment);
@@ -156,6 +157,27 @@ class CommentListView {
 
     /**
      * 댓글 목록을 트리 구조로 렌더링
+     * 댓글 좋아요 낙관적 UI 토글
+     * @param {string|number} commentId - 댓글 ID
+     */
+    static toggleLikeOptimistic(commentId) {
+        const btn = document.querySelector(
+            `.comment-like-btn[data-comment-id="${commentId}"]`
+        );
+        if (!btn) return;
+
+        const isActive = btn.classList.toggle('active');
+        const iconEl = btn.querySelector('.like-icon');
+        const countEl = btn.querySelector('.like-count');
+
+        if (iconEl) iconEl.textContent = isActive ? '♥' : '♡';
+        if (countEl) {
+            const current = parseInt(countEl.textContent, 10) || 0;
+            countEl.textContent = String(isActive ? current + 1 : Math.max(0, current - 1));
+        }
+    }
+
+    /**
      * @param {HTMLElement} container - 목록 컨테이너
      * @param {Array} comments - 트리 구조 댓글 배열 (각 항목에 replies 포함)
      * @param {string|number|null} currentUserId - 현재 로그인한 사용자 ID
