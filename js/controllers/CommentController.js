@@ -11,6 +11,12 @@ import MarkdownEditor from '../components/MarkdownEditor.js';
 
 const logger = Logger.createLogger('CommentController');
 
+const COMMENT_MODE = Object.freeze({
+    VIEW: 'view',
+    EDIT: 'edit',
+    REPLY: 'reply',
+});
+
 class CommentController {
     /**
      * @param {string|number} postId - 게시글 ID
@@ -24,10 +30,51 @@ class CommentController {
         this.currentUserId = currentUserId;
         this.callbacks = callbacks;
         this.isAdmin = isAdmin;
-        this.editingCommentId = null;
+        this._mode = COMMENT_MODE.VIEW;
+        this._modeTarget = null;
         this.isSubmitting = false; // 중복 제출 방지 플래그
-        this.replyingToComment = null; // 답글 대상 댓글 정보
         this.commentSort = 'oldest'; // 댓글 정렬 상태
+    }
+
+    // 하위 호환 getter — 외부에서 this.editingCommentId / this.replyingToComment 읽기 지원
+    get editingCommentId() {
+        return this._mode === COMMENT_MODE.EDIT ? this._modeTarget : null;
+    }
+
+    get replyingToComment() {
+        return this._mode === COMMENT_MODE.REPLY ? this._modeTarget : null;
+    }
+
+    /**
+     * 모드 전환 — 이전 모드의 UI를 정리하고 새 모드로 설정
+     * @param {string} mode - COMMENT_MODE 값
+     * @param {*} [target=null] - 모드별 대상 (EDIT: commentId, REPLY: {id, nickname})
+     * @private
+     */
+    _setMode(mode, target = null) {
+        // 이전 모드의 UI 정리
+        if (this._mode === COMMENT_MODE.REPLY) {
+            this._cleanupReplyUI();
+        }
+        this._mode = mode;
+        this._modeTarget = target;
+    }
+
+    /**
+     * 답글 모드 UI 정리
+     * @private
+     */
+    _cleanupReplyUI() {
+        const commentInput = document.getElementById('comment-input');
+        const replyIndicator = document.getElementById('reply-indicator');
+
+        if (commentInput) {
+            commentInput.placeholder = '댓글을 남겨주세요!';
+            commentInput.value = '';
+        }
+        if (replyIndicator) {
+            replyIndicator.classList.add('hidden');
+        }
     }
 
     /**
@@ -119,8 +166,7 @@ class CommentController {
      * @param {object} comment - 수정할 댓글 객체
      */
     startEdit(comment) {
-        // 답글 모드가 활성화되어 있으면 먼저 해제
-        this.cancelReply();
+        this._setMode(COMMENT_MODE.EDIT, comment.comment_id);
 
         const commentInput = document.getElementById('comment-input');
         const commentSubmitBtn = document.getElementById('comment-submit-btn');
@@ -130,7 +176,6 @@ class CommentController {
             commentInput.focus();
         }
 
-        this.editingCommentId = comment.comment_id;
         PostDetailView.updateCommentButtonState(comment.content, commentSubmitBtn, true);
     }
 
@@ -139,29 +184,28 @@ class CommentController {
      * @param {object} comment - 답글 대상 댓글 객체
      */
     startReply(comment) {
+        const replyTarget = {
+            id: comment.comment_id,
+            nickname: comment.author?.nickname || '알 수 없음',
+        };
+        this._setMode(COMMENT_MODE.REPLY, replyTarget);
+
         const commentInput = document.getElementById('comment-input');
         const commentSubmitBtn = document.getElementById('comment-submit-btn');
         const replyIndicator = document.getElementById('reply-indicator');
 
-        // 수정 모드가 활성화되어 있으면 먼저 해제
-        this.editingCommentId = null;
         PostDetailView.updateCommentButtonState('', commentSubmitBtn, false);
-
-        this.replyingToComment = {
-            id: comment.comment_id,
-            nickname: comment.author?.nickname || '알 수 없음',
-        };
 
         if (commentInput) {
             commentInput.value = '';
-            commentInput.placeholder = `${this.replyingToComment.nickname}님에게 답글...`;
+            commentInput.placeholder = `${replyTarget.nickname}님에게 답글...`;
             commentInput.focus();
         }
 
         if (replyIndicator) {
             const indicatorText = document.getElementById('reply-indicator-text');
             if (indicatorText) {
-                indicatorText.textContent = `${this.replyingToComment.nickname}님에게 답글 작성 중`;
+                indicatorText.textContent = `${replyTarget.nickname}님에게 답글 작성 중`;
             }
             replyIndicator.classList.remove('hidden');
         }
@@ -171,24 +215,12 @@ class CommentController {
      * 답글 모드 취소
      */
     cancelReply() {
-        const commentInput = document.getElementById('comment-input');
-        const replyIndicator = document.getElementById('reply-indicator');
-
-        this.replyingToComment = null;
-
-        if (commentInput) {
-            commentInput.placeholder = '댓글을 남겨주세요!';
-            commentInput.value = '';
-        }
-
-        if (replyIndicator) {
-            replyIndicator.classList.add('hidden');
-        }
+        this._setMode(COMMENT_MODE.VIEW);
     }
 
     /**
      * 댓글 삭제 확인 모달 열기
-     * @param {string|number} commentId 
+     * @param {string|number} commentId
      */
     confirmDelete(commentId) {
         // 모달 콜백 설정
@@ -204,7 +236,7 @@ class CommentController {
 
     /**
      * 댓글 삭제 실행
-     * @param {string|number} commentId 
+     * @param {string|number} commentId
      */
     async executeDelete(commentId) {
         try {
@@ -253,8 +285,7 @@ class CommentController {
 
             if (result.ok) {
                 PostDetailView.resetCommentInput();
-                this.editingCommentId = null;
-                this.cancelReply();
+                this._setMode(COMMENT_MODE.VIEW);
                 this._notifyChange();
             } else {
                 PostDetailView.showToast(this.editingCommentId ? UI_MESSAGES.COMMENT_UPDATE_FAIL : UI_MESSAGES.COMMENT_CREATE_FAIL);
