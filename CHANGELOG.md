@@ -6,6 +6,7 @@
   - CSS 디자인 토큰 3단계 체계 도입 (Primitive → Semantic → Component)
   - HTML 파일을 `html/` 디렉토리로 이동, Vite/constants.js 경로 동기화
   - 전체 CSS 모듈 하드코딩 값을 토큰으로 교체 (16개 모듈, 60+ 수정)
+  - `spacing-5xl`/`spacing-6xl` 토큰 추가, 60px 하드코딩 교체
   - 카드 구분선 연하게, 배지 pill 라운딩, 모달 취소 버튼 위계 개선
 
 - **03-10: DM 기능 전면 개선**
