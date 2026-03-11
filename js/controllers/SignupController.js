@@ -222,16 +222,13 @@ class SignupController {
             } else {
                 const errorData = result.data;
 
-                if (errorData?.detail) {
-                    if (errorData.detail.includes('email') || errorData.detail.includes('이메일')) {
-                        this.view.showEmailError('* 중복된 이메일입니다');
-                    } else if (errorData.detail.includes('nickname') || errorData.detail.includes('닉네임')) {
-                        this.view.showNicknameError('* 중복된 닉네임입니다');
-                    } else {
-                        this.view.showToast(`회원가입 실패: ${errorData.detail}`);
-                    }
+                const detail = errorData?.detail;
+                if (detail?.error === 'email_already_exists') {
+                    this.view.showEmailError('* 중복된 이메일입니다');
+                } else if (detail?.error === 'nickname_already_exists') {
+                    this.view.showNicknameError('* 중복된 닉네임입니다');
                 } else {
-                    this.view.showToast(`회원가입 실패: ${errorData?.message || '알 수 없는 오류'}`);
+                    this.view.showToast(`회원가입 실패: ${detail?.message || '알 수 없는 오류'}`);
                 }
             }
         } catch (error) {
