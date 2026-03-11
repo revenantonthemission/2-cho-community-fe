@@ -8,9 +8,9 @@ import NotificationService from '../services/NotificationService.js';
 import { showToast } from '../views/helpers.js';
 import Logger from '../utils/Logger.js';
 import { resolveNavPath } from '../config.js';
-import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
+import { NAV_PATHS, UI_MESSAGES, API_ENDPOINTS } from '../constants.js';
 import { Icons } from '../utils/icons.js';
-import { getAccessToken } from '../services/ApiService.js';
+import ApiService, { getAccessToken } from '../services/ApiService.js';
 
 const logger = Logger.createLogger('HeaderController');
 
@@ -43,6 +43,10 @@ class HeaderController {
                 location.href = resolveNavPath('/login?suspended=true');
             }
         });
+
+        window.addEventListener('auth:email-not-verified', () => {
+            this._showEmailVerifyBanner();
+        });
     }
 
     /**
@@ -69,6 +73,11 @@ class HeaderController {
 
             if (authStatus.isAuthenticated) {
                 this.currentUser = authStatus.user;
+
+                // 이메일 미인증 시 배너 표시
+                if (!this.currentUser.email_verified) {
+                    this._showEmailVerifyBanner();
+                }
 
                 // 프로필 요소 생성 및 주입
                 const profileCircle = HeaderView.createProfileElement(this.currentUser);
@@ -217,6 +226,56 @@ class HeaderController {
             logger.error('로그아웃 실패', error);
             location.href = resolveNavPath('/login');
         }
+    }
+
+    /**
+     * 이메일 인증 배너 표시 (중복 방지)
+     * @private
+     */
+    _showEmailVerifyBanner() {
+        if (document.getElementById('email-verify-banner')) return;
+
+        const banner = HeaderView.createEmailVerifyBanner((btn) => this._handleResendVerification(btn));
+        document.body.insertBefore(banner, document.body.firstChild);
+    }
+
+    /**
+     * 인증 메일 재발송 처리 (쿨다운 60초)
+     * @param {HTMLButtonElement} btn - 재발송 버튼
+     * @private
+     */
+    async _handleResendVerification(btn) {
+        btn.disabled = true;
+        try {
+            const result = await ApiService.post(API_ENDPOINTS.VERIFICATION.RESEND);
+            if (result.ok) {
+                showToast(UI_MESSAGES.VERIFICATION_SENT);
+            } else {
+                showToast(result.data?.detail?.message || UI_MESSAGES.UNKNOWN_ERROR);
+                btn.disabled = false;
+                return;
+            }
+        } catch (error) {
+            logger.error('인증 메일 재발송 실패', error);
+            showToast(UI_MESSAGES.UNKNOWN_ERROR);
+            btn.disabled = false;
+            return;
+        }
+
+        // 성공 시 60초 쿨다운
+        const originalText = btn.textContent;
+        let remaining = 60;
+        btn.textContent = `재발송 (${remaining}초)`;
+        const timer = setInterval(() => {
+            remaining--;
+            if (remaining <= 0) {
+                clearInterval(timer);
+                btn.textContent = originalText;
+                btn.disabled = false;
+            } else {
+                btn.textContent = `재발송 (${remaining}초)`;
+            }
+        }, 1000);
     }
 
     /**
