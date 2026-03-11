@@ -219,6 +219,23 @@ class HeaderView {
     }
 
     /**
+     * 이메일 인증 배너 생성
+     * @param {Function} onResend - 재발송 버튼 클릭 핸들러
+     * @returns {HTMLElement}
+     */
+    static createEmailVerifyBanner(onResend) {
+        const banner = createElement('div', { className: 'email-verify-banner', id: 'email-verify-banner' }, [
+            createElement('p', { className: 'email-verify-banner__text' }, ['이메일 인증 후 이용 가능합니다.']),
+        ]);
+
+        const btn = createElement('button', { className: 'email-verify-banner__btn' }, ['인증 메일 재발송']);
+        btn.addEventListener('click', () => onResend(btn));
+        banner.appendChild(btn);
+
+        return banner;
+    }
+
+    /**
      * 이벤트 리스너 정리 (메모리 누수 방지)
      */
     static cleanup() {

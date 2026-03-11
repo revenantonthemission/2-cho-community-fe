@@ -347,6 +347,11 @@ class ApiService {
             }));
         }
 
+        // 403 이메일 미인증: 배너 표시를 위한 이벤트 전파
+        if (response.status === 403 && data?.detail?.error === 'email_not_verified') {
+            window.dispatchEvent(new CustomEvent('auth:email-not-verified'));
+        }
+
         /** @type {ApiResponse & {etag?: string}} */
         const result = {
             ok: response.ok,
