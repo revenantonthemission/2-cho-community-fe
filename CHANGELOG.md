@@ -2,6 +2,12 @@
 
 ## 2026-03 (Mar)
 
+- **03-11: E2E 테스트 도메인별 재구성**
+  - 기존 `full_flow.spec.js` 단일 파일 → 9개 도메인 디렉토리(74 케이스)로 분리
+  - 도메인: auth, users, posts, comments, engagement, feed, dm, notifications, admin
+  - 공통 test-helpers.js 헬퍼 (`createTestUser`, `loginViaUI`, `createTestPost`, `loginAndNavigate`)
+  - 기존 security/xss.spec.js 유지
+
 - **03-10: 디자인 시스템 재구축**
   - CSS 디자인 토큰 3단계 체계 도입 (Primitive → Semantic → Component)
   - HTML 파일을 `html/` 디렉토리로 이동, Vite/constants.js 경로 동기화
