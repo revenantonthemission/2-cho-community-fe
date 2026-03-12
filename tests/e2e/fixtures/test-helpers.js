@@ -122,6 +122,18 @@ export async function suspendUser(request, userId, days = 7, reason = '테스트
 }
 
 /**
+ * 테스트 API: 사용자 정지 해제
+ * @param {import('@playwright/test').APIRequestContext} request
+ * @param {number} userId
+ */
+export async function unsuspendUser(request, userId) {
+  const res = await request.delete(`${API_BASE}/v1/test/users/suspend`, {
+    data: { user_id: userId },
+  });
+  return res;
+}
+
+/**
  * 테스트 API: DB 정리
  * @param {import('@playwright/test').APIRequestContext} request
  */
