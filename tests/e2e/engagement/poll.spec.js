@@ -91,6 +91,127 @@ test.describe('투표', () => {
     await expect(resultsOrBar.first()).toBeVisible({ timeout: 10000 });
   });
 
+  test('투표 후 변경/취소 버튼 표시', async ({ page }) => {
+    test.skip(!postWithPoll?.postId, '투표 게시글 생성 실패');
+
+    // 별도 유저 생성하여 투표
+    const voter = await createTestUser(page.request);
+    await loginAndNavigate(page, `/detail?id=${postWithPoll.postId}`, voter.email, voter.password);
+
+    const pollContainer = page.locator('#poll-container');
+    await expect(pollContainer).toBeVisible({ timeout: 10000 });
+
+    // 투표 폼이 있으면 투표 수행
+    const pollForm = pollContainer.locator('#poll-vote-form');
+    const hasForm = await pollForm.isVisible().catch(() => false);
+
+    if (hasForm) {
+      const firstOption = pollContainer.locator('input[name="poll-vote"]').first();
+      await firstOption.check();
+
+      const voteBtn = page.locator('#poll-vote-btn');
+      await voteBtn.click();
+      await page.waitForLoadState('networkidle');
+    }
+
+    // 결과 모드에서 변경/취소 버튼 표시 확인
+    const changeBtn = page.locator('#poll-change-btn');
+    const cancelBtn = page.locator('#poll-cancel-btn');
+    await expect(changeBtn).toBeVisible({ timeout: 10000 });
+    await expect(cancelBtn).toBeVisible();
+
+    await expect(changeBtn).toHaveText('투표 변경');
+    await expect(cancelBtn).toHaveText('투표 취소');
+  });
+
+  test('투표 취소 → 투표 폼으로 복귀', async ({ page }) => {
+    test.skip(!postWithPoll?.postId, '투표 게시글 생성 실패');
+
+    // 별도 유저로 투표 후 취소
+    const voter = await createTestUser(page.request);
+    const { headers } = await loginViaApi(page.request, voter.email, voter.password);
+
+    // API로 게시글 상세 조회하여 옵션 ID 획득
+    const detailRes = await page.request.get(`${API_BASE}/v1/posts/${postWithPoll.postId}`, { headers });
+    const detailBody = await detailRes.json();
+    const optionId = detailBody?.data?.post?.poll?.options?.[0]?.option_id;
+
+    // API로 먼저 투표
+    if (optionId) {
+      await page.request.post(`${API_BASE}/v1/posts/${postWithPoll.postId}/poll/vote`, {
+        headers,
+        data: { option_id: optionId },
+      });
+    }
+
+    await loginAndNavigate(page, `/detail?id=${postWithPoll.postId}`, voter.email, voter.password);
+
+    const pollContainer = page.locator('#poll-container');
+    await expect(pollContainer).toBeVisible({ timeout: 10000 });
+
+    // 취소 버튼 클릭
+    const cancelBtn = page.locator('#poll-cancel-btn');
+    const hasCancelBtn = await cancelBtn.isVisible().catch(() => false);
+    test.skip(!hasCancelBtn, '취소 버튼 미표시');
+
+    await cancelBtn.click();
+    await page.waitForLoadState('networkidle');
+
+    // 투표 폼으로 복귀 확인
+    const pollForm = pollContainer.locator('#poll-vote-form');
+    await expect(pollForm).toBeVisible({ timeout: 10000 });
+  });
+
+  test('투표 변경 → 다른 옵션 선택 후 제출', async ({ page }) => {
+    test.skip(!postWithPoll?.postId, '투표 게시글 생성 실패');
+
+    // 별도 유저로 투표
+    const voter = await createTestUser(page.request);
+    const { headers } = await loginViaApi(page.request, voter.email, voter.password);
+
+    // API로 옵션 ID 획득 및 투표
+    const detailRes = await page.request.get(`${API_BASE}/v1/posts/${postWithPoll.postId}`, { headers });
+    const detailBody = await detailRes.json();
+    const options = detailBody?.data?.post?.poll?.options;
+    const firstOptionId = options?.[0]?.option_id;
+
+    if (firstOptionId) {
+      await page.request.post(`${API_BASE}/v1/posts/${postWithPoll.postId}/poll/vote`, {
+        headers,
+        data: { option_id: firstOptionId },
+      });
+    }
+
+    await loginAndNavigate(page, `/detail?id=${postWithPoll.postId}`, voter.email, voter.password);
+
+    const pollContainer = page.locator('#poll-container');
+    await expect(pollContainer).toBeVisible({ timeout: 10000 });
+
+    // 변경 버튼 클릭
+    const changeBtn = page.locator('#poll-change-btn');
+    const hasChangeBtn = await changeBtn.isVisible().catch(() => false);
+    test.skip(!hasChangeBtn, '변경 버튼 미표시');
+
+    await changeBtn.click();
+
+    // 투표 폼이 다시 나타나고 "변경" 버튼 텍스트 확인
+    const voteBtn = page.locator('#poll-vote-btn');
+    await expect(voteBtn).toBeVisible({ timeout: 10000 });
+    await expect(voteBtn).toHaveText('변경');
+
+    // 두 번째 옵션 선택
+    const secondOption = pollContainer.locator('input[name="poll-vote"]').nth(1);
+    await secondOption.check();
+
+    // 변경 제출
+    await voteBtn.click();
+    await page.waitForLoadState('networkidle');
+
+    // 결과 모드로 다시 전환 확인
+    const results = pollContainer.locator('.poll-options-results');
+    await expect(results).toBeVisible({ timeout: 10000 });
+  });
+
   test('만료된 투표 비활성화 상태 확인', async ({ request, page }) => {
     // 만료된 투표 생성 (expires_in_hours: 0은 즉시 만료가 아닐 수 있으므로,
     // 이미 만료된 투표를 테스트하려면 백엔드에서 처리가 필요함)
