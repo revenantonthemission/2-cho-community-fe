@@ -2,10 +2,11 @@
 // 내 활동 페이지 컨트롤러
 
 import ActivityModel from '../models/ActivityModel.js';
+import UserModel from '../models/UserModel.js';
 import ActivityView from '../views/ActivityView.js';
 import { showToast } from '../views/helpers.js';
 import { resolveNavPath } from '../config.js';
-import { NAV_PATHS } from '../constants.js';
+import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
 import Logger from '../utils/Logger.js';
 
 const logger = Logger.createLogger('MyActivityController');
@@ -111,6 +112,8 @@ class MyActivityController {
                 result = await ActivityModel.getMyComments(this.currentOffset, this.LIMIT);
             } else if (this.currentTab === 'bookmarks') {
                 result = await ActivityModel.getMyBookmarks(this.currentOffset, this.LIMIT);
+            } else if (this.currentTab === 'blocks') {
+                result = await ActivityModel.getMyBlocks(this.currentOffset, this.LIMIT);
             } else {
                 result = await ActivityModel.getMyLikes(this.currentOffset, this.LIMIT);
             }
@@ -123,8 +126,10 @@ class MyActivityController {
 
             // 응답에서 항목과 페이지네이션 추출
             const responseData = result.data?.data;
-            const dataKey = this.currentTab === 'comments' ? 'comments' : 'posts';
-            // bookmarks 탭도 'posts' 키로 응답됨
+            let dataKey;
+            if (this.currentTab === 'comments') dataKey = 'comments';
+            else if (this.currentTab === 'blocks') dataKey = 'blocks';
+            else dataKey = 'posts';
             const items = responseData?.[dataKey] || [];
             const pagination = responseData?.pagination;
 
@@ -138,9 +143,28 @@ class MyActivityController {
                 location.href = resolveNavPath(NAV_PATHS.DETAIL(postId));
             };
 
+            // 차단 해제 핸들러
+            const onUnblock = async (userId, cardEl) => {
+                try {
+                    const res = await UserModel.unblockUser(userId);
+                    if (res.ok) {
+                        cardEl.remove();
+                        showToast(UI_MESSAGES.UNBLOCK_SUCCESS);
+                        // 목록이 비었으면 빈 상태 표시
+                        if (this.listEl && !this.listEl.children.length) {
+                            ActivityView.showEmptyState(this.emptyEl);
+                        }
+                    } else {
+                        showToast(UI_MESSAGES.BLOCK_FAIL);
+                    }
+                } catch {
+                    showToast(UI_MESSAGES.BLOCK_FAIL);
+                }
+            };
+
             // 항목 렌더링
             if (items.length > 0) {
-                ActivityView.renderActivities(this.listEl, items, this.currentTab, onPostClick);
+                ActivityView.renderActivities(this.listEl, items, this.currentTab, onPostClick, onUnblock);
             }
 
             // 페이지네이션 상태 업데이트
