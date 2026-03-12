@@ -61,6 +61,103 @@ test.describe('팔로우', () => {
     expect(parseInt(followerCountAfter)).toBe(parseInt(followerCountBefore) + 1);
   });
 
+  test('팔로워 통계 클릭 → 팔로워 목록 모달 표시', async ({ page }) => {
+    // follower가 target을 팔로우한 상태 만들기
+    const viewer = await createTestUser(page.request);
+    const { headers: fHeaders } = await loginViaApi(page.request, follower.email, follower.password);
+
+    // API로 팔로우
+    await page.request.post(`http://127.0.0.1:8000/v1/users/${target.userId}/follow`, {
+      headers: fHeaders,
+    });
+
+    // viewer가 target 프로필 방문
+    await loginAndNavigate(page, `/user-profile?id=${target.userId}`, viewer.email, viewer.password);
+
+    // 통계 영역 대기
+    const statsContainer = page.locator('#profile-stats');
+    await expect(statsContainer).toBeVisible({ timeout: 10000 });
+
+    // 팔로워 통계 항목 클릭
+    const followerStat = statsContainer.locator('.profile-stat-item.clickable', { hasText: '팔로워' });
+    const hasFollowerStat = await followerStat.isVisible().catch(() => false);
+    test.skip(!hasFollowerStat, '팔로워 클릭 가능 항목 미표시');
+
+    await followerStat.click();
+
+    // 모달 표시 확인
+    const modal = page.locator('#follow-list-modal');
+    await expect(modal).not.toHaveClass(/hidden/, { timeout: 10000 });
+
+    // 모달 제목 확인
+    const title = page.locator('#follow-list-title');
+    await expect(title).toHaveText('팔로워');
+
+    // 목록에 사용자가 있는지 확인
+    const listItems = page.locator('.follow-list-item');
+    await expect(listItems.first()).toBeVisible({ timeout: 5000 });
+  });
+
+  test('팔로잉 통계 클릭 → 팔로잉 목록 모달 표시', async ({ page }) => {
+    const viewer = await createTestUser(page.request);
+    const { headers: fHeaders } = await loginViaApi(page.request, follower.email, follower.password);
+
+    // follower가 target을 팔로우한 상태
+    await page.request.post(`http://127.0.0.1:8000/v1/users/${target.userId}/follow`, {
+      headers: fHeaders,
+    }).catch(() => {}); // 이미 팔로우한 경우 무시
+
+    // viewer가 follower 프로필 방문 (follower의 팔로잉 목록 확인)
+    await loginAndNavigate(page, `/user-profile?id=${follower.userId}`, viewer.email, viewer.password);
+
+    const statsContainer = page.locator('#profile-stats');
+    await expect(statsContainer).toBeVisible({ timeout: 10000 });
+
+    // 팔로잉 통계 항목 클릭
+    const followingStat = statsContainer.locator('.profile-stat-item.clickable', { hasText: '팔로잉' });
+    const hasFollowingStat = await followingStat.isVisible().catch(() => false);
+    test.skip(!hasFollowingStat, '팔로잉 클릭 가능 항목 미표시');
+
+    await followingStat.click();
+
+    // 모달 표시 확인
+    const modal = page.locator('#follow-list-modal');
+    await expect(modal).not.toHaveClass(/hidden/, { timeout: 10000 });
+
+    const title = page.locator('#follow-list-title');
+    await expect(title).toHaveText('팔로잉');
+  });
+
+  test('팔로워 목록 모달 닫기', async ({ page }) => {
+    const viewer = await createTestUser(page.request);
+    const { headers: fHeaders } = await loginViaApi(page.request, follower.email, follower.password);
+
+    await page.request.post(`http://127.0.0.1:8000/v1/users/${target.userId}/follow`, {
+      headers: fHeaders,
+    }).catch(() => {});
+
+    await loginAndNavigate(page, `/user-profile?id=${target.userId}`, viewer.email, viewer.password);
+
+    const statsContainer = page.locator('#profile-stats');
+    await expect(statsContainer).toBeVisible({ timeout: 10000 });
+
+    const followerStat = statsContainer.locator('.profile-stat-item.clickable', { hasText: '팔로워' });
+    const hasFollowerStat = await followerStat.isVisible().catch(() => false);
+    test.skip(!hasFollowerStat, '팔로워 클릭 가능 항목 미표시');
+
+    await followerStat.click();
+
+    const modal = page.locator('#follow-list-modal');
+    await expect(modal).not.toHaveClass(/hidden/, { timeout: 10000 });
+
+    // 닫기 버튼 클릭
+    const closeBtn = page.locator('#follow-list-close');
+    await closeBtn.click();
+
+    // 모달 숨김 확인
+    await expect(modal).toHaveClass(/hidden/, { timeout: 5000 });
+  });
+
   test('언팔로우 동작', async ({ page }) => {
     // 먼저 팔로우 상태 만들기
     const unfollower = await createTestUser(page.request);

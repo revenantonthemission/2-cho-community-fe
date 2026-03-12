@@ -2,6 +2,7 @@
 // 내 활동 페이지 DOM 렌더링 (View 전용)
 
 import { createElement } from '../utils/dom.js';
+import { getImageUrl } from './helpers.js';
 import { formatDate, truncateTitle } from '../utils/formatters.js';
 import { resolveNavPath } from '../config.js';
 import { NAV_PATHS } from '../constants.js';
@@ -59,21 +60,56 @@ class ActivityView {
     }
 
     /**
+     * 차단 사용자 카드 DOM 생성
+     * @param {object} block - 차단 데이터 (user_id, nickname, profile_img, created_at)
+     * @param {Function} onUnblock - 차단 해제 콜백 (userId, cardEl)
+     * @returns {HTMLElement}
+     */
+    static createBlockCard(block, onUnblock) {
+        const dateStr = formatDate(new Date(block.created_at));
+
+        const card = createElement('div', { className: 'block-card' }, [
+            createElement('div', { className: 'block-card-user' }, [
+                createElement('img', {
+                    src: getImageUrl(block.profile_img),
+                    className: 'block-card-avatar',
+                    alt: '',
+                }),
+                createElement('div', { className: 'block-card-info' }, [
+                    createElement('span', { className: 'block-card-nickname' }, [block.nickname || '탈퇴한 사용자']),
+                    createElement('span', { className: 'block-card-date' }, [dateStr]),
+                ]),
+            ]),
+            createElement('button', {
+                className: 'block-card-unblock-btn',
+                onClick: () => onUnblock(block.user_id, card),
+            }, ['차단 해제']),
+        ]);
+
+        return card;
+    }
+
+    /**
      * 활동 목록 렌더링
      * @param {HTMLElement} container - 렌더링할 컨테이너
      * @param {Array} items - 활동 데이터 배열
-     * @param {string} type - 활동 유형 ('posts', 'comments', 'likes')
+     * @param {string} type - 활동 유형 ('posts', 'comments', 'likes', 'blocks')
      * @param {Function} onPostClick - 게시글 클릭 핸들러
+     * @param {Function} [onUnblock] - 차단 해제 콜백
      */
-    static renderActivities(container, items, type, onPostClick) {
+    static renderActivities(container, items, type, onPostClick, onUnblock) {
         const fragment = document.createDocumentFragment();
 
         if (type === 'comments') {
             items.forEach(comment => {
                 fragment.appendChild(ActivityView.createCommentCard(comment, onPostClick));
             });
+        } else if (type === 'blocks') {
+            items.forEach(block => {
+                fragment.appendChild(ActivityView.createBlockCard(block, onUnblock));
+            });
         } else {
-            // posts, likes 탭은 PostListView의 게시글 카드 재사용
+            // posts, likes, bookmarks 탭은 PostListView의 게시글 카드 재사용
             items.forEach(post => {
                 fragment.appendChild(PostListView.createPostCard(post, onPostClick));
             });

@@ -300,6 +300,10 @@ html {
         gap: var(--spacing-xs);
     }
 
+    .block-card {
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+
     /* --- 관리자 --- */
     .dashboard-stats {
         grid-template-columns: repeat(2, 1fr);
