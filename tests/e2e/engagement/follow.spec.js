@@ -4,7 +4,7 @@
 import { test, expect } from '@playwright/test';
 import {
   createTestUser,
-  loginViaUI,
+  loginAndNavigate,
   loginViaApi,
 } from '../fixtures/test-helpers.js';
 
@@ -18,11 +18,7 @@ test.describe('팔로우', () => {
   });
 
   test('팔로우 버튼 클릭 → 텍스트 변경 (팔로우→팔로잉)', async ({ page }) => {
-    await loginViaUI(page, follower.email, follower.password);
-
-    // 대상 사용자 프로필 페이지로 이동
-    await page.goto(`/user-profile?id=${target.userId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/user-profile?id=${target.userId}`, follower.email, follower.password);
 
     // 팔로우 버튼 표시 확인
     const followBtn = page.locator('#follow-user-btn');
@@ -40,10 +36,7 @@ test.describe('팔로우', () => {
   test('팔로워 수 업데이트', async ({ page }) => {
     // 새 유저로 팔로우 테스트 (이전 테스트와 독립)
     const newFollower = await createTestUser(page.request);
-    await loginViaUI(page, newFollower.email, newFollower.password);
-
-    await page.goto(`/user-profile?id=${target.userId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/user-profile?id=${target.userId}`, newFollower.email, newFollower.password);
 
     // 팔로워 통계 확인 (profile-stats 내부의 팔로워 항목)
     const statsContainer = page.locator('#profile-stats');
@@ -51,7 +44,7 @@ test.describe('팔로우', () => {
 
     // 팔로우 전 팔로워 수 기록
     const followerStat = statsContainer.locator('div', { hasText: '팔로워' });
-    const followerCountBefore = await followerStat.locator('.stat-value').textContent()
+    const followerCountBefore = await followerStat.locator('.profile-stat-value').textContent()
       .catch(() => '0');
 
     // 팔로우 클릭
@@ -63,7 +56,7 @@ test.describe('팔로우', () => {
     await expect(followBtn).toHaveText('팔로잉', { timeout: 5000 });
 
     // 팔로워 수 증가 확인
-    const followerCountAfter = await followerStat.locator('.stat-value').textContent()
+    const followerCountAfter = await followerStat.locator('.profile-stat-value').textContent()
       .catch(() => '0');
     expect(parseInt(followerCountAfter)).toBe(parseInt(followerCountBefore) + 1);
   });
@@ -78,9 +71,7 @@ test.describe('팔로우', () => {
       headers,
     });
 
-    await loginViaUI(page, unfollower.email, unfollower.password);
-    await page.goto(`/user-profile?id=${target.userId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/user-profile?id=${target.userId}`, unfollower.email, unfollower.password);
 
     const followBtn = page.locator('#follow-user-btn');
     await expect(followBtn).toBeVisible({ timeout: 10000 });

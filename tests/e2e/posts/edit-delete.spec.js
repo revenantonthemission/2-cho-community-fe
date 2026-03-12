@@ -4,7 +4,7 @@
 import { test, expect } from '@playwright/test';
 import {
   createTestUser,
-  loginViaUI,
+  loginAndNavigate,
   loginViaApi,
   createTestPost,
 } from '../fixtures/test-helpers.js';
@@ -35,9 +35,7 @@ test.describe('게시글 수정/삭제', () => {
   });
 
   test('수정 버튼 클릭 → 에디터에 기존 내용 프리필', async ({ page }) => {
-    await loginViaUI(page, ownerUser.email, ownerUser.password);
-    await page.goto(`/detail?id=${editPost.postId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/detail?id=${editPost.postId}`, ownerUser.email, ownerUser.password);
 
     // 수정 버튼 확인 및 클릭
     const editBtn = page.locator('#edit-post-btn');
@@ -57,9 +55,7 @@ test.describe('게시글 수정/삭제', () => {
   });
 
   test('삭제 확인 모달 표시 및 삭제 실행', async ({ page }) => {
-    await loginViaUI(page, ownerUser.email, ownerUser.password);
-    await page.goto(`/detail?id=${deletePost.postId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/detail?id=${deletePost.postId}`, ownerUser.email, ownerUser.password);
 
     // 삭제 버튼 클릭
     const deleteBtn = page.locator('#delete-post-btn');
@@ -81,9 +77,7 @@ test.describe('게시글 수정/삭제', () => {
   });
 
   test('타인 글에 수정/삭제 버튼 미표시', async ({ page }) => {
-    await loginViaUI(page, otherUser.email, otherUser.password);
-    await page.goto(`/detail?id=${editPost.postId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/detail?id=${editPost.postId}`, otherUser.email, otherUser.password);
 
     // 제목 로드 대기
     await expect(page.locator('#post-title')).not.toHaveText('Loading...', {

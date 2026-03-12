@@ -4,19 +4,33 @@
 import { test, expect } from '@playwright/test';
 import {
   createTestUser,
-  loginViaUI,
+  loginAndNavigate,
   loginViaApi,
   createTestPost,
   API_BASE,
 } from '../fixtures/test-helpers.js';
 
+/**
+ * API로 댓글 생성 헬퍼
+ */
+async function createComment(request, postId, headers, content) {
+  const res = await request.post(`${API_BASE}/v1/posts/${postId}/comments`, {
+    headers,
+    data: { content },
+  });
+  const body = await res.json();
+  return body?.data;
+}
+
 test.describe('댓글', () => {
   let testUser;
   let testPost;
+  let authHeaders;
 
   test.beforeAll(async ({ request }) => {
     testUser = await createTestUser(request);
     const { headers } = await loginViaApi(request, testUser.email, testUser.password);
+    authHeaders = headers;
     testPost = await createTestPost(request, headers, {
       title: `댓글테스트 ${Date.now()}`,
       content: '댓글 테스트용 게시글입니다.',
@@ -24,9 +38,7 @@ test.describe('댓글', () => {
   });
 
   test('댓글 입력 후 목록에 추가됨', async ({ page }) => {
-    await loginViaUI(page, testUser.email, testUser.password);
-    await page.goto(`/detail?id=${testPost.postId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/detail?id=${testPost.postId}`, testUser.email, testUser.password);
 
     const commentInput = page.locator('#comment-input');
     const submitBtn = page.locator('#comment-submit-btn');
@@ -46,10 +58,11 @@ test.describe('댓글', () => {
     await expect(commentList.locator('.comment-text', { hasText: commentText })).toBeVisible({ timeout: 10000 });
   });
 
-  test('수정 모드 전환 (수정 버튼 → 입력창 값 변경)', async ({ page }) => {
-    await loginViaUI(page, testUser.email, testUser.password);
-    await page.goto(`/detail?id=${testPost.postId}`);
-    await page.waitForLoadState('networkidle');
+  test('수정 모드 전환 (수정 버튼 → 입력창 값 변경)', async ({ page, request }) => {
+    // 수정할 댓글 사전 생성 (병렬 실행 독립성 보장)
+    await createComment(request, testPost.postId, authHeaders, `수정대상댓글 ${Date.now()}`);
+
+    await loginAndNavigate(page, `/detail?id=${testPost.postId}`, testUser.email, testUser.password);
 
     // 기존 댓글이 있는지 확인
     const commentList = page.locator('#comment-list');
@@ -67,16 +80,9 @@ test.describe('댓글', () => {
   test('삭제 확인 후 댓글 제거', async ({ page, request }) => {
     // 삭제할 댓글 생성 (API)
     const { headers } = await loginViaApi(request, testUser.email, testUser.password);
-    const commentRes = await request.post(`${API_BASE}/v1/posts/${testPost.postId}/comments`, {
-      headers,
-      data: { content: `삭제할댓글 ${Date.now()}` },
-    });
-    const commentBody = await commentRes.json();
-    const commentContent = `삭제할댓글`;
+    await createComment(request, testPost.postId, headers, `삭제할댓글 ${Date.now()}`);
 
-    await loginViaUI(page, testUser.email, testUser.password);
-    await page.goto(`/detail?id=${testPost.postId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/detail?id=${testPost.postId}`, testUser.email, testUser.password);
 
     // 삭제 버튼 클릭
     const commentList = page.locator('#comment-list');
@@ -96,10 +102,11 @@ test.describe('댓글', () => {
     await expect(confirmModal).toHaveClass(/hidden/, { timeout: 5000 });
   });
 
-  test('답글 버튼 → 답글 입력폼 표시', async ({ page }) => {
-    await loginViaUI(page, testUser.email, testUser.password);
-    await page.goto(`/detail?id=${testPost.postId}`);
-    await page.waitForLoadState('networkidle');
+  test('답글 버튼 → 답글 입력폼 표시', async ({ page, request }) => {
+    // 답글 대상 댓글 사전 생성
+    await createComment(request, testPost.postId, authHeaders, `답글대상댓글 ${Date.now()}`);
+
+    await loginAndNavigate(page, `/detail?id=${testPost.postId}`, testUser.email, testUser.password);
 
     // 답글 버튼 클릭
     const commentList = page.locator('#comment-list');
@@ -121,10 +128,11 @@ test.describe('댓글', () => {
     expect(placeholder).toContain('답글');
   });
 
-  test('수정/답글 모드 상호 배제', async ({ page }) => {
-    await loginViaUI(page, testUser.email, testUser.password);
-    await page.goto(`/detail?id=${testPost.postId}`);
-    await page.waitForLoadState('networkidle');
+  test('수정/답글 모드 상호 배제', async ({ page, request }) => {
+    // 수정/답글 대상 댓글 사전 생성
+    await createComment(request, testPost.postId, authHeaders, `상호배제댓글 ${Date.now()}`);
+
+    await loginAndNavigate(page, `/detail?id=${testPost.postId}`, testUser.email, testUser.password);
 
     const commentList = page.locator('#comment-list');
     const replyBtn = commentList.locator('.reply-btn').first();
@@ -148,10 +156,11 @@ test.describe('댓글', () => {
     await expect(commentInput).not.toBeEmpty();
   });
 
-  test('댓글 좋아요 토글', async ({ page }) => {
-    await loginViaUI(page, testUser.email, testUser.password);
-    await page.goto(`/detail?id=${testPost.postId}`);
-    await page.waitForLoadState('networkidle');
+  test('댓글 좋아요 토글', async ({ page, request }) => {
+    // 좋아요 대상 댓글 사전 생성
+    await createComment(request, testPost.postId, authHeaders, `좋아요대상댓글 ${Date.now()}`);
+
+    await loginAndNavigate(page, `/detail?id=${testPost.postId}`, testUser.email, testUser.password);
 
     // 댓글 좋아요 버튼 찾기
     const commentList = page.locator('#comment-list');

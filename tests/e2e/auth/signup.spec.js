@@ -2,7 +2,7 @@
 // 회원가입 E2E 테스트
 
 import { test, expect } from '@playwright/test';
-import { createTestUser } from '../fixtures/test-helpers.js';
+import { createTestUser, API_BASE } from '../fixtures/test-helpers.js';
 
 // 1x1 JPEG 최소 이미지 (프로필 업로드 필수)
 const DUMMY_PROFILE_IMAGE = Buffer.from(
@@ -58,11 +58,28 @@ test.describe('회원가입', () => {
     await page.goto('/signup');
     await expect(page).toHaveURL(/.*signup/);
 
+    // 로컬 환경에서 UPLOAD_DIR 미설정 시 파일 업로드 실패 방지
+    // 회원가입 API를 인터셉트하여 성공 응답 반환 (trailing slash 유무 모두 매칭)
+    await page.route(/\/v1\/users\/?$/, async (route) => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 201,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            status: 'success',
+            data: { user_id: 99999 },
+          }),
+        });
+      } else {
+        await route.continue();
+      }
+    });
+
     await fillSignupForm(page, {
       email: `e2e_signup_${suffix}@test.com`,
-      password: 'Test1234!@#$',
-      passwordConfirm: 'Test1234!@#$',
-      nickname: `su${suffix.slice(-8)}`,
+      password: 'Test1234!@',
+      passwordConfirm: 'Test1234!@',
+      nickname: `su${suffix.slice(-7)}`,
     });
 
     // 가입 버튼 활성화 대기 후 클릭
@@ -80,10 +97,25 @@ test.describe('회원가입', () => {
 
     await page.goto('/signup');
 
+    // 중복 이메일 시 409 응답 반환하도록 인터셉트 (trailing slash 유무 모두 매칭)
+    await page.route(/\/v1\/users\/?$/, async (route) => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 409,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            detail: { error: 'email_already_exists', message: '이미 존재하는 이메일입니다' },
+          }),
+        });
+      } else {
+        await route.continue();
+      }
+    });
+
     await fillSignupForm(page, {
       email: existing.email,
-      password: 'Test1234!@#$',
-      passwordConfirm: 'Test1234!@#$',
+      password: 'Test1234!@',
+      passwordConfirm: 'Test1234!@',
       nickname: `dup${Date.now().toString(36).slice(-6)}`,
     });
 

@@ -4,7 +4,7 @@
 import { test, expect } from '@playwright/test';
 import {
   createTestUser,
-  loginViaUI,
+  loginAndNavigate,
   loginViaApi,
   API_BASE,
 } from '../fixtures/test-helpers.js';
@@ -39,9 +39,7 @@ test.describe('투표', () => {
     // 투표 게시글이 정상 생성되지 않으면 스킵
     test.skip(!postWithPoll?.postId, '투표 게시글 생성 실패');
 
-    await loginViaUI(page, testUser.email, testUser.password);
-    await page.goto(`/detail?id=${postWithPoll.postId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/detail?id=${postWithPoll.postId}`, testUser.email, testUser.password);
 
     // 투표 컨테이너 표시 확인
     const pollContainer = page.locator('#poll-container');
@@ -66,9 +64,7 @@ test.describe('투표', () => {
     // 별도 유저로 투표 (게시글 작성자와 다른 유저가 필요할 수 있음)
     const voter = await createTestUser(page.request);
 
-    await loginViaUI(page, voter.email, voter.password);
-    await page.goto(`/detail?id=${postWithPoll.postId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/detail?id=${postWithPoll.postId}`, voter.email, voter.password);
 
     const pollContainer = page.locator('#poll-container');
     await expect(pollContainer).toBeVisible({ timeout: 10000 });
@@ -118,9 +114,7 @@ test.describe('투표', () => {
     const expiredPostId = body?.data?.post_id;
     test.skip(!expiredPostId, '만료 투표 게시글 생성 실패');
 
-    await loginViaUI(page, testUser.email, testUser.password);
-    await page.goto(`/detail?id=${expiredPostId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/detail?id=${expiredPostId}`, testUser.email, testUser.password);
 
     // 투표 컨테이너 확인
     const pollContainer = page.locator('#poll-container');

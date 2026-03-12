@@ -4,7 +4,7 @@
 import { test, expect } from '@playwright/test';
 import {
   createTestUser,
-  loginViaUI,
+  loginAndNavigate,
   loginViaApi,
   createTestPost,
 } from '../fixtures/test-helpers.js';
@@ -23,9 +23,7 @@ test.describe('좋아요/북마크', () => {
   });
 
   test('좋아요 클릭 → 카운트 즉시 변경 (낙관적 UI)', async ({ page }) => {
-    await loginViaUI(page, testUser.email, testUser.password);
-    await page.goto(`/detail?id=${testPost.postId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/detail?id=${testPost.postId}`, testUser.email, testUser.password);
 
     const likeBox = page.locator('#like-box');
     const likeCount = page.locator('#like-count');
@@ -50,9 +48,7 @@ test.describe('좋아요/북마크', () => {
   });
 
   test('북마크 토글 → 아이콘 상태 전환', async ({ page }) => {
-    await loginViaUI(page, testUser.email, testUser.password);
-    await page.goto(`/detail?id=${testPost.postId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/detail?id=${testPost.postId}`, testUser.email, testUser.password);
 
     const bookmarkBox = page.locator('#bookmark-box');
     const bookmarkCount = page.locator('#bookmark-count');
@@ -75,28 +71,12 @@ test.describe('좋아요/북마크', () => {
     await expect(bookmarkCount).toHaveText(String(countBefore), { timeout: 3000 });
   });
 
-  test('비로그인 시 좋아요 클릭 → 로그인 안내 또는 페이지 이동', async ({ page }) => {
+  test('비로그인 시 상세 페이지 접근 → 로그인 페이지로 리다이렉트', async ({ page }) => {
     // 비로그인 상태로 상세 페이지 접근
+    // HeaderController.init()이 비인증 사용자를 로그인 페이지로 리다이렉트
     await page.goto(`/detail?id=${testPost.postId}`);
-    await page.waitForLoadState('networkidle');
 
-    const likeBox = page.locator('#like-box');
-    await expect(likeBox).toBeVisible({ timeout: 10000 });
-
-    // 좋아요 클릭
-    await likeBox.click();
-
-    // 비로그인 시: 로그인 페이지로 이동하거나, 토스트 메시지 표시
-    // API 401 → silent refresh 실패 → session expired → 로그인 페이지 리다이렉트
-    const loginRedirect = page.waitForURL('**/login', { timeout: 10000 }).catch(() => null);
-    const toastVisible = page.locator('#toast').waitFor({ state: 'visible', timeout: 5000 }).catch(() => null);
-
-    const result = await Promise.race([loginRedirect, toastVisible]);
-    // 둘 중 하나는 발생해야 함 (로그인 리다이렉트 또는 에러 토스트)
-    const currentUrl = page.url();
-    const isOnLogin = currentUrl.includes('login');
-    const toastShown = await page.locator('#toast').isVisible().catch(() => false);
-
-    expect(isOnLogin || toastShown).toBeTruthy();
+    // 로그인 페이지로 리다이렉트 확인
+    await expect(page).toHaveURL(/.*login/, { timeout: 15000 });
   });
 });

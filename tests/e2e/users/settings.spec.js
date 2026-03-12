@@ -64,9 +64,9 @@ test.describe('회원정보 수정', () => {
     await loginAndNavigate(page, '/edit-profile', withdrawUser.email, withdrawUser.password);
 
     // 기존 닉네임 로드 대기
-    await expect(page.locator('#nickname-input')).not.toHaveValue('', {
-      timeout: 10000,
-    });
+    const nicknameInput = page.locator('#nickname-input');
+    await nicknameInput.waitFor({ state: 'visible', timeout: 10000 });
+    await expect(nicknameInput).not.toHaveValue('', { timeout: 10000 });
 
     // 회원탈퇴 버튼 클릭
     await page.click('#withdraw-btn');

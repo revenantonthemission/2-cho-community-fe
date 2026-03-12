@@ -4,7 +4,7 @@
 import { test, expect } from '@playwright/test';
 import {
   createTestUser,
-  loginViaUI,
+  loginAndNavigate,
   loginViaApi,
   createTestPost,
 } from '../fixtures/test-helpers.js';
@@ -23,9 +23,7 @@ test.describe('게시글 상세', () => {
   });
 
   test('상세 페이지 렌더링 (제목, 본문, 작성자)', async ({ page }) => {
-    await loginViaUI(page, testUser.email, testUser.password);
-    await page.goto(`/detail?id=${testPost.postId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/detail?id=${testPost.postId}`, testUser.email, testUser.password);
 
     // 제목 확인
     const title = page.locator('#post-title');
@@ -43,9 +41,7 @@ test.describe('게시글 상세', () => {
   });
 
   test('마크다운 본문이 HTML로 렌더링', async ({ page }) => {
-    await loginViaUI(page, testUser.email, testUser.password);
-    await page.goto(`/detail?id=${testPost.postId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/detail?id=${testPost.postId}`, testUser.email, testUser.password);
 
     // post-content 영역에 마크다운 변환 결과 확인
     const content = page.locator('#post-content');
@@ -58,9 +54,7 @@ test.describe('게시글 상세', () => {
   });
 
   test('좋아요/북마크/조회수/댓글 통계 박스 표시', async ({ page }) => {
-    await loginViaUI(page, testUser.email, testUser.password);
-    await page.goto(`/detail?id=${testPost.postId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/detail?id=${testPost.postId}`, testUser.email, testUser.password);
 
     // 통계 요소 존재 확인
     await expect(page.locator('#like-count')).toBeVisible({ timeout: 10000 });

@@ -5,6 +5,7 @@ import { test, expect } from '@playwright/test';
 import {
   createTestUser,
   loginViaUI,
+  loginAndNavigate,
   loginViaApi,
   createTestPost,
 } from '../fixtures/test-helpers.js';
@@ -43,11 +44,7 @@ test.describe('사용자 프로필', () => {
   });
 
   test('타인 프로필 페이지 렌더링 (닉네임, 프로필 이미지)', async ({ page }) => {
-    await loginViaUI(page, userA.email, userA.password);
-
-    // userB 프로필 페이지로 이동
-    await page.goto(`/user-profile?id=${userB.userId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/user-profile?id=${userB.userId}`, userA.email, userA.password);
 
     // 닉네임 표시 확인
     const nickname = page.locator('#profile-nickname');
@@ -60,10 +57,7 @@ test.describe('사용자 프로필', () => {
   });
 
   test('타인 프로필에서 팔로우/DM/차단 버튼 표시', async ({ page }) => {
-    await loginViaUI(page, userA.email, userA.password);
-
-    await page.goto(`/user-profile?id=${userB.userId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/user-profile?id=${userB.userId}`, userA.email, userA.password);
 
     // 닉네임 로드 대기
     await expect(page.locator('#profile-nickname')).not.toHaveText('로딩 중...', {
@@ -76,20 +70,17 @@ test.describe('사용자 프로필', () => {
   });
 
   test('타인 프로필에서 작성한 게시글 목록 표시', async ({ page }) => {
-    await loginViaUI(page, userA.email, userA.password);
-
-    await page.goto(`/user-profile?id=${userB.userId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/user-profile?id=${userB.userId}`, userA.email, userA.password);
 
     // 게시글 목록 영역 확인
     const postsList = page.locator('#user-posts-list');
     await expect(postsList).toBeVisible({ timeout: 10000 });
 
     // userB의 게시글이 표시되거나, 빈 상태 메시지가 표시되어야 함
-    const hasPost = page.locator('#user-posts-list .post-card');
-    const isEmpty = page.locator('#user-posts-empty');
-
-    // 둘 중 하나가 표시되어야 함
-    await expect(hasPost.first().or(isEmpty)).toBeVisible({ timeout: 10000 });
+    const hasPost = await page.locator('#user-posts-list .post-card').first()
+      .isVisible({ timeout: 5000 }).catch(() => false);
+    const hasEmpty = await page.locator('#user-posts-empty:not(.hidden)')
+      .isVisible({ timeout: 5000 }).catch(() => false);
+    expect(hasPost || hasEmpty).toBeTruthy();
   });
 });

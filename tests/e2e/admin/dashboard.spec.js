@@ -2,15 +2,12 @@
 // 관리자 대시보드 E2E 테스트
 
 import { test, expect } from '@playwright/test';
-import { createTestUser, loginViaUI, setAdminRole } from '../fixtures/test-helpers.js';
+import { createTestUser, loginAndNavigate, setAdminRole } from '../fixtures/test-helpers.js';
 
 test.describe('관리자 - 대시보드', () => {
   test('비관리자 접근 시 메인 페이지로 리다이렉트', async ({ page, request }) => {
     const normalUser = await createTestUser(request);
-    await loginViaUI(page, normalUser.email, normalUser.password);
-
-    // 관리자 대시보드 접근 시도
-    await page.goto('/admin/dashboard');
+    await loginAndNavigate(page, '/admin/dashboard', normalUser.email, normalUser.password);
 
     // 메인 페이지로 리다이렉트 확인
     await expect(page).toHaveURL(/.*main/, { timeout: 10000 });
@@ -19,9 +16,7 @@ test.describe('관리자 - 대시보드', () => {
   test('대시보드 통계 카드 렌더링 (관리자)', async ({ page, request }) => {
     const admin = await createTestUser(request);
     await setAdminRole(request, admin.userId);
-    await loginViaUI(page, admin.email, admin.password);
-
-    await page.goto('/admin/dashboard');
+    await loginAndNavigate(page, '/admin/dashboard', admin.email, admin.password);
 
     // 페이지 타이틀 확인
     await expect(page.locator('.admin-page-title')).toContainText('관리자 대시보드');
@@ -38,9 +33,7 @@ test.describe('관리자 - 대시보드', () => {
   test('사용자 목록 검색 (관리자)', async ({ page, request }) => {
     const admin = await createTestUser(request);
     await setAdminRole(request, admin.userId);
-    await loginViaUI(page, admin.email, admin.password);
-
-    await page.goto('/admin/dashboard');
+    await loginAndNavigate(page, '/admin/dashboard', admin.email, admin.password);
 
     // 사용자 검색 입력창 확인
     const searchInput = page.locator('#user-search');

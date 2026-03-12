@@ -4,9 +4,9 @@
 import { test, expect } from '@playwright/test';
 import {
   createTestUser,
-  loginViaUI,
   loginViaApi,
   createTestPost,
+  loginAndNavigate,
   API_BASE,
 } from '../fixtures/test-helpers.js';
 
@@ -40,12 +40,10 @@ test.describe('알림', () => {
   });
 
   test('알림 페이지 렌더링', async ({ page }) => {
-    await loginViaUI(page, postAuthor.email, postAuthor.password);
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, '/notifications', postAuthor.email, postAuthor.password);
 
     // 페이지 타이틀 확인
-    await expect(page.locator('.notification-header h1')).toContainText('알림');
+    await expect(page.locator('.notification-header h1')).toContainText('알림', { timeout: 10000 });
 
     // 알림 목록 영역 존재 확인
     const listEl = page.locator('#notification-list');
@@ -53,9 +51,7 @@ test.describe('알림', () => {
   });
 
   test('알림 항목이 표시됨 (댓글 알림)', async ({ page }) => {
-    await loginViaUI(page, postAuthor.email, postAuthor.password);
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, '/notifications', postAuthor.email, postAuthor.password);
 
     // 알림 항목이 최소 1개 이상 존재
     const items = page.locator('.notification-item');
@@ -66,9 +62,7 @@ test.describe('알림', () => {
   });
 
   test('전체 읽음 처리 버튼', async ({ page }) => {
-    await loginViaUI(page, postAuthor.email, postAuthor.password);
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, '/notifications', postAuthor.email, postAuthor.password);
 
     // 읽지 않은 알림이 있는지 확인
     const unreadItems = page.locator('.notification-item.unread');
@@ -85,10 +79,17 @@ test.describe('알림', () => {
     }
   });
 
-  test('알림 삭제', async ({ page }) => {
-    await loginViaUI(page, postAuthor.email, postAuthor.password);
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
+  test('알림 삭제', async ({ page, request }) => {
+    // 삭제할 알림을 위해 새 댓글 생성 (병렬 실행 독립성)
+    const { headers: commenterHeaders } = await loginViaApi(
+      request, commenter.email, commenter.password
+    );
+    await request.post(`${API_BASE}/v1/posts/${testPost.postId}/comments`, {
+      headers: commenterHeaders,
+      data: { content: `삭제테스트 알림 ${Date.now()}` },
+    });
+
+    await loginAndNavigate(page, '/notifications', postAuthor.email, postAuthor.password);
 
     // 알림 항목이 있는지 확인
     const items = page.locator('.notification-item');
@@ -107,9 +108,7 @@ test.describe('알림', () => {
   test('빈 알림 목록 안내 메시지', async ({ page, request }) => {
     // 알림이 없는 새 사용자 생성
     const freshUser = await createTestUser(request);
-    await loginViaUI(page, freshUser.email, freshUser.password);
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, '/notifications', freshUser.email, freshUser.password);
 
     // 빈 상태 메시지 확인
     const emptyEl = page.locator('#notification-empty');

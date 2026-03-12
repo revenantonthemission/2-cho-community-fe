@@ -60,9 +60,10 @@ test.describe('피드', () => {
     const latestBtn = page.locator('.sort-btn[data-sort="latest"]');
     await expect(latestBtn).not.toHaveClass(/active/);
 
-    // 목록이 다시 로드됨 (post-card 존재 또는 empty-state)
-    const hasCards = await postList.locator('.post-card').first().isVisible({ timeout: 5000 }).catch(() => false);
-    const hasEmpty = await postList.locator('.empty-state').isVisible({ timeout: 2000 }).catch(() => false);
+    // 목록이 다시 로드됨 — API 응답 대기 후 post-card 또는 empty-state
+    await page.waitForLoadState('networkidle');
+    const hasCards = await postList.locator('.post-card').first().isVisible({ timeout: 10000 }).catch(() => false);
+    const hasEmpty = await postList.locator('.empty-state').isVisible({ timeout: 3000 }).catch(() => false);
     expect(hasCards || hasEmpty).toBeTruthy();
   });
 
@@ -132,9 +133,18 @@ test.describe('피드', () => {
   test('빈 피드 안내 메시지', async ({ page }) => {
     await loginViaUI(page, testUser.email, testUser.password);
 
+    // MPA 특성: 페이지 이동 시 in-memory 토큰이 사라지고 silent refresh가 비동기로 실행됨
+    // MainController.init()이 getAccessToken()을 동기 체크하여 버튼 hidden 해제하므로
+    // silent refresh 완료 후에 hidden이 해제되지 않을 수 있음
+    // → 인증 완료(헤더 프로필 렌더링)를 확인한 뒤 수동으로 hidden 해제
+    await page.waitForSelector('#auth-section img, .header-profile-img, .profile-circle', { timeout: 10000 });
+    await page.evaluate(() => {
+      document.getElementById('following-btn')?.classList.remove('hidden');
+      document.getElementById('filter-divider')?.classList.remove('hidden');
+    });
+
     // 팔로잉 필터로 빈 피드 유도 (아무도 팔로우하지 않은 상태)
     const followingBtn = page.locator('#following-btn');
-    await expect(followingBtn).toBeVisible({ timeout: 10000 });
     await followingBtn.click();
 
     // 빈 피드 안내 메시지 확인

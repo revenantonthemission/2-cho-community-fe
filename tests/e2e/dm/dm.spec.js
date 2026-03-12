@@ -4,7 +4,7 @@
 import { test, expect } from '@playwright/test';
 import {
   createTestUser,
-  loginViaUI,
+  loginAndNavigate,
   loginViaApi,
   API_BASE,
 } from '../fixtures/test-helpers.js';
@@ -26,7 +26,7 @@ test.describe('DM (쪽지)', () => {
       data: { recipient_id: userB.userId },
     });
     const convBody = await convRes.json();
-    conversationId = convBody?.data?.conversation_id;
+    conversationId = convBody?.data?.conversation?.id;
 
     // 메시지 전송
     if (conversationId) {
@@ -39,9 +39,7 @@ test.describe('DM (쪽지)', () => {
 
   test('대화 목록 페이지 렌더링 (데스크톱 통합 레이아웃)', async ({ page }) => {
     // 데스크톱 뷰포트(>=768px)에서는 /messages/inbox로 리다이렉트
-    await loginViaUI(page, userB.email, userB.password);
-    await page.goto('/messages/inbox');
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, '/messages/inbox', userB.email, userB.password);
 
     // 대화 목록 영역 확인
     const dmList = page.locator('#dm-list');
@@ -52,9 +50,7 @@ test.describe('DM (쪽지)', () => {
   });
 
   test('대화 목록에 기존 대화가 표시됨', async ({ page }) => {
-    await loginViaUI(page, userB.email, userB.password);
-    await page.goto('/messages/inbox');
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, '/messages/inbox', userB.email, userB.password);
 
     // 대화 카드가 최소 1개 이상 표시
     const dmList = page.locator('#dm-list');
@@ -65,9 +61,7 @@ test.describe('DM (쪽지)', () => {
   test('대화 상세 페이지에서 메시지 표시', async ({ page }) => {
     test.skip(!conversationId, '대화 ID가 없으면 스킵');
 
-    await loginViaUI(page, userB.email, userB.password);
-    await page.goto(`/messages/detail?id=${conversationId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/messages/detail?id=${conversationId}`, userB.email, userB.password);
 
     // 메시지 영역 확인
     const messagesEl = page.locator('#dm-messages');
@@ -80,9 +74,7 @@ test.describe('DM (쪽지)', () => {
   test('메시지 입력 및 전송', async ({ page }) => {
     test.skip(!conversationId, '대화 ID가 없으면 스킵');
 
-    await loginViaUI(page, userB.email, userB.password);
-    await page.goto(`/messages/detail?id=${conversationId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/messages/detail?id=${conversationId}`, userB.email, userB.password);
 
     // 에디터 영역 확인
     const textarea = page.locator('.dm-editor-textarea');
@@ -107,9 +99,7 @@ test.describe('DM (쪽지)', () => {
   test('대화 상세의 뒤로가기 버튼 동작', async ({ page }) => {
     test.skip(!conversationId, '대화 ID가 없으면 스킵');
 
-    await loginViaUI(page, userB.email, userB.password);
-    await page.goto(`/messages/detail?id=${conversationId}`);
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, `/messages/detail?id=${conversationId}`, userB.email, userB.password);
 
     // 뒤로가기 버튼 클릭
     const backBtn = page.locator('#back-btn');
@@ -121,9 +111,7 @@ test.describe('DM (쪽지)', () => {
   });
 
   test('닉네임 검색으로 대화 필터링', async ({ page }) => {
-    await loginViaUI(page, userB.email, userB.password);
-    await page.goto('/messages/inbox');
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, '/messages/inbox', userB.email, userB.password);
 
     // 대화 카드가 로드될 때까지 대기
     const dmList = page.locator('#dm-list');
@@ -145,9 +133,7 @@ test.describe('DM (쪽지)', () => {
   test('빈 대화 목록 안내 메시지', async ({ page, request }) => {
     // 대화가 없는 새 사용자 생성
     const newUser = await createTestUser(request);
-    await loginViaUI(page, newUser.email, newUser.password);
-    await page.goto('/messages/inbox');
-    await page.waitForLoadState('networkidle');
+    await loginAndNavigate(page, '/messages/inbox', newUser.email, newUser.password);
 
     // 빈 상태 메시지 확인
     const emptyEl = page.locator('#dm-empty');
