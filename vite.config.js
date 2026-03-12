@@ -69,6 +69,6 @@ export default defineConfig({
       },
     },
   },
-  server: { port: 8080, strictPort: true },
-  preview: { port: 8080, strictPort: true },
+  server: { host: '127.0.0.1', port: 8080, strictPort: true },
+  preview: { host: '127.0.0.1', port: 8080, strictPort: true },
 });

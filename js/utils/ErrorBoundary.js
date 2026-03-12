@@ -64,6 +64,41 @@ class ErrorBoundary {
     }
 
     /**
+     * 에러 메시지를 안전하게 DOM에 표시 (XSS 방지: textContent 사용)
+     * @param {HTMLElement} container - 에러를 표시할 컨테이너
+     * @param {string} message - 에러 메시지
+     * @param {(() => void)|null} [retryFn=null] - 재시도 콜백
+     */
+    static showError(container, message, retryFn = null) {
+        container.textContent = '';
+        const msgEl = document.createElement('div');
+        msgEl.className = 'error-message';
+        msgEl.textContent = message;
+        container.appendChild(msgEl);
+
+        if (retryFn) {
+            const btn = document.createElement('button');
+            btn.className = 'error-retry-btn';
+            btn.textContent = '다시 시도';
+            btn.addEventListener('click', retryFn);
+            container.appendChild(btn);
+        }
+    }
+
+    /**
+     * 로딩 메시지를 안전하게 DOM에 표시 (XSS 방지: textContent 사용)
+     * @param {HTMLElement} container - 로딩을 표시할 컨테이너
+     * @param {string} message - 로딩 메시지
+     */
+    static showLoading(container, message) {
+        container.textContent = '';
+        const msgEl = document.createElement('div');
+        msgEl.className = 'loading-message';
+        msgEl.textContent = message;
+        container.appendChild(msgEl);
+    }
+
+    /**
      * 지정된 시간만큼 대기
      * @param {number} ms - 대기 시간 (밀리초)
      * @returns {Promise<void>} 대기 완료 Promise

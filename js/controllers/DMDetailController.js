@@ -365,7 +365,7 @@ export class DMDetailController {
                 return;
             }
 
-            const message = result.data?.data;
+            const message = result.data?.data?.message;
             if (message) {
                 const messagesEl = document.getElementById('dm-messages');
                 DMDetailView.appendMessage(message, _currentUserId, messagesEl);
