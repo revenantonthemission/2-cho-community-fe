@@ -265,10 +265,12 @@ export const HTML_PATHS = {
 
 /** @type {Record<number, string>} */
 export const CATEGORY_LABELS = {
-    1: '자유게시판',
-    2: '질문답변',
-    3: '정보공유',
-    4: '공지사항',
+    1: '배포판',
+    2: 'Q&A',
+    3: '뉴스/소식',
+    4: '프로젝트/쇼케이스',
+    5: '팁/가이드',
+    6: '공지사항',
 };
 
 // 공지사항 카테고리 slug (관리자만 선택 가능)

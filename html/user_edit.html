@@ -5,7 +5,7 @@
     <script>(function(){var t=localStorage.getItem("theme");if(!t){t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t)})()</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>아무 말 대잔치 - 회원정보수정</title>
+    <title>Camp Linux - 회원정보수정</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/pages/write.css">
     <link rel="stylesheet" href="/css/pages/profile.css">
@@ -25,7 +25,7 @@
                         stroke-linejoin="round" />
                 </svg>
             </button>
-            <a href="/main" class="header-home-link"><h2>아무 말 대잔치</h2></a>
+            <a href="/main" class="header-home-link"><h2>Camp Linux</h2></a>
             <!-- 헤더의 인증 관련 로직은 HeaderController에서 처리 -->
             <div id="auth-section" class="header-auth"></div>
         </div>
@@ -57,6 +57,13 @@
                 <input type="text" id="nickname-input" class="profile-input" placeholder="닉네임을 입력하세요" maxlength="10">
                 <p id="validation-helper" class="validation-helper visible">*닉네임을
                     입력해주세요.</p>
+            </div>
+
+            <div class="profile-form-group">
+                <label class="profile-label" for="distro-select">배포판</label>
+                <select id="distro-select" class="profile-input">
+                    <option value="">선택 안 함</option>
+                </select>
             </div>
 
             <div class="submit-section">
