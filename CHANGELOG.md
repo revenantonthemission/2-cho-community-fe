@@ -2,6 +2,12 @@
 
 ## 2026-03 (Mar)
 
+- **03-16: 소셜 로그인 (GitHub OAuth)**
+  - 로그인/회원가입 페이지에 GitHub 소셜 로그인 버튼 추가
+  - OAuth 콜백 처리: `access_token` 저장 + 에러 토스트
+  - 소셜 가입 닉네임 설정 페이지 (`/social-signup`, `social_signup.html`)
+  - GitHub 로그인 시 리다이렉트 응답의 쿠키 처리 버그 수정
+
 - **03-16: 임시저장 서버 동기화**
   - `DraftService`에 `loadFromServer/saveToServer/clearFromServer` 추가
   - 서버 우선 복원 → localStorage 폴백, 발행 시 이중 삭제
