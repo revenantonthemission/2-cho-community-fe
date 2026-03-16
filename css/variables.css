@@ -6,16 +6,16 @@
   /* Colors                        */
   /* ============================= */
 
-  /* Primary */
-  --color-primary: #ACA0EB;
-  --color-primary-hover: #7F6AEE;
-  --color-primary-accent: #7C4DFF;
+  /* Primary: 보라 → 차콜 */
+  --color-primary: #3A3A3A;
+  --color-primary-hover: #2A2A2A;
+  --color-primary-accent: #E8912D;
 
   /* Semantic */
   --color-error: #FF3333;
   --color-error-dark: #E53935;
   --color-warning: #FF6D00;
-  --color-success: #2E7D32;
+  --color-success: #27AE60;
   --color-info: #4A90D9;
   --color-info-hover: #357ABD;
   --color-bookmark: #F5A623;
@@ -27,11 +27,11 @@
   --color-text-placeholder: #999;
   --color-text-white: #fff;
 
-  /* Background */
-  --color-bg-primary: #fff;
-  --color-bg-secondary: #f4f5f7;
-  --color-bg-tertiary: #f5f5f5;
-  --color-bg-input: #f9f9f9;
+  /* Background: 따뜻한 화이트 */
+  --color-bg-primary: #FAFAF7;
+  --color-bg-secondary: #F0EDE8;
+  --color-bg-tertiary: #F5F3EE;
+  --color-bg-input: #F7F6F2;
 
   /* Border */
   --color-border: #ddd;
@@ -49,14 +49,14 @@
   --color-badge-resolved-text: #2E7D32;
   --color-badge-dismissed-bg: #ECEFF1;
   --color-badge-dismissed-text: #546E7A;
-  --color-badge-category-bg: #EDE7F6;
-  --color-badge-category-text: #5E35B1;
+  --color-badge-category-bg: #FFF3E0;
+  --color-badge-category-text: #E65100;
 
   /* Notification */
   --color-notification-unread: #f0f7ff;
   --color-notification-unread-hover: #e3f0ff;
   --color-notification-badge: #ff4444;
-  --color-reply-indicator-bg: #f3e5f5;
+  --color-reply-indicator-bg: #FFF3E0;
 
   /* Gray Scale */
   --color-gray-900: #000;
@@ -81,12 +81,12 @@
   --color-warning-bg-light: #FFE0B2;
   --color-warning-dark: #FF6D00;
 
-  /* Primary extended */
-  --color-primary-muted: #9286d8;
-  --color-primary-lightest: #dccaff;
-  --color-primary-subtle: #e0ddf5;
-  --color-primary-deep: #651FFF;
-  --color-primary-bg: #f8f7ff;
+  /* Primary extended: 오렌지 계열 */
+  --color-primary-muted: #6B6B6B;
+  --color-primary-lightest: #F5D6B0;
+  --color-primary-subtle: #F0EBE3;
+  --color-primary-deep: #D47A1A;
+  --color-primary-bg: #FBF8F4;
 
   /* Toast */
   --color-toast-bg: #333;
@@ -178,7 +178,7 @@
   --input-bg: var(--surface-input);
   --input-border: var(--border-strong);
   --input-focus-border: var(--color-primary);
-  --input-focus-ring: 0 0 0 3px rgba(124, 77, 255, 0.12);
+  --input-focus-ring: 0 0 0 3px rgba(232, 145, 45, 0.12);
   --input-radius: var(--radius-md);
 
   /* Header */
@@ -254,8 +254,8 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
-  --shadow-primary: 0 4px 12px rgba(124, 77, 255, 0.2);
-  --shadow-primary-active: 0 2px 4px rgba(124, 77, 255, 0.15);
+  --shadow-primary: 0 4px 12px rgba(232, 145, 45, 0.2);
+  --shadow-primary-active: 0 2px 4px rgba(232, 145, 45, 0.15);
 
   /* ============================= */
   /* Z-Index                       */
@@ -276,14 +276,14 @@
 /* Dark Theme                       */
 /* ================================ */
 [data-theme="dark"] {
-  /* Primary */
-  --color-primary: #B8A9F0;
-  --color-primary-hover: #9B8AE0;
-  --color-primary-accent: #A78BFA;
-  --color-primary-muted: #8A7CC8;
-  --color-primary-lightest: #3D3566;
-  --color-primary-subtle: #2D2750;
-  --color-primary-deep: #B388FF;
+  /* Primary: 보라 → 오렌지/골드 */
+  --color-primary: #F0A500;
+  --color-primary-hover: #D4920A;
+  --color-primary-accent: #F5B041;
+  --color-primary-muted: #C48A00;
+  --color-primary-lightest: #3D3010;
+  --color-primary-subtle: #2D2510;
+  --color-primary-deep: #FFD54F;
 
   /* Semantic */
   --color-error: #FF6B6B;
@@ -295,22 +295,22 @@
   --color-bookmark: #FFD54F;
 
   /* Text */
-  --color-text-primary: #E0E0E0;
-  --color-text-secondary: #B0B0B0;
+  --color-text-primary: #C9D1D9;
+  --color-text-secondary: #8B949E;
   --color-text-tertiary: #808080;
   --color-text-placeholder: #888;
   --color-text-white: #fff;
 
-  /* Background */
-  --color-bg-primary: #1a1a2e;
-  --color-bg-secondary: #16213e;
-  --color-bg-tertiary: #1e1e3a;
-  --color-bg-input: #222244;
+  /* Background: GitHub Dark 스타일 */
+  --color-bg-primary: #0D1117;
+  --color-bg-secondary: #161B22;
+  --color-bg-tertiary: #1C2128;
+  --color-bg-input: #21262D;
 
-  /* Border */
-  --color-border: #2a2a4a;
-  --color-border-light: #252545;
-  --color-border-dark: #3a3a5a;
+  /* Border: GitHub Dark 스타일 */
+  --color-border: #30363D;
+  --color-border-light: #21262D;
+  --color-border-dark: #484F58;
 
   /* Overlay */
   --color-overlay: rgba(0, 0, 0, 0.7);
@@ -323,25 +323,26 @@
   --color-badge-resolved-text: #81C784;
   --color-badge-dismissed-bg: #37474F;
   --color-badge-dismissed-text: #90A4AE;
-  --color-badge-category-bg: #311B92;
-  --color-badge-category-text: #B39DDB;
+  --color-badge-category-bg: #3E2E1A;
+  --color-badge-category-text: #FFB74D;
 
   /* Notification */
-  --color-notification-unread: #1a2744;
-  --color-notification-unread-hover: #1e3050;
+  --color-notification-unread: #1A2010;
+  --color-notification-unread-hover: #1E2A15;
   --color-notification-badge: #ff4444;
-  --color-reply-indicator-bg: #2D1B4E;
+  --color-reply-indicator-bg: #2D2010;
 
   /* Gray Scale (반전) */
   --color-gray-900: #E0E0E0;
   --color-gray-700: #B0B0B0;
   --color-gray-600: #909090;
   --color-gray-500: #707070;
-  --color-gray-300: #444;
-  --color-gray-200: #333;
-  --color-gray-100: #2a2a2a;
-  --color-gray-50: #222;
-  --color-gray-25: #1a1a1a;
+  /* Gray scale: GitHub Dark 맞춤 */
+  --color-gray-300: #484F58;
+  --color-gray-200: #30363D;
+  --color-gray-100: #21262D;
+  --color-gray-50: #161B22;
+  --color-gray-25: #0D1117;
 
   /* Danger */
   --color-danger: #FF6B6B;
@@ -355,12 +356,12 @@
   --color-warning-bg-light: #4E3822;
   --color-warning-dark: #FFB74D;
 
-  /* Primary extended (dark) */
-  --color-primary-bg: #252040;
+  /* Primary BG */
+  --color-primary-bg: #1A1710;
 
   /* Toast (dark) */
-  --color-toast-bg: #E0E0E0;
-  --color-toast-text: #1a1a2e;
+  --color-toast-bg: #C9D1D9;
+  --color-toast-text: #0D1117;
 
   /* Code Highlighting (dark) */
   --color-code-bg: #161b22;
@@ -374,7 +375,7 @@
   --color-code-type: #7ee787;
   --color-code-operator: #ff7b72;
   --color-code-inline-bg: rgba(110, 118, 129, 0.4);
-  --color-blockquote-border: #3a3a5a;
+  --color-blockquote-border: #30363D;
   --color-blockquote-text: #8b949e;
   --color-table-border: #30363d;
   --color-table-row-alt: #161b22;
@@ -399,8 +400,9 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.5);
-  --shadow-primary: 0 4px 12px rgba(184, 169, 240, 0.2);
-  --shadow-primary-active: 0 2px 4px rgba(184, 169, 240, 0.15);
+  /* Shadow: 오렌지 계열 */
+  --shadow-primary: 0 4px 12px rgba(240, 165, 0, 0.2);
+  --shadow-primary-active: 0 2px 4px rgba(240, 165, 0, 0.15);
 
   /* Semantic Tokens (dark) */
   --surface-primary: var(--color-bg-primary);
