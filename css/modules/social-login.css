@@ -44,13 +44,8 @@
     opacity: 0.9;
 }
 
-.social-login-btn--kakao {
-    background-color: #FEE500;
-    color: #191919;
-}
-
-.social-login-btn--naver {
-    background-color: #03C75A;
+.social-login-btn--github {
+    background-color: #24292e;
     color: #FFFFFF;
 }
 
