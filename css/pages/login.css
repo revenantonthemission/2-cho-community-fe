@@ -66,19 +66,20 @@ body:has(.login-page) {
     font-style: italic;
 }
 
-/* 터미널 윈도우 */
+/* 터미널 윈도우 — CSS 변수로 다크 모드 대응 */
 .login-brand__terminal {
-    background: #1E2430;
+    background: var(--color-code-bg);
     border-radius: var(--radius-md);
     overflow: hidden;
     box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-border);
 }
 
 .login-brand__terminal-bar {
     display: flex;
     gap: 6px;
     padding: var(--spacing-sm) var(--spacing-md);
-    background: #161B25;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .terminal-dot {
@@ -96,7 +97,7 @@ body:has(.login-page) {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-caption);
     line-height: 1.8;
-    color: #D4D8E4;
+    color: var(--color-code-text);
 }
 
 .login-brand__terminal-body p {
@@ -104,18 +105,18 @@ body:has(.login-page) {
 }
 
 .terminal-prompt {
-    color: #34D399;
+    color: var(--color-primary);
     font-weight: var(--font-weight-bold);
     margin-right: var(--spacing-sm);
 }
 
 .terminal-output {
-    color: #8B91A5;
+    color: var(--color-text-tertiary);
     padding-left: var(--spacing-xl);
 }
 
 .terminal-typing {
-    color: #34D399;
+    color: var(--color-primary);
     animation: blink 1s step-end infinite;
 }
 

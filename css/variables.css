@@ -1,9 +1,7 @@
 /* css/variables.css */
 /* 디자인 토큰 — Terminal Editorial 디자인 시스템 */
 /* 에디토리얼 타이포그래피 + 터미널 감성의 융합 */
-
-/* Google Fonts: 세리프 디스플레이 + 모노스페이스 */
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+/* Google Fonts는 각 HTML 파일의 <link> 태그에서 로드 (렌더 블로킹 방지) */
 
 :root {
   /* ============================= */
@@ -219,10 +217,10 @@
   /* Typography                    */
   /* ============================= */
 
-  /* 폰트 패밀리 3종: 본문 / 디스플레이(세리프) / 모노 */
-  --font-family: 'Pretendard', 'Noto Sans KR', -apple-system, sans-serif;
-  --font-family-display: 'Newsreader', 'Gowun Batang', 'Noto Serif KR', Georgia, serif;
-  --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  /* 폰트 패밀리 3종: 본문 / 디스플레이(세리프) / 모노 — IBM Plex 통일 */
+  --font-family: 'IBM Plex Sans KR', 'Pretendard', -apple-system, sans-serif;
+  --font-family-display: 'IBM Plex Serif', 'IBM Plex Sans KR', Georgia, serif;
+  --font-family-mono: 'IBM Plex Mono', 'Consolas', monospace;
 
   --font-size-xs: 11px;
   --font-size-sm: 12px;

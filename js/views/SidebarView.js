@@ -16,16 +16,16 @@ class SidebarView {
      * @param {object} options
      * @param {object|null} options.user - 현재 사용자 정보
      * @param {boolean} options.isAdmin - 관리자 여부
-     * @param {Function} options.onCategorySelect - 카테고리 선택 콜백
      * @returns {HTMLElement}
      */
-    static create({ user, isAdmin, onCategorySelect }) {
+    static create({ user, isAdmin }) {
         const currentPath = location.pathname;
 
         const sidebar = createElement('nav', { className: 'sidebar', id: 'app-sidebar' }, [
             // 모바일 닫기 버튼
             createElement('button', {
                 className: 'sidebar__close',
+                'aria-label': '메뉴 닫기',
                 onClick: () => SidebarView.close(),
             }, ['✕']),
 
@@ -39,7 +39,7 @@ class SidebarView {
             // ── categories ──
             SidebarView._createSection('categories',
                 Object.entries(CATEGORY_LABELS).map(([id, label]) =>
-                    SidebarView._createCategoryItem(label, Number(id), onCategorySelect)
+                    SidebarView._createCategoryItem(label, Number(id))
                 )
             ),
 
@@ -105,31 +105,20 @@ class SidebarView {
     }
 
     /**
-     * 카테고리 아이템 생성
+     * 카테고리 아이템 생성 — 항상 URL 네비게이션 (MPA 구조)
      * @private
      */
-    static _createCategoryItem(label, categoryId, onSelect) {
+    static _createCategoryItem(label, categoryId) {
         const params = new URLSearchParams(location.search);
         const currentCat = params.get('category');
         const isActive = currentCat === String(categoryId);
 
-        const li = createElement('li', { className: 'sidebar__item' }, [
+        return createElement('li', { className: 'sidebar__item' }, [
             createElement('a', {
                 className: `sidebar__link sidebar__link--category${isActive ? ' active' : ''}`,
                 href: resolveNavPath(`${NAV_PATHS.MAIN}?category=${categoryId}`),
-                onClick: (e) => {
-                    if (onSelect && location.pathname === '/main') {
-                        e.preventDefault();
-                        onSelect(categoryId);
-                        // 활성 상태 업데이트
-                        document.querySelectorAll('.sidebar__link--category').forEach(el => el.classList.remove('active'));
-                        e.currentTarget.classList.add('active');
-                    }
-                },
             }, [label]),
         ]);
-
-        return li;
     }
 
     /**
@@ -163,6 +152,7 @@ class SidebarView {
         const btn = createElement('button', {
             className: 'sidebar-toggle',
             id: 'sidebar-toggle',
+            'aria-label': '메뉴 열기',
             onClick: () => SidebarView.toggle(),
         }, [
             createElement('span', { className: 'sidebar-toggle__line' }),

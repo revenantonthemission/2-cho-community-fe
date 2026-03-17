@@ -12,13 +12,12 @@ html {
 /* 모바일 (480px 이하)            */
 /* ============================= */
 @media (max-width: 480px) {
-    /* --- 헤더 축소 --- */
-    header {
-        height: 56px;
+    /* --- 헤더 축소 — 변수 오버라이드로 사이드바 top과 동기화 --- */
+    :root {
+        --header-height: 56px;
     }
 
     .main-container {
-        margin-top: 56px;
         padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-4xl);
     }
 
@@ -236,8 +235,8 @@ html {
 
     /* --- DM --- */
     .dm-detail-container {
-        height: calc(100vh - 56px);
-        height: calc(100dvh - 56px);
+        height: calc(100vh - var(--header-height));
+        height: calc(100dvh - var(--header-height));
     }
 
     .dm-msg {
@@ -479,12 +478,9 @@ html {
 /* 가로 모드 (landscape)          */
 /* ============================= */
 @media (max-height: 500px) and (orientation: landscape) {
-    header {
-        height: 48px;
-    }
-
-    .main-container {
-        margin-top: 48px;
+    :root {
+        --header-height: 48px;
+        --sidebar-width: 160px;
     }
 
     .header-home-link h2 {
@@ -492,22 +488,8 @@ html {
     }
 
     .dm-detail-container {
-        height: calc(100vh - 48px);
-        height: calc(100dvh - 48px);
-    }
-
-    /* landscape에서 사이드바 축소 */
-    .sidebar {
-        width: 160px;
-    }
-
-    body.has-sidebar {
-        padding-left: 160px;
-    }
-
-    body.has-sidebar header {
-        left: 160px;
-        width: calc(100% - 160px);
+        height: calc(100vh - var(--header-height));
+        height: calc(100dvh - var(--header-height));
     }
 }
 

@@ -172,7 +172,6 @@ class HeaderController {
         const sidebar = SidebarView.create({
             user: this.currentUser,
             isAdmin: this.currentUser?.role === 'admin',
-            onCategorySelect: null,
         });
         SidebarView.inject(sidebar);
     }
