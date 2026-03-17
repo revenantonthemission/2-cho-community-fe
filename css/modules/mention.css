@@ -29,7 +29,7 @@
 
 .mention-dropdown-item:hover,
 .mention-dropdown-item.selected {
-    background-color: var(--color-bg-hover);
+    background-color: var(--color-primary-subtle);
 }
 
 .mention-dropdown-avatar {

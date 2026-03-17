@@ -1,5 +1,5 @@
 /* css/pages/packages.css */
-/* 패키지 목록/상세/등록 페이지 전용 스타일 */
+/* 패키지 목록/상세/등록 — Terminal Editorial */
 
 /* ============================= */
 /* 패키지 목록 (Package List)     */
@@ -16,51 +16,65 @@
 .package-card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
+    border-top: 2px solid var(--card-accent);
     border-radius: var(--card-radius);
     padding: var(--card-padding);
     cursor: pointer;
-    transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+    transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
     box-shadow: var(--card-shadow);
 }
 
 .package-card:hover {
     box-shadow: var(--card-shadow-hover);
+    border-top-color: var(--color-primary-accent);
 }
 
+/* 뱃지 — tags.css 공통 기반 상속 */
 .package-card-badges {
     display: flex;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
     margin-bottom: var(--spacing-sm);
     flex-wrap: wrap;
 }
 
 .package-category-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     padding: var(--spacing-2xs) var(--spacing-sm);
     border-radius: var(--badge-radius);
+    font-family: var(--font-family-mono);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--tracking-wide);
     background: var(--color-badge-category-bg);
     color: var(--color-badge-category-text);
+    line-height: 1.4;
 }
 
 .package-manager-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     padding: var(--spacing-2xs) var(--spacing-sm);
     border-radius: var(--badge-radius);
+    font-family: var(--font-family-mono);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
-    background: var(--color-bg-tertiary);
+    letter-spacing: var(--tracking-wide);
+    background: transparent;
     color: var(--text-caption);
     border: 1px solid var(--border-subtle);
+    line-height: 1.4;
 }
 
+/* 제목 — 세리프 디스플레이 */
 .package-card-title {
+    font-family: var(--font-family-display);
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-bold);
     color: var(--text-heading);
     margin: 0 0 var(--spacing-sm);
     line-height: var(--line-height-tight);
+    letter-spacing: var(--tracking-tight);
 }
 
 .package-card-desc {
@@ -70,16 +84,21 @@
     line-height: var(--line-height-relaxed);
 }
 
+/* 카드 푸터 — 모노 메타데이터 */
 .package-card-footer {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    letter-spacing: var(--tracking-wide);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--card-divider);
 }
 
 .package-rating {
     color: var(--color-primary-accent);
-    letter-spacing: 1px;
+    letter-spacing: 2px;
 }
 
 .package-rating-large {
@@ -95,30 +114,7 @@
     color: var(--text-caption);
 }
 
-/* ============================= */
-/* 카테고리 필터 (Category Filter) */
-/* ============================= */
-.category-filter-btn {
-    display: inline-block;
-    padding: var(--spacing-xs) var(--spacing-md);
-    border-radius: var(--badge-radius);
-    border: 1px solid var(--border-default);
-    background: transparent;
-    color: var(--text-body);
-    font-size: var(--font-size-sm);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.category-filter-btn.active {
-    background: var(--color-primary);
-    color: var(--text-on-primary);
-    border-color: var(--color-primary);
-}
-
-.category-filter-btn:hover:not(.active) {
-    background: var(--surface-hover);
-}
+/* category-filter-btn 스타일은 search.css 필터 공통 규칙에서 처리 */
 
 /* ============================= */
 /* 패키지 상세 (Package Detail)   */
@@ -132,17 +128,20 @@
 }
 
 .package-detail-title {
+    font-family: var(--font-family-display);
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
     color: var(--text-heading);
     margin: 0 0 var(--spacing-sm);
+    letter-spacing: var(--tracking-tight);
 }
 
 .package-detail-name {
-    font-size: var(--font-size-base);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
     color: var(--text-caption);
     margin: 0 0 var(--spacing-md);
-    font-family: monospace;
+    letter-spacing: var(--tracking-wide);
 }
 
 .package-meta {
@@ -165,13 +164,19 @@
 }
 
 .package-homepage-label {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
     color: var(--text-caption);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
 }
 
 .package-homepage-link {
-    color: var(--color-info);
+    color: var(--color-primary);
     text-decoration: none;
     word-break: break-all;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
 }
 
 .package-homepage-link:hover {
@@ -183,6 +188,9 @@
     align-items: center;
     gap: var(--spacing-sm);
     margin-bottom: var(--spacing-md);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    letter-spacing: var(--tracking-wide);
 }
 
 .package-creator {
@@ -203,10 +211,12 @@
 }
 
 .reviews-section-title {
+    font-family: var(--font-family-display);
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-bold);
     color: var(--text-heading);
     margin: 0 0 var(--spacing-lg);
+    letter-spacing: var(--tracking-tight);
 }
 
 .reviews-list {
@@ -217,9 +227,11 @@
 
 .reviews-empty {
     color: var(--text-caption);
-    font-size: var(--font-size-base);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-caption);
     text-align: center;
     padding: var(--spacing-3xl) 0;
+    letter-spacing: var(--tracking-wide);
 }
 
 .review-card {
@@ -240,13 +252,15 @@
 .review-author {
     font-weight: var(--font-weight-semibold);
     color: var(--text-heading);
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-caption);
 }
 
 .review-date {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
     color: var(--text-caption);
-    font-size: var(--font-size-sm);
     margin-left: auto;
+    letter-spacing: var(--tracking-wide);
 }
 
 .review-actions {
@@ -258,10 +272,11 @@
     color: var(--color-primary-accent);
     font-size: var(--font-size-md);
     margin-bottom: var(--spacing-sm);
-    letter-spacing: 1px;
+    letter-spacing: 2px;
 }
 
 .review-title {
+    font-family: var(--font-family-display);
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-semibold);
     color: var(--text-heading);
@@ -283,6 +298,7 @@
 }
 
 .review-form-title {
+    font-family: var(--font-family-display);
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-bold);
     color: var(--text-heading);
@@ -296,9 +312,12 @@
 }
 
 .form-label {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-heading);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
 }
 
 .rating-selector {
@@ -323,7 +342,11 @@
     color: var(--color-primary-accent);
 }
 
-.review-title-input {
+.review-title-input,
+.review-content-input,
+.form-input,
+.form-textarea,
+.form-select {
     width: 100%;
     padding: var(--spacing-sm) var(--spacing-md);
     border: 1px solid var(--input-border);
@@ -332,29 +355,25 @@
     color: var(--text-heading);
     font-size: 16px; /* iOS 줌 방지 */
     box-sizing: border-box;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.review-title-input:focus {
-    outline: none;
-    border-color: var(--input-focus-border);
-    box-shadow: var(--input-focus-ring);
-}
-
-.review-content-input {
-    width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border: 1px solid var(--input-border);
-    border-radius: var(--input-radius);
-    background: var(--input-bg);
-    color: var(--text-heading);
-    font-size: 16px; /* iOS 줌 방지 */
+.review-content-input,
+.form-textarea {
     resize: vertical;
     min-height: 100px;
-    box-sizing: border-box;
     font-family: inherit;
 }
 
-.review-content-input:focus {
+.form-select {
+    appearance: auto;
+}
+
+.review-title-input:focus,
+.review-content-input:focus,
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
     outline: none;
     border-color: var(--input-focus-border);
     box-shadow: var(--input-focus-ring);
@@ -366,34 +385,42 @@
 }
 
 .review-submit-btn {
-    padding: var(--btn-padding-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
     background: var(--color-primary);
     color: var(--text-on-primary);
     border: none;
     border-radius: var(--btn-radius);
-    font-size: var(--font-size-base);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
     cursor: pointer;
-    transition: background var(--transition-fast);
+    transition: all var(--transition-fast);
 }
 
 .review-submit-btn:hover {
     background: var(--color-primary-hover);
+    box-shadow: var(--shadow-primary);
 }
 
 .review-cancel-btn {
-    padding: var(--btn-padding-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
     background: transparent;
     color: var(--text-body);
     border: 1px solid var(--border-default);
     border-radius: var(--btn-radius);
-    font-size: var(--font-size-base);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    letter-spacing: var(--tracking-wide);
     cursor: pointer;
-    transition: background var(--transition-fast);
+    transition: all var(--transition-fast);
 }
 
 .review-cancel-btn:hover {
-    background: var(--surface-hover);
+    background: var(--color-primary-subtle);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
 }
 
 /* ============================= */
@@ -411,61 +438,6 @@
     gap: var(--spacing-xs);
 }
 
-.form-input {
-    width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border: 1px solid var(--input-border);
-    border-radius: var(--input-radius);
-    background: var(--input-bg);
-    color: var(--text-heading);
-    font-size: 16px; /* iOS 줌 방지 */
-    box-sizing: border-box;
-}
-
-.form-input:focus {
-    outline: none;
-    border-color: var(--input-focus-border);
-    box-shadow: var(--input-focus-ring);
-}
-
-.form-textarea {
-    width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border: 1px solid var(--input-border);
-    border-radius: var(--input-radius);
-    background: var(--input-bg);
-    color: var(--text-heading);
-    font-size: 16px; /* iOS 줌 방지 */
-    resize: vertical;
-    min-height: 100px;
-    box-sizing: border-box;
-    font-family: inherit;
-}
-
-.form-textarea:focus {
-    outline: none;
-    border-color: var(--input-focus-border);
-    box-shadow: var(--input-focus-ring);
-}
-
-.form-select {
-    width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border: 1px solid var(--input-border);
-    border-radius: var(--input-radius);
-    background: var(--input-bg);
-    color: var(--text-heading);
-    font-size: 16px; /* iOS 줌 방지 */
-    box-sizing: border-box;
-    appearance: auto;
-}
-
-.form-select:focus {
-    outline: none;
-    border-color: var(--input-focus-border);
-    box-shadow: var(--input-focus-ring);
-}
-
 /* ============================= */
 /* 빈 상태 (Empty State)         */
 /* ============================= */
@@ -473,5 +445,7 @@
     text-align: center;
     padding: var(--spacing-4xl) 0;
     color: var(--text-caption);
-    font-size: var(--font-size-base);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-caption);
+    letter-spacing: var(--tracking-wide);
 }

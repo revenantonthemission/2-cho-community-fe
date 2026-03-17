@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+KR:wght@100..900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100..700;1,100..700&family=IBM+Plex+Sans+KR:wght@100..700&family=IBM+Plex+Mono:ital,wght@0,100..700;1,100..700&display=swap"
         rel="stylesheet">
 </head>
 
@@ -24,19 +24,21 @@
     </header>
 
     <main class="main-container">
-        <section class="welcome-section">
-            <h3>위키</h3>
-            <div class="action-wrapper">
-                <a href="/main" class="nav-link-btn">게시판</a>
-                <a href="/packages" class="nav-link-btn">패키지</a>
-                <button id="write-btn" class="write-btn">페이지 작성</button>
+        <section class="welcome-hero">
+            <div class="welcome-hero__text">
+                <h3 class="welcome-hero__heading">위키</h3>
+                <p class="welcome-hero__sub">커뮤니티 지식 베이스 · FAQ · 가이드</p>
             </div>
+            <nav class="welcome-hero__nav">
+                <button id="write-btn" class="write-btn">페이지 작성</button>
+            </nav>
         </section>
 
         <section class="search-sort-section">
             <div class="search-bar">
-                <input type="text" id="search-input" placeholder="위키 검색..." maxlength="100" autocomplete="off">
-                <button id="search-btn" class="search-btn">검색</button>
+                <span class="search-bar__prompt">$</span>
+                <input type="text" id="search-input" placeholder="search wiki..." maxlength="100" autocomplete="off">
+                <button id="search-btn" class="search-btn">실행</button>
             </div>
             <div class="sort-buttons" id="sort-buttons">
                 <button class="sort-btn active" data-sort="latest">최신순</button>

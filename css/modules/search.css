@@ -1,69 +1,31 @@
-/* 카테고리 탭 */
-.category-tabs {
+/* css/modules/search.css */
+/* 검색·필터·정렬 — Terminal Editorial */
+
+/* ============================= */
+/* 필터 컨테이너 — 통일 간격       */
+/* ============================= */
+.category-tabs,
+.sort-buttons,
+.feed-filters {
     display: flex;
     gap: var(--spacing-sm);
-    padding: var(--spacing-xs) var(--spacing-lg) var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.category-tabs {
+    padding: var(--spacing-xs) 0 var(--spacing-lg);
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    flex-wrap: nowrap;
 }
 
 .category-tabs::-webkit-scrollbar {
     display: none;
 }
 
-.category-tab {
-    padding: var(--spacing-sm) var(--spacing-lg);
-    background: var(--color-bg-tertiary);
-    border: 1px solid var(--color-gray-200);
-    border-radius: var(--radius-pill);
-    font-size: var(--font-size-caption);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    color: var(--color-text-secondary);
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-.category-tab:hover {
-    background: var(--color-badge-category-bg);
-    border-color: var(--color-primary-accent);
-}
-
-.category-tab.active {
-    background: var(--color-primary-accent);
-    color: var(--color-text-white);
-    border-color: var(--color-primary-accent);
-}
-
-/* 피드 필터 (팔로잉 + 정렬) */
 .feed-filters {
-    display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
-}
-
-.feed-filter-btn {
-    padding: var(--spacing-sm) var(--spacing-lg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-pill);
-    background: var(--color-bg-tertiary);
-    color: var(--color-text-secondary);
-    cursor: pointer;
-    font-size: var(--font-size-caption);
-    transition: all var(--transition-fast);
-    white-space: nowrap;
-}
-
-.feed-filter-btn:hover {
-    background: var(--color-badge-category-bg);
-    border-color: var(--color-primary-accent);
-}
-
-.feed-filter-btn.active {
-    background: var(--color-primary-accent);
-    color: var(--color-text-white);
-    border-color: var(--color-primary-accent);
 }
 
 .filter-divider {
@@ -73,25 +35,102 @@
     flex-shrink: 0;
 }
 
-/* 검색 + 정렬 섹션 */
-.search-sort-section {
-    padding: 0 var(--spacing-lg) var(--spacing-lg);
+/* ============================= */
+/* 필터 버튼 공통 — 모든 종류 통일 */
+/* ============================= */
+.category-tab,
+.feed-filter-btn,
+.sort-btn,
+.category-filter-btn {
+    padding: 6px var(--spacing-md);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--btn-radius);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    letter-spacing: var(--tracking-wide);
+    line-height: 1.4;
+    flex-shrink: 0;
 }
 
+.category-tab:hover:not(.active),
+.feed-filter-btn:hover:not(.active),
+.sort-btn:hover:not(.active),
+.category-filter-btn:hover:not(.active) {
+    background: var(--color-primary-subtle);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.category-tab.active,
+.feed-filter-btn.active,
+.sort-btn.active,
+.category-filter-btn.active {
+    background: var(--color-primary);
+    color: var(--color-text-white);
+    border-color: var(--color-primary);
+}
+
+/* ============================= */
+/* 검색 + 정렬 섹션               */
+/* ============================= */
+.search-sort-section {
+    padding: 0 0 var(--spacing-lg);
+}
+
+/* 커맨드 바 스타일 검색 */
 .search-bar {
     position: relative;
     display: flex;
+    align-items: center;
     gap: var(--spacing-sm);
     margin-bottom: var(--spacing-md);
 }
 
-/* 검색 자동완성 드롭다운 */
+.search-bar__prompt {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 6px var(--spacing-lg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--btn-radius);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    background: var(--surface-elevated);
+    color: var(--color-text-primary);
+    outline: none;
+    transition: border-color var(--transition-fast);
+    letter-spacing: var(--tracking-wide);
+    line-height: 1.4;
+}
+
+.search-bar input:focus {
+    border-color: var(--color-primary);
+    box-shadow: var(--input-focus-ring);
+}
+
+/* search-btn은 buttons.css 공통 Primary 규칙에서 처리 */
+
+/* ============================= */
+/* 검색 자동완성 드롭다운          */
+/* ============================= */
 .search-suggestions {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
-    background: var(--color-bg-primary);
+    background: var(--surface-elevated);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-md);
@@ -113,7 +152,7 @@
 }
 
 .search-suggestion-item:hover {
-    background-color: var(--color-bg-hover);
+    background-color: var(--color-primary-subtle);
 }
 
 .suggestion-title {
@@ -128,63 +167,7 @@
 
 .suggestion-author {
     font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
     color: var(--color-text-tertiary);
     flex-shrink: 0;
-}
-
-.search-bar input {
-    flex: 1;
-    padding: var(--spacing-md) var(--spacing-lg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    font-size: var(--font-size-base);
-    outline: none;
-    transition: border-color var(--transition-fast);
-}
-
-.search-bar input:focus {
-    border-color: var(--color-primary-accent);
-}
-
-.search-btn {
-    padding: var(--btn-padding-md);
-    background: var(--color-primary-accent);
-    color: var(--color-text-white);
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: var(--font-size-base);
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.search-btn:hover {
-    background: var(--color-primary-deep);
-}
-
-.sort-buttons {
-    display: flex;
-    gap: var(--spacing-sm);
-    flex-wrap: wrap;
-}
-
-.sort-btn {
-    padding: var(--spacing-sm) var(--spacing-lg);
-    background: var(--color-bg-tertiary);
-    border: 1px solid var(--color-gray-200);
-    border-radius: var(--radius-pill);
-    font-size: var(--font-size-caption);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    color: var(--color-text-secondary);
-}
-
-.sort-btn:hover {
-    background: var(--color-badge-category-bg);
-    border-color: var(--color-primary-accent);
-}
-
-.sort-btn.active {
-    background: var(--color-primary-accent);
-    color: var(--color-text-white);
-    border-color: var(--color-primary-accent);
 }

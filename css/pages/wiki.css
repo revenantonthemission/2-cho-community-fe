@@ -1,5 +1,5 @@
 /* css/pages/wiki.css */
-/* 위키 목록/상세/작성 페이지 전용 스타일 */
+/* 위키 목록/상세/작성 — Terminal Editorial */
 
 /* ============================= */
 /* 위키 목록 (Wiki List)          */
@@ -16,45 +16,58 @@
 .wiki-card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
+    border-top: 2px solid var(--card-accent);
     border-radius: var(--card-radius);
     padding: var(--card-padding);
     cursor: pointer;
-    transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+    transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
     box-shadow: var(--card-shadow);
 }
 
 .wiki-card:hover {
     box-shadow: var(--card-shadow-hover);
+    border-top-color: var(--color-primary-accent);
 }
 
+/* 태그 뱃지 — tags.css 공통 패턴 */
 .wiki-card-tags {
     display: flex;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
     margin-bottom: var(--spacing-sm);
     flex-wrap: wrap;
 }
 
 .wiki-tag-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     padding: var(--spacing-2xs) var(--spacing-sm);
     border-radius: var(--badge-radius);
+    font-family: var(--font-family-mono);
     font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--tracking-wide);
     background: var(--color-badge-category-bg);
     color: var(--color-badge-category-text);
+    line-height: 1.4;
 }
 
+/* 제목 — 세리프 디스플레이 */
 .wiki-card-title {
+    font-family: var(--font-family-display);
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-bold);
     color: var(--text-heading);
     margin: 0 0 var(--spacing-sm);
     line-height: var(--line-height-tight);
+    letter-spacing: var(--tracking-tight);
 }
 
+/* 메타 — 모노스페이스 */
 .wiki-card-meta {
-    font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
     color: var(--text-caption);
+    letter-spacing: var(--tracking-wide);
 }
 
 /* ============================= */
@@ -65,10 +78,12 @@
 }
 
 .wiki-detail-title {
-    font-size: var(--font-size-xl);
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-bold);
     color: var(--text-heading);
     margin: 0 0 var(--spacing-md);
+    letter-spacing: var(--tracking-tight);
 }
 
 .wiki-detail-meta {
@@ -77,8 +92,10 @@
     gap: var(--spacing-sm);
     margin-bottom: var(--spacing-md);
     flex-wrap: wrap;
-    font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
     color: var(--text-caption);
+    letter-spacing: var(--tracking-wide);
 }
 
 .wiki-detail-author {
@@ -87,14 +104,16 @@
 }
 
 .wiki-detail-editor-info {
-    font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
     color: var(--text-caption);
     margin-bottom: var(--spacing-md);
+    letter-spacing: var(--tracking-wide);
 }
 
 .wiki-detail-tags {
     display: flex;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
     margin-bottom: var(--spacing-lg);
     flex-wrap: wrap;
 }
@@ -135,8 +154,10 @@
 }
 
 .slug-helper {
+    font-family: var(--font-family-mono);
     font-size: var(--font-size-xs);
     color: var(--text-caption);
+    letter-spacing: var(--tracking-wide);
 }
 
 /* ============================= */
@@ -146,5 +167,7 @@
     text-align: center;
     padding: var(--spacing-4xl) 0;
     color: var(--text-caption);
-    font-size: var(--font-size-base);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-caption);
+    letter-spacing: var(--tracking-wide);
 }

@@ -7,7 +7,10 @@
     gap: var(--spacing-md);
     margin: var(--spacing-xl) 0;
     color: var(--color-text-tertiary);
-    font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
 }
 
 .social-login-divider::before,
@@ -32,12 +35,14 @@
     width: 100%;
     padding: var(--spacing-md) var(--spacing-lg);
     border: none;
-    border-radius: var(--radius-md);
-    font-size: var(--font-size-base);
+    border-radius: var(--btn-radius);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-caption);
     font-weight: var(--font-weight-medium);
     cursor: pointer;
     text-decoration: none;
     transition: opacity var(--transition-fast);
+    letter-spacing: var(--tracking-wide);
 }
 
 .social-login-btn:hover {
