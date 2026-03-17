@@ -70,7 +70,7 @@ class WikiDetailController {
                 return;
             }
 
-            this.pageData = result.data?.data;
+            this.pageData = result.data?.data?.wiki_page;
 
             // 현재 사용자 확인
             const currentUserId = this.currentUser?.user_id || null;
