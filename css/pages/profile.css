@@ -37,10 +37,9 @@
 }
 
 .profile-img-overlay {
-    background-color: rgba(50, 50, 50, 0.8);
-    /* 더 어두운 배경 */
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: var(--radius-pill);
+    background-color: var(--color-overlay);
+    border: 1px solid var(--color-border-dark);
+    border-radius: var(--btn-radius);
     width: max-content;
     /* 전체 너비 늘어짐 방지 */
     height: auto;

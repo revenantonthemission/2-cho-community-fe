@@ -14,12 +14,12 @@ html {
 @media (max-width: 480px) {
     /* --- 헤더 축소 --- */
     header {
-        height: 60px;
+        height: 56px;
     }
 
     .main-container {
-        margin-top: 60px;
-        padding: 0 var(--spacing-lg);
+        margin-top: 56px;
+        padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-4xl);
     }
 
     .header-title-wrapper {
@@ -27,7 +27,7 @@ html {
     }
 
     .header-home-link h2 {
-        font-size: var(--font-size-xl);
+        font-size: var(--font-size-lg);
     }
 
     .header-auth {
@@ -37,6 +37,11 @@ html {
 
     .back-button {
         left: var(--spacing-sm);
+    }
+
+    /* 사이드바 토글이 있을 때 back-button 위치 조정 */
+    body.has-sidebar .back-button {
+        left: calc(var(--spacing-sm) + 36px);
     }
 
     /* --- 헤더 드롭다운 화면 밖 방지 --- */
@@ -157,6 +162,11 @@ html {
     /* --- 게시글 카드 --- */
     .post-card {
         padding: var(--spacing-lg);
+        gap: var(--spacing-md);
+    }
+
+    .post-card__meta-text {
+        gap: var(--spacing-xs);
     }
 
     .post-card-header {
@@ -167,6 +177,10 @@ html {
     .post-title {
         margin-right: 0;
         font-size: var(--font-size-md);
+    }
+
+    .post-card__footer {
+        padding-top: var(--spacing-xs);
     }
 
     /* --- 모달 --- */
@@ -194,11 +208,19 @@ html {
 
     /* --- 검색/정렬 --- */
     .search-bar {
-        flex-direction: column;
+        flex-wrap: wrap;
+    }
+
+    .search-bar__prompt {
+        display: none;
+    }
+
+    .search-bar input {
+        flex: 1 1 100%;
     }
 
     .search-btn {
-        width: 100%;
+        flex: 1;
     }
 
     /* --- 글쓰기 페이지 --- */
@@ -214,8 +236,8 @@ html {
 
     /* --- DM --- */
     .dm-detail-container {
-        height: calc(100vh - 60px);
-        height: calc(100dvh - 60px);
+        height: calc(100vh - 56px);
+        height: calc(100dvh - 56px);
     }
 
     .dm-msg {
@@ -223,6 +245,21 @@ html {
     }
 
     /* --- 환영 섹션 --- */
+    .welcome-hero {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+    }
+
+    .welcome-hero__heading {
+        font-size: var(--font-size-xl);
+    }
+
+    .welcome-hero__nav {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
     .welcome-section h3 {
         font-size: var(--font-size-lg);
     }
@@ -359,16 +396,8 @@ html {
 /* 태블릿 (481px ~ 768px)        */
 /* ============================= */
 @media (min-width: 481px) and (max-width: 768px) {
-    header {
-        height: 80px;
-    }
-
-    .main-container {
-        margin-top: 80px;
-    }
-
     .header-home-link h2 {
-        font-size: var(--font-size-2xl);
+        font-size: var(--font-size-xl);
     }
 
     /* 입력 필드 iOS 줌 방지 */
@@ -398,16 +427,15 @@ html {
     }
 
     .post-card:hover {
-        transform: none;
-        box-shadow: var(--shadow-sm);
+        box-shadow: var(--card-shadow);
     }
 
     .back-button:hover {
-        transform: translateY(-50%);
+        background-color: transparent;
     }
 
     .header-home-link:hover {
-        transform: translate(-50%, -50%);
+        opacity: 1;
     }
 
     /* active 효과 강화 (터치 피드백) */
@@ -419,8 +447,7 @@ html {
     }
 
     .post-card:active {
-        transform: scale(0.98);
-        box-shadow: var(--shadow-sm);
+        transform: scale(0.99);
     }
 
     .back-button:active {
@@ -428,13 +455,23 @@ html {
     }
 
     .header-home-link:active {
-        transform: translate(-50%, -50%) scale(0.95);
+        opacity: 0.7;
     }
 
     /* 헤더 드롭다운 터치 타겟 확대 */
     .header-dropdown li {
         padding: var(--spacing-md) var(--spacing-md);
         min-height: 44px;
+    }
+}
+
+/* ============================= */
+/* 와이드 데스크톱 (1200px 이상)   */
+/* ============================= */
+@media (min-width: 1200px) {
+    /* 사이드바가 있을 때 콘텐츠 max-width를 약간 넓힘 */
+    body.has-sidebar .main-container {
+        max-width: 760px;
     }
 }
 
@@ -457,6 +494,20 @@ html {
     .dm-detail-container {
         height: calc(100vh - 48px);
         height: calc(100dvh - 48px);
+    }
+
+    /* landscape에서 사이드바 축소 */
+    .sidebar {
+        width: 160px;
+    }
+
+    body.has-sidebar {
+        padding-left: 160px;
+    }
+
+    body.has-sidebar header {
+        left: 160px;
+        width: calc(100% - 160px);
     }
 }
 

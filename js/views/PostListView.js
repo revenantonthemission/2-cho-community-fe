@@ -1,5 +1,5 @@
 // js/views/PostListView.js
-// 게시글 목록 렌더링 관련 로직
+// 게시글 목록 렌더링 — Terminal Editorial 카드 구조
 
 import { formatDate, formatCount, truncateTitle, escapeCssUrl } from '../utils/formatters.js';
 import { getImageUrl } from './helpers.js';
@@ -14,45 +14,75 @@ import { createDistroBadge } from '../utils/distro.js';
 class PostListView {
     /**
      * 게시글 카드 요소 생성
+     * 구조: 작성자 메타 → 제목(+배지) → 통계+태그
      * @param {object} post - 게시글 데이터
      * @param {Function} onClick - 클릭 핸들러
      * @returns {HTMLElement} - 게시글 카드 요소
      */
     static createPostCard(post, onClick) {
-        // 제목 자르기
         const titleText = truncateTitle(post.title);
-        
-        // 날짜 포맷팅
         const dateStr = formatDate(new Date(post.created_at));
-
-        // 통계
         const likes = post.likes_count || 0;
         const comments = post.comments_count || 0;
         const views = post.views_count || 0;
-
-        // 작성자 프로필 이미지
         const profileImgUrl = getImageUrl(post.author?.profileImageUrl);
         const nickname = post.author?.nickname || '';
 
-        // 배지 요소들
+        // --- 1. 작성자 메타 바 (상단) ---
+        const metaChildren = [
+            createElement('div', {
+                className: 'post-card__avatar',
+                style: {
+                    backgroundImage: `url('${escapeCssUrl(profileImgUrl)}')`,
+                    backgroundSize: 'cover',
+                },
+            }),
+            createElement('div', { className: 'post-card__meta-text' }, [
+                (() => {
+                    const nameRow = createElement('span', {
+                        className: `post-card__author${post.author?.user_id ? ' clickable-nickname' : ''}`,
+                        ...(post.author?.user_id ? {
+                            onClick: (e) => {
+                                e.stopPropagation();
+                                location.href = resolveNavPath(NAV_PATHS.USER_PROFILE(post.author.user_id));
+                            },
+                        } : {}),
+                    }, [nickname]);
+                    return nameRow;
+                })(),
+                createElement('span', { className: 'post-card__date' }, [dateStr]),
+            ]),
+        ];
+        // 배포판 뱃지
+        const distroBadge = createDistroBadge(post.author?.distro, 'small');
+        if (distroBadge) {
+            metaChildren[1].appendChild(distroBadge);
+        }
+        const metaBar = createElement('div', { className: 'post-card__meta' }, metaChildren);
+
+        // --- 2. 콘텐츠 영역 (제목 + 배지) ---
+        const bodyChildren = [];
+
+        // 배지
         const badges = [];
         if (post.is_pinned) {
             badges.push(createElement('span', { className: 'pin-badge' }, ['고정']));
         }
         if (post.category_id && CATEGORY_LABELS[post.category_id]) {
             badges.push(createElement('span', { className: 'category-badge' }, [
-                post.category_name || CATEGORY_LABELS[post.category_id]
+                post.category_name || CATEGORY_LABELS[post.category_id],
             ]));
         }
+        if (badges.length > 0) {
+            bodyChildren.push(createElement('div', { className: 'post-badges' }, badges));
+        }
 
-        // DOM 생성 (createElement 사용)
-        const card = createElement('li', { className: `post-card${post.is_pinned ? ' pinned' : ''}${post.is_read ? ' read' : ''}` }, [
-            // Badges
-            ...(badges.length > 0 ? [
-                createElement('div', { className: 'post-badges' }, badges)
-            ] : []),
-            // Tags
-            ...(post.tags && post.tags.length > 0 ? [
+        // 제목
+        bodyChildren.push(createElement('h3', { className: 'post-title' }, [titleText]));
+
+        // 태그
+        if (post.tags && post.tags.length > 0) {
+            bodyChildren.push(
                 createElement('div', { className: 'post-tags' },
                     post.tags.map(tag =>
                         createElement('span', {
@@ -64,48 +94,24 @@ class PostListView {
                         }, [`#${tag.name}`])
                     )
                 )
-            ] : []),
-            // Header: Title & Date
-            createElement('div', { className: 'post-card-header' }, [
-                createElement('h3', { className: 'post-title' }, [titleText]),
-                createElement('span', { className: 'post-date' }, [dateStr])
-            ]),
-            
-            // Stats: Likes, Comments, Views
+            );
+        }
+
+        const body = createElement('div', { className: 'post-card__body' }, bodyChildren);
+
+        // --- 3. 하단 통계 바 ---
+        const footer = createElement('div', { className: 'post-card__footer' }, [
             createElement('div', { className: 'post-stats' }, [
-                createElement('span', {}, [`좋아요 ${formatCount(likes)}`]),
-                createElement('span', {}, [`댓글 ${formatCount(comments)}`]),
-                createElement('span', {}, [`조회수 ${formatCount(views)}`]),
+                createElement('span', {}, [`♥ ${formatCount(likes)}`]),
+                createElement('span', {}, [`◆ ${formatCount(comments)}`]),
+                createElement('span', {}, [`▸ ${formatCount(views)}`]),
             ]),
-            
-            // Divider
-            createElement('div', { className: 'post-divider' }),
-            
-            // Author: Profile Img & Nickname + 배포판 뱃지
-            (() => {
-                const authorChildren = [
-                    createElement('div', {
-                        className: 'author-profile-img',
-                        style: {
-                            backgroundImage: `url('${escapeCssUrl(profileImgUrl)}')`,
-                            backgroundSize: 'cover'
-                        }
-                    }),
-                    createElement('span', {
-                        className: `author-nickname${post.author?.user_id ? ' clickable-nickname' : ''}`,
-                        ...(post.author?.user_id ? {
-                            onClick: (e) => {
-                                e.stopPropagation();  // 카드 전체 클릭 방지
-                                location.href = resolveNavPath(NAV_PATHS.USER_PROFILE(post.author.user_id));
-                            },
-                        } : {}),
-                    }, [nickname]),
-                ];
-                const distroBadge = createDistroBadge(post.author?.distro, 'small');
-                if (distroBadge) authorChildren.push(distroBadge);
-                return createElement('div', { className: 'post-author' }, authorChildren);
-            })()
         ]);
+
+        // --- 카드 조립 ---
+        const card = createElement('li', {
+            className: `post-card${post.is_pinned ? ' pinned' : ''}${post.is_read ? ' read' : ''}`,
+        }, [metaBar, body, footer]);
 
         if (onClick) {
             card.addEventListener('click', () => onClick(post.post_id));
@@ -136,7 +142,6 @@ class PostListView {
      */
     static toggleLoadingSentinel(sentinel, show) {
         if (sentinel) {
-            // display: none 대신 visibility를 사용하여 IntersectionObserver가 계속 감지할 수 있도록 함
             sentinel.style.visibility = show ? 'visible' : 'hidden';
             sentinel.style.display = 'block';
             sentinel.innerText = show ? 'loading...' : '';
@@ -153,6 +158,7 @@ class PostListView {
             sentinel.innerText = message;
         }
     }
+
     /**
      * 빈 목록 메시지 표시
      * @param {HTMLElement} container - 목록 컨테이너
@@ -162,7 +168,7 @@ class PostListView {
         container.textContent = '';
         container.appendChild(
             createElement('div', { className: 'empty-state' }, [
-                createElement('p', {}, [message])
+                createElement('p', {}, [message]),
             ])
         );
     }
@@ -177,7 +183,6 @@ class PostListView {
     static renderCategoryTabs(container, categories, activeCategoryId, onSelect) {
         container.textContent = '';
 
-        // '전체' 탭
         const allTab = createElement('button', {
             className: `category-tab${activeCategoryId === null ? ' active' : ''}`,
             onClick: () => onSelect(null),

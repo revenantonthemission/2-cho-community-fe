@@ -11,42 +11,63 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+KR:wght@100..900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Noto+Sans+KR:wght@100..900&display=swap"
         rel="stylesheet">
 </head>
 
 <body>
-    <header>
-        <div class="header-title-wrapper">
-            <a href="/main" class="header-home-link"><h2>Camp Linux</h2></a>
-        </div>
-    </header>
-    <div class="login-container">
-        <h2>로그인</h2>
-        <form id="login-form">
-            <div class="input-group">
-                <label for="email">이메일</label>
-                <input type="email" id="email" name="email" required placeholder="이메일을 입력하세요" autocomplete="email">
-                <span id="email-helper"></span>
+    <div class="login-page">
+        <!-- 좌측: 브랜딩 영역 -->
+        <div class="login-brand">
+            <div class="login-brand__content">
+                <h1 class="login-brand__logo">Camp Linux<span class="login-brand__cursor">_</span></h1>
+                <p class="login-brand__tagline">리눅스를 탐험하는 캠프</p>
+                <div class="login-brand__terminal">
+                    <div class="login-brand__terminal-bar">
+                        <span class="terminal-dot terminal-dot--red"></span>
+                        <span class="terminal-dot terminal-dot--yellow"></span>
+                        <span class="terminal-dot terminal-dot--green"></span>
+                    </div>
+                    <div class="login-brand__terminal-body">
+                        <p><span class="terminal-prompt">$</span> cat /etc/motd</p>
+                        <p class="terminal-output">배포판 토론, Q&A, 위키, 패키지 리뷰</p>
+                        <p class="terminal-output">커뮤니티에서 함께 배우고 공유하세요.</p>
+                        <p><span class="terminal-prompt">$</span> <span class="terminal-typing">_</span></p>
+                    </div>
+                </div>
             </div>
-            <div class="input-group">
-                <label for="password">비밀번호</label>
-                <input type="password" id="password" name="password" required placeholder="비밀번호를 입력하세요"
-                    autocomplete="current-password">
-                <span id="password-helper"></span>
-            </div>
-            <button type="submit" class="login-btn" disabled>로그인</button>
-        </form>
-        <div class="social-login-divider">또는</div>
-        <div class="social-login-buttons">
-            <a id="github-login-btn" class="social-login-btn social-login-btn--github" href="#">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.603-3.369-1.341-3.369-1.341-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.026 2.747-1.026.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
-                GitHub 로그인
-            </a>
         </div>
-        <div class="links">
-            <a href="/signup">회원가입</a>
-            <a href="/find-account">이메일 / 비밀번호 찾기</a>
+
+        <!-- 우측: 로그인 폼 -->
+        <div class="login-form-section">
+            <div class="login-container">
+                <h2>로그인</h2>
+                <form id="login-form">
+                    <div class="input-group">
+                        <label for="email">이메일</label>
+                        <input type="email" id="email" name="email" required placeholder="이메일을 입력하세요" autocomplete="email">
+                        <span id="email-helper"></span>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">비밀번호</label>
+                        <input type="password" id="password" name="password" required placeholder="비밀번호를 입력하세요"
+                            autocomplete="current-password">
+                        <span id="password-helper"></span>
+                    </div>
+                    <button type="submit" class="login-btn" disabled>로그인</button>
+                </form>
+                <div class="social-login-divider">또는</div>
+                <div class="social-login-buttons">
+                    <a id="github-login-btn" class="social-login-btn social-login-btn--github" href="#">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.603-3.369-1.341-3.369-1.341-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.026 2.747-1.026.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+                        GitHub 로그인
+                    </a>
+                </div>
+                <div class="links">
+                    <a href="/signup">회원가입</a>
+                    <a href="/find-account">이메일 / 비밀번호 찾기</a>
+                </div>
+            </div>
         </div>
     </div>
 

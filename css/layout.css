@@ -1,74 +1,70 @@
 /* css/layout.css */
-/* 레이아웃 관련 스타일 */
+/* 레이아웃 — Terminal Editorial 헤더 + 메인 컨테이너 */
 
 /* ============================= */
-/* Header                        */
+/* Header — 미니멀 터미널 바        */
 /* ============================= */
-/* Header: Grid Layout */
 header {
     position: fixed;
     top: 0;
     width: 100%;
-    height: 104px;
+    height: var(--header-height);
     z-index: var(--z-header);
     background-color: var(--header-bg);
     display: flex;
     justify-content: center;
-    border-bottom: 1px solid var(--header-border);
+    border-bottom: 2px solid var(--header-border);
+    backdrop-filter: blur(8px);
 }
 
-/* Wrapper: Matches main-container width (Max 600px) */
+/* Wrapper: Matches main-container width */
 .header-title-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    max-width: 600px;
+    max-width: 680px;
     padding: 0 var(--spacing-xl);
     box-sizing: border-box;
     height: 100%;
-    /* Fill header height */
     position: relative;
-    /* Constrain absolute children */
 }
 
-/* Back Button: Far Left */
+/* Back Button */
 .back-button {
     position: absolute;
     left: var(--spacing-md);
-    /* 20px - 8px padding = 12px for visual alignment */
     top: 50%;
     transform: translateY(-50%);
-    /* Visual alignment */
     padding: 8px;
-    /* Add padding for better touch area and visual balance */
-    border-radius: var(--radius-full);
-    /* Make hover rounded */
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
     border: none;
-    /* Reset standard button border */
     background: transparent;
+    color: var(--color-text-secondary);
+    transition: color var(--transition-fast), background-color var(--transition-fast);
 }
 
 .back-button:hover {
-    transform: translateY(-50%) translateY(-2px);
+    background-color: var(--color-overlay-light);
+    color: var(--color-text-primary);
 }
 
 .back-button:active {
-    transform: translateY(-50%) translateY(0);
+    transform: translateY(-50%) scale(0.95);
 }
 
 .back-button:hover svg path {
-    stroke: var(--color-gray-700);
+    stroke: var(--color-text-primary);
 }
 
 .back-button:focus {
     outline: none;
 }
 
-/* Title: Exact Center */
+/* Title — 세리프 + 터미널 커서 애니메이션 */
 .header-home-link {
     position: absolute;
     left: 50%;
@@ -76,25 +72,45 @@ header {
     transform: translate(-50%, -50%);
     text-decoration: none;
     color: inherit;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: opacity var(--transition-fast);
 }
 
 .header-home-link:hover {
-    transform: translate(-50%, -50%) translateY(-2px);
+    opacity: 0.8;
 }
 
 .header-home-link:active {
-    transform: translate(-50%, -50%) translateY(0);
+    opacity: 0.6;
 }
 
 .header-home-link h2 {
-    font-family: "Noto Sans KR", sans-serif;
+    font-family: var(--font-family-display);
     font-weight: var(--font-weight-bold);
-    font-size: var(--font-size-3xl);
+    font-size: var(--font-size-2xl);
     margin: 0;
     white-space: nowrap;
+    letter-spacing: var(--tracking-tight);
 }
 
-/* Auth/Profile: Next to Title (Left side of Col 3) */
+/* 터미널 커서 깜빡임 — 사이트 제목 옆에 표시 */
+.header-home-link h2::after {
+    content: '_';
+    font-family: var(--font-family-mono);
+    font-weight: var(--font-weight-normal);
+    color: var(--color-primary);
+    animation: blink 1s step-end infinite;
+    margin-left: 2px;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Auth/Profile: Right side */
 .header-auth {
     position: absolute;
     right: var(--spacing-xl);
@@ -108,12 +124,17 @@ header {
 .profile-circle {
     width: 32px;
     height: 32px;
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-sm);
     background-color: var(--color-border);
     border: 1px solid var(--color-border-dark);
     background-size: cover;
     background-position: center;
     cursor: pointer;
+    transition: border-color var(--transition-fast);
+}
+
+.profile-circle:hover {
+    border-color: var(--color-primary);
 }
 
 /* Theme Toggle */
@@ -126,12 +147,13 @@ header {
     align-items: center;
     justify-content: center;
     color: var(--color-text-secondary);
-    transition: color var(--transition-fast), transform var(--transition-fast);
+    transition: color var(--transition-fast);
+    border-radius: var(--radius-sm);
 }
 
 .theme-toggle-btn:hover {
-    transform: scale(1.1);
-    color: var(--color-text-primary);
+    color: var(--color-primary);
+    background-color: var(--color-overlay-light);
 }
 
 /* Header Dropdown */
@@ -139,32 +161,33 @@ header {
     position: absolute;
     top: 40px;
     right: 0;
-    background-color: var(--color-bg-primary);
+    background-color: var(--surface-elevated);
     border: 1px solid var(--color-border-dark);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-md);
-    width: 120px;
+    width: 140px;
     z-index: var(--z-dropdown);
     overflow: hidden;
 }
 
 .header-dropdown ul {
     list-style: none;
-    padding: 0;
+    padding: var(--spacing-xs) 0;
     margin: 0;
 }
 
 .header-dropdown li {
-    padding: var(--spacing-md);
-    font-size: var(--font-size-base);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: var(--font-size-caption);
+    font-family: var(--font-family-mono);
     color: var(--color-text-primary);
     cursor: pointer;
-    transition: background-color var(--transition-fast);
-    text-align: center;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 .header-dropdown li:hover {
-    background-color: var(--color-gray-200);
+    background-color: var(--color-primary-subtle);
+    color: var(--color-primary);
 }
 
 /* Email Verification Banner */
@@ -182,6 +205,7 @@ header {
     background-color: var(--color-badge-pending-bg);
     border-bottom: 1px solid var(--color-warning);
     font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
     color: var(--color-badge-pending-text);
 }
 
@@ -196,10 +220,13 @@ header {
     background-color: transparent;
     color: var(--color-warning);
     font-size: var(--font-size-xs);
+    font-family: var(--font-family-mono);
     font-weight: var(--font-weight-semibold);
     cursor: pointer;
     white-space: nowrap;
     transition: background-color var(--transition-fast), color var(--transition-fast);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
 }
 
 .email-verify-banner__btn:hover {
@@ -213,35 +240,80 @@ header {
 }
 
 /* ============================= */
-/* Main Container                */
+/* Main Container — 에디토리얼 너비  */
 /* ============================= */
 .main-container {
     margin-top: var(--header-height);
     width: 100%;
-    max-width: 600px;
-    padding: 0 var(--spacing-xl);
+    max-width: 680px;
+    padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-4xl);
     box-sizing: border-box;
-    padding-bottom: var(--spacing-4xl);
 }
 
-/* Welcome Section */
-.welcome-section {
+/* ============================= */
+/* Welcome Hero — 에디토리얼 헤드라인 */
+/* ============================= */
+.welcome-hero {
     margin-bottom: var(--spacing-2xl);
-    text-align: center;
+    padding: var(--spacing-2xl) 0;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: var(--spacing-xl);
+}
+
+.welcome-hero__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.welcome-hero__heading {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    margin: 0;
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--line-height-tight);
+}
+
+.welcome-hero__sub {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    letter-spacing: var(--tracking-wide);
+    margin: 0;
+}
+
+.welcome-hero__nav {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-shrink: 0;
+}
+
+/* 하위 호환: 구 welcome-section */
+.welcome-section {
+    margin-bottom: var(--spacing-3xl);
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: var(--spacing-lg);
 }
 
 .welcome-section h3 {
+    font-family: var(--font-family-display);
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
     margin: 0;
+    letter-spacing: var(--tracking-tight);
 }
 
 .action-wrapper {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     width: 100%;
+    gap: var(--spacing-sm);
 }

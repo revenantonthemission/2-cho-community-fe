@@ -98,17 +98,20 @@
 .poll-add-option-btn {
     background: none;
     border: 1px dashed var(--color-border-dark);
-    border-radius: var(--radius-md);
+    border-radius: var(--btn-radius);
     padding: var(--spacing-sm) var(--spacing-md);
-    color: var(--color-primary-hover);
+    color: var(--color-text-secondary);
     cursor: pointer;
-    font-size: var(--font-size-md);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    letter-spacing: var(--tracking-wide);
     width: 100%;
-    transition: background var(--transition-fast), color var(--transition-fast);
+    transition: all var(--transition-fast);
     margin-bottom: var(--spacing-md);
 }
 
 .poll-add-option-btn:hover {
-    background: var(--color-bg-tertiary);
+    background: var(--color-primary-subtle);
+    border-color: var(--color-primary);
     color: var(--color-primary);
 }

@@ -119,22 +119,11 @@
 }
 
 /* 버튼 스타일 */
-.signup-btn {
-    width: 100%;
-    padding: var(--spacing-md);
-    background-color: var(--color-primary);
-    color: var(--color-text-white);
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-bold);
-    cursor: pointer;
-    margin-top: var(--spacing-md);
-}
+/* signup-btn 기본 스타일은 buttons.css 공통 규칙에서 처리 */
 
 .signup-btn:disabled {
-    background-color: var(--color-primary-lightest);
-    /* 가이드에 없는 경우 임의 설정, 필요시 수정 */
+    background-color: var(--color-primary);
+    opacity: 0.4;
     cursor: not-allowed;
 }
 

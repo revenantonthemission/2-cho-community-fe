@@ -18,6 +18,7 @@
 @import url('modules/buttons.css');
 @import url('modules/forms.css');
 @import url('modules/cards.css');
+@import url('modules/search.css');
 @import url('modules/modals.css');
 @import url('modules/comments.css');
 @import url('modules/mention.css');
@@ -30,6 +31,7 @@
 @import url('modules/social-login.css');
 @import url('modules/code.css');
 @import url('modules/distro.css');
+@import url('modules/sidebar.css');
 @import url('modules/responsive.css');
 
 /* ============================= */

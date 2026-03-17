@@ -7,11 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Camp Linux</title>
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/modules/search.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+KR:wght@100..900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Noto+Sans+KR:wght@100..900&display=swap"
         rel="stylesheet">
 </head>
 
@@ -19,29 +18,33 @@
     <header>
         <div class="header-title-wrapper">
             <a href="/main" class="header-home-link"><h2>Camp Linux</h2></a>
-            <!-- 헤더의 인증 관련 로직은 HeaderController에서 처리 -->
             <div id="auth-section" class="header-auth"></div>
         </div>
     </header>
 
     <main class="main-container">
-        <section class="welcome-section">
-            <h3 id="welcome-message">Camp Linux에 오신 것을 환영합니다.</h3>
-            <div class="action-wrapper">
+        <!-- 환영 섹션 — 에디토리얼 헤드라인 + 내비게이션 -->
+        <section class="welcome-hero">
+            <div class="welcome-hero__text">
+                <h3 id="welcome-message" class="welcome-hero__heading">Camp Linux에 오신 것을 환영합니다.</h3>
+                <p class="welcome-hero__sub">배포판 토론 · Q&A · 위키 · 패키지 리뷰</p>
+            </div>
+            <nav class="welcome-hero__nav">
                 <a href="/wiki" class="nav-link-btn">위키</a>
                 <a href="/packages" class="nav-link-btn">패키지</a>
                 <button id="write-btn" class="write-btn">게시글 작성</button>
-            </div>
+            </nav>
         </section>
 
-        <section class="category-tabs" id="category-tabs">
-            <!-- 카테고리 탭이 JS로 주입됨 -->
-        </section>
+        <!-- 카테고리 탭 -->
+        <section class="category-tabs" id="category-tabs"></section>
 
+        <!-- 검색 + 정렬 — 커맨드 바 스타일 -->
         <section class="search-sort-section">
             <div class="search-bar">
-                <input type="text" id="search-input" placeholder="게시글 검색..." maxlength="100" autocomplete="off">
-                <button id="search-btn" class="search-btn">검색</button>
+                <span class="search-bar__prompt">$</span>
+                <input type="text" id="search-input" placeholder="search posts..." maxlength="100" autocomplete="off">
+                <button id="search-btn" class="search-btn">실행</button>
                 <ul id="search-suggestions" class="search-suggestions" style="display:none"></ul>
             </div>
             <div class="feed-filters" id="feed-filters">
@@ -57,9 +60,9 @@
             </div>
         </section>
 
+        <!-- 게시글 피드 -->
         <section class="post-feed">
-            <ul id="post-list">
-            </ul>
+            <ul id="post-list"></ul>
             <div id="loading-sentinel">loading...</div>
         </section>
     </main>

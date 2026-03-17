@@ -1,19 +1,162 @@
 /* css/pages/login.css */
-/* 로그인 페이지 전용 스타일 */
+/* 로그인 페이지 — 스플릿 레이아웃 + 터미널 브랜딩 */
+
+/* 로그인 전용 body 오버라이드 */
+body:has(.login-page) {
+    justify-content: stretch;
+    align-items: stretch;
+}
 
 /* ============================= */
-/* 로그인 컨테이너 (Login Container) */
+/* 스플릿 레이아웃 (Split Layout)  */
 /* ============================= */
-.login-container {
-    padding: var(--spacing-xl);
-    border-radius: var(--radius-xl);
+.login-page {
+    display: flex;
+    min-height: 100vh;
     width: 100%;
-    max-width: 400px;
+}
+
+/* ============================= */
+/* 좌측: 브랜딩 영역              */
+/* ============================= */
+.login-brand {
+    flex: 1;
+    background: var(--color-bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-4xl);
+    border-right: 2px solid var(--color-primary);
+}
+
+.login-brand__content {
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xl);
+}
+
+.login-brand__logo {
+    font-family: var(--font-family-display);
+    font-size: 48px;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--tracking-tight);
+    line-height: 1.1;
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.login-brand__cursor {
+    font-family: var(--font-family-mono);
+    color: var(--color-primary);
+    animation: blink 1s step-end infinite;
+    font-weight: var(--font-weight-normal);
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.login-brand__tagline {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+    margin: 0;
+    font-style: italic;
+}
+
+/* 터미널 윈도우 */
+.login-brand__terminal {
+    background: #1E2430;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.login-brand__terminal-bar {
+    display: flex;
+    gap: 6px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: #161B25;
+}
+
+.terminal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-full);
+}
+
+.terminal-dot--red { background: #FF5F56; }
+.terminal-dot--yellow { background: #FFBD2E; }
+.terminal-dot--green { background: #27C93F; }
+
+.login-brand__terminal-body {
+    padding: var(--spacing-lg);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-caption);
+    line-height: 1.8;
+    color: #D4D8E4;
+}
+
+.login-brand__terminal-body p {
+    margin: 0;
+}
+
+.terminal-prompt {
+    color: #34D399;
+    font-weight: var(--font-weight-bold);
+    margin-right: var(--spacing-sm);
+}
+
+.terminal-output {
+    color: #8B91A5;
+    padding-left: var(--spacing-xl);
+}
+
+.terminal-typing {
+    color: #34D399;
+    animation: blink 1s step-end infinite;
+}
+
+/* ============================= */
+/* 우측: 로그인 폼 영역            */
+/* ============================= */
+.login-form-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-4xl) var(--spacing-2xl);
+    background: var(--color-bg-secondary);
+}
+
+.login-header {
+    position: static;
+    background: none;
+    border: none;
+    height: auto;
+    width: auto;
+    display: none;
+}
+
+.login-container {
+    padding: var(--spacing-3xl);
+    border-radius: var(--radius-md);
+    width: 100%;
+    max-width: 380px;
+    background: var(--surface-elevated);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
 }
 
 .login-container h2 {
+    font-family: var(--font-family-display);
     text-align: center;
-    margin-bottom: var(--spacing-2xl);
+    margin-bottom: var(--spacing-3xl);
+    font-size: var(--font-size-2xl);
+    letter-spacing: var(--tracking-tight);
 }
 
 /* ============================= */
@@ -22,15 +165,71 @@
 .links {
     text-align: center;
     margin-top: var(--spacing-xl);
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-xl);
 }
 
 .links a {
     color: var(--color-text-secondary);
     text-decoration: none;
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-caption);
+    font-family: var(--font-family-mono);
+    letter-spacing: var(--tracking-wide);
+    transition: color var(--transition-fast);
 }
 
 .links a:hover {
     color: var(--color-primary);
-    text-decoration: underline;
+}
+
+/* ============================= */
+/* 모바일 — 세로 스택             */
+/* ============================= */
+@media (max-width: 768px) {
+    .login-page {
+        flex-direction: column;
+    }
+
+    .login-brand {
+        flex: none;
+        padding: var(--spacing-3xl) var(--spacing-xl);
+        border-right: none;
+        border-bottom: 2px solid var(--color-primary);
+    }
+
+    .login-brand__logo {
+        font-size: var(--font-size-3xl);
+    }
+
+    .login-brand__tagline {
+        font-size: var(--font-size-md);
+    }
+
+    .login-form-section {
+        flex: 1;
+        padding: var(--spacing-3xl) var(--spacing-lg);
+    }
+
+    .login-container {
+        padding: var(--spacing-xl);
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+}
+
+/* 매우 작은 화면에서 브랜딩 영역 숨기기 */
+@media (max-width: 480px) {
+    .login-brand {
+        padding: var(--spacing-2xl) var(--spacing-lg);
+    }
+
+    .login-brand__terminal {
+        display: none;
+    }
+
+    .login-brand__logo {
+        font-size: var(--font-size-2xl);
+    }
 }

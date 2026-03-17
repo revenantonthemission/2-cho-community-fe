@@ -3,6 +3,7 @@
 
 import AuthModel from '../models/AuthModel.js';
 import HeaderView from '../views/HeaderView.js';
+import SidebarView from '../views/SidebarView.js';
 import { ThemeService } from '../services/ThemeService.js';
 import NotificationService from '../services/NotificationService.js';
 import { showToast } from '../views/helpers.js';
@@ -96,6 +97,9 @@ class HeaderController {
                 }
                 HeaderView.createDropdown(profileCircle, dropdownHandlers);
 
+                // 사이드바 내비게이션 주입
+                this._initSidebar();
+
                 // 알림 시스템 초기화 (WebSocket 우선, 폴링 폴백)
                 this._notifService = new NotificationService();
 
@@ -156,6 +160,21 @@ class HeaderController {
      */
     getCurrentUser() {
         return this.currentUser;
+    }
+
+    /**
+     * 사이드바 내비게이션 초기화
+     * @private
+     */
+    _initSidebar() {
+        if (document.getElementById('app-sidebar')) return;
+
+        const sidebar = SidebarView.create({
+            user: this.currentUser,
+            isAdmin: this.currentUser?.role === 'admin',
+            onCategorySelect: null,
+        });
+        SidebarView.inject(sidebar);
     }
 
     /**
@@ -335,6 +354,7 @@ class HeaderController {
             }
         }
         HeaderView.updateBadge('dm-badge', count);
+        SidebarView.updateBadge('sidebar-dm-badge', count);
     }
 
     /**
@@ -360,6 +380,7 @@ class HeaderController {
             }
         }
         HeaderView.updateBadge('notification-badge', count);
+        SidebarView.updateBadge('sidebar-notif-badge', count);
     }
 }
 
