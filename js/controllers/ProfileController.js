@@ -53,7 +53,7 @@ class ProfileController {
                 this._populateDistroSelect(user.distro);
 
                 this.originalNickname = user.nickname;
-                this._validateNickname();
+                this._checkFormValidity();
             } else {
                 location.href = resolveNavPath('/login');
             }
@@ -149,6 +149,9 @@ class ProfileController {
         if (currentDistro) {
             select.value = currentDistro;
         }
+
+        // 배포판 변경 시 폼 유효성 재검사
+        select.addEventListener('change', () => this._checkFormValidity());
     }
 
     /**
