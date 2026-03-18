@@ -2,30 +2,8 @@
 // js/views/PackageFormView.js
 // 패키지 등록 폼 렌더링
 
-import { createElement } from '../utils/dom.js';
-
-/** @type {Record<string, string>} */
-const PACKAGE_CATEGORY_LABELS = {
-    editor: '에디터',
-    terminal: '터미널',
-    devtool: '개발도구',
-    system: '시스템',
-    desktop: '데스크톱',
-    utility: '유틸리티',
-    multimedia: '멀티미디어',
-    security: '보안',
-};
-
-/** @type {Record<string, string>} */
-const PACKAGE_MANAGER_LABELS = {
-    apt: 'apt',
-    dnf: 'dnf',
-    pacman: 'pacman',
-    snap: 'snap',
-    flatpak: 'flatpak',
-    brew: 'brew',
-    other: '기타',
-};
+import { createElement, createFormGroup } from '../utils/dom.js';
+import { PACKAGE_CATEGORY_LABELS, PACKAGE_MANAGER_LABELS } from '../constants.js';
 
 class PackageFormView {
     /**
@@ -110,30 +88,12 @@ class PackageFormView {
         });
 
         const form = createElement('div', { className: 'package-form' }, [
-            createElement('div', { className: 'input-group' }, [
-                createElement('label', { className: 'form-label', for: 'package-name' }, ['패키지 이름 *']),
-                nameInput,
-            ]),
-            createElement('div', { className: 'input-group' }, [
-                createElement('label', { className: 'form-label', for: 'package-display-name' }, ['표시 이름 *']),
-                displayNameInput,
-            ]),
-            createElement('div', { className: 'input-group' }, [
-                createElement('label', { className: 'form-label', for: 'package-description' }, ['설명']),
-                descriptionInput,
-            ]),
-            createElement('div', { className: 'input-group' }, [
-                createElement('label', { className: 'form-label', for: 'package-homepage' }, ['홈페이지 URL']),
-                homepageInput,
-            ]),
-            createElement('div', { className: 'input-group' }, [
-                createElement('label', { className: 'form-label', for: 'package-category' }, ['카테고리 *']),
-                categorySelect,
-            ]),
-            createElement('div', { className: 'input-group' }, [
-                createElement('label', { className: 'form-label', for: 'package-manager' }, ['패키지 매니저']),
-                managerSelect,
-            ]),
+            createFormGroup('패키지 이름 *', nameInput),
+            createFormGroup('표시 이름 *', displayNameInput),
+            createFormGroup('설명', descriptionInput),
+            createFormGroup('홈페이지 URL', homepageInput),
+            createFormGroup('카테고리 *', categorySelect),
+            createFormGroup('패키지 매니저', managerSelect),
             createElement('div', { className: 'submit-section' }, [submitBtn]),
         ]);
 

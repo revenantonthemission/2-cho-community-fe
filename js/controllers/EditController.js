@@ -2,28 +2,54 @@
 // 게시글 수정 페이지 컨트롤러 - 비즈니스 로직 및 이벤트 처리 담당
 
 import PostModel from '../models/PostModel.js';
-import CategoryModel from '../models/CategoryModel.js';
 import EditView from '../views/EditView.js';
-import { extractUploadedImageUrl, readFileAsDataURL, showToastAndRedirect } from '../views/helpers.js';
-import Logger from '../utils/Logger.js';
+import { extractUploadedImageUrl, showToastAndRedirect } from '../views/helpers.js';
 import DraftService from '../services/DraftService.js';
-import { NAV_PATHS, UI_MESSAGES, NOTICE_CATEGORY_SLUG } from '../constants.js';
-
-const logger = Logger.createLogger('EditController');
-const DRAFT_SAVE_DELAY = 5000;
+import { NAV_PATHS, UI_MESSAGES } from '../constants.js';
+import BasePostController from './BasePostController.js';
 
 /**
  * 게시글 수정 페이지 컨트롤러
  * Model과 View를 연결하고 비즈니스 로직을 처리
  */
-class EditController {
+class EditController extends BasePostController {
     constructor() {
-        this.view = new EditView();
+        super('EditController');
+        this._view = new EditView();
         this.originalData = { title: '', content: '', image_url: null, image_urls: [], category_id: null };
         this.currentData = { title: '', content: '', image_file: null, image_files: [] };
         this.postId = null;
-        this.currentUser = null;
-        this._draftTimer = null;
+    }
+
+    get view() { return this._view; }
+
+    // -- BasePostController 훅 구현 --
+
+    _onInputChange() {
+        this._checkChanges();
+    }
+
+    _getDraftKey() {
+        return `draft:edit:${this.postId}`;
+    }
+
+    _getFiles() {
+        return this.currentData.image_files;
+    }
+
+    _setFiles(files) {
+        this.currentData.image_files = files;
+        this.currentData.image_file = files[0] || null;
+    }
+
+    /**
+     * 파일 변경 처리 - Edit에서는 변경 감지도 수행
+     * @param {Event} event
+     * @private
+     */
+    _handleFileChange(event) {
+        super._handleFileChange(event);
+        this._checkChanges();
     }
 
     /**
@@ -54,35 +80,6 @@ class EditController {
         await this._loadPostData();
         this._restoreDraft();
         this._setupEventListeners();
-    }
-
-    /**
-     * 카테고리 목록 로드
-     * @private
-     */
-    async _loadCategories() {
-        const categorySelect = document.getElementById('category-select');
-        if (!categorySelect) return;
-
-        try {
-            const result = await CategoryModel.getCategories();
-            if (!result.ok) return;
-
-            const categories = result.data?.data?.categories || [];
-            const isAdmin = this.currentUser?.role === 'admin';
-
-            categories.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat.category_id;
-                option.textContent = cat.name;
-                if (cat.slug === NOTICE_CATEGORY_SLUG && !isAdmin) {
-                    option.disabled = true;
-                }
-                categorySelect.appendChild(option);
-            });
-        } catch (error) {
-            logger.error('카테고리 로드 실패', error);
-        }
     }
 
     /**
@@ -129,7 +126,7 @@ class EditController {
             }
 
         } catch (error) {
-            logger.error('게시글 데이터 로드 실패', error);
+            this._logger.error('게시글 데이터 로드 실패', error);
             showToastAndRedirect(error.message, NAV_PATHS.MAIN);
         }
     }
@@ -143,10 +140,9 @@ class EditController {
             onTitleInput: () => this._handleTitleInput(),
             onContentInput: () => this._handleContentInput(),
             onFileChange: (e) => this._handleFileChange(e),
-            onSubmit: (e) => this._handleSubmit(e)
+            onSubmit: (e) => this._handleSubmit(e),
         });
 
-        // 카테고리 변경 감지
         const categorySelect = document.getElementById('category-select');
         if (categorySelect) {
             categorySelect.addEventListener('change', () => {
@@ -155,57 +151,8 @@ class EditController {
             });
         }
 
-        // 뒤로가기 버튼
-        const backBtn = document.getElementById('back-btn');
-        if (backBtn) {
-            backBtn.addEventListener('click', () => {
-                history.back();
-            });
-        }
-
-        // 페이지 이탈 시 리소스 정리
-        window.addEventListener('pagehide', () => this.view.destroy());
-    }
-
-    /**
-     * 제목 입력 처리
-     * @private
-     */
-    _handleTitleInput() {
-        this.view.enforceTitleMaxLength(26);
-        this._checkChanges();
-        this._scheduleDraftSave();
-    }
-
-    /**
-     * 본문 입력 처리
-     * @private
-     */
-    _handleContentInput() {
-        this._checkChanges();
-        this._scheduleDraftSave();
-    }
-
-    /**
-     * 파일 변경 처리
-     * @private
-     */
-    _handleFileChange(event) {
-        const files = Array.from(event.target.files);
-        if (files.length > 0) {
-            const selected = files.slice(0, 5);
-            this.currentData.image_files = selected;
-            this.currentData.image_file = selected[0]; // 하위 호환
-            this.view.setFileName(
-                selected.length === 1
-                    ? selected[0].name
-                    : `${selected.length}개 파일 선택됨`
-            );
-            readFileAsDataURL(selected[0], (dataUrl) => {
-                this.view.showImagePreview(dataUrl);
-            });
-        }
-        this._checkChanges();
+        this._setupBackButton();
+        this._setupCommonEvents();
     }
 
     /**
@@ -282,18 +229,9 @@ class EditController {
                 this.view.showToast(UI_MESSAGES.POST_UPDATE_FAIL);
             }
         } catch (error) {
-            logger.error('게시글 수정 실패', error);
+            this._logger.error('게시글 수정 실패', error);
             this.view.showToast(UI_MESSAGES.UNKNOWN_ERROR);
         }
-    }
-
-    /**
-     * 임시 저장 키 반환
-     * @private
-     * @returns {string}
-     */
-    _getDraftKey() {
-        return `draft:edit:${this.postId}`;
     }
 
     /**
@@ -327,22 +265,6 @@ class EditController {
         } else {
             DraftService.clear(this._getDraftKey());
         }
-    }
-
-    /**
-     * 임시 저장 디바운스 스케줄링
-     * @private
-     */
-    _scheduleDraftSave() {
-        clearTimeout(this._draftTimer);
-        this._draftTimer = setTimeout(() => {
-            const title = this.view.getTitle();
-            const content = this.view.getContent();
-            if (!title && !content) return;
-            const categorySelect = document.getElementById('category-select');
-            const categoryId = categorySelect ? Number(categorySelect.value) : null;
-            DraftService.save(this._getDraftKey(), { title, content, categoryId });
-        }, DRAFT_SAVE_DELAY);
     }
 }
 

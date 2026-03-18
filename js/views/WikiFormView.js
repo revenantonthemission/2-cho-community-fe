@@ -2,7 +2,7 @@
 // js/views/WikiFormView.js
 // 위키 작성/수정 폼 렌더링
 
-import { createElement } from '../utils/dom.js';
+import { createElement, createFormGroup } from '../utils/dom.js';
 import MarkdownEditor from '../components/MarkdownEditor.js';
 
 class WikiFormView {
@@ -33,12 +33,7 @@ class WikiFormView {
             /** @type {HTMLInputElement} */ (titleInput).value = existingPage.title;
         }
 
-        const formChildren = [
-            createElement('div', { className: 'input-group' }, [
-                createElement('label', { className: 'form-label', for: 'wiki-title' }, ['제목']),
-                titleInput,
-            ]),
-        ];
+        const formChildren = [createFormGroup('제목', titleInput)];
 
         // 슬러그 입력 — 작성 시에만 표시
         if (!isEdit) {
@@ -50,13 +45,7 @@ class WikiFormView {
                 maxlength: '200',
             });
 
-            formChildren.push(
-                createElement('div', { className: 'input-group' }, [
-                    createElement('label', { className: 'form-label', for: 'wiki-slug' }, ['슬러그']),
-                    slugInput,
-                    createElement('span', { className: 'slug-helper' }, ['영문 소문자, 숫자, 하이픈만 사용']),
-                ])
-            );
+            formChildren.push(createFormGroup('슬러그', slugInput, { helper: '영문 소문자, 숫자, 하이픈만 사용' }));
         }
 
         // 태그 입력
@@ -70,13 +59,7 @@ class WikiFormView {
             /** @type {HTMLInputElement} */ (tagsInput).value = existingPage.tags.map(t => t.name).join(', ');
         }
 
-        formChildren.push(
-            createElement('div', { className: 'input-group' }, [
-                createElement('label', { className: 'form-label', for: 'wiki-tags' }, ['태그']),
-                tagsInput,
-                createElement('span', { className: 'slug-helper' }, ['쉼표로 구분']),
-            ])
-        );
+        formChildren.push(createFormGroup('태그', tagsInput, { helper: '쉼표로 구분' }));
 
         // 콘텐츠 textarea
         const contentTextarea = createElement('textarea', {
@@ -89,12 +72,7 @@ class WikiFormView {
             /** @type {HTMLTextAreaElement} */ (contentTextarea).value = existingPage.content;
         }
 
-        formChildren.push(
-            createElement('div', { className: 'input-group' }, [
-                createElement('label', { className: 'form-label', for: 'wiki-content' }, ['내용']),
-                contentTextarea,
-            ])
-        );
+        formChildren.push(createFormGroup('내용', contentTextarea));
 
         // 버튼
         const submitBtn = createElement('button', {
