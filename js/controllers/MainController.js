@@ -45,8 +45,12 @@ class MainController {
      * 컨트롤러 초기화
      */
     async init() {
-        // URL 파라미터에서 태그 필터 읽기
+        // URL 파라미터에서 필터 읽기 (사이드바 카테고리 링크, 태그 링크 등)
         const urlParams = new URLSearchParams(window.location.search);
+        const categoryParam = urlParams.get('category');
+        if (categoryParam) {
+            this.filters.category = Number(categoryParam);
+        }
         const tagParam = urlParams.get('tag');
         if (tagParam) {
             this.filters.tag = tagParam;
