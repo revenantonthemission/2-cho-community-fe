@@ -25,6 +25,8 @@ on:
           - staging
           - prod
 
+permissions: {}
+
 jobs:
   deploy:
     name: Deploy to ${{ inputs.environment }}
