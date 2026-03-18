@@ -55,3 +55,22 @@ export function clearElement(element) {
         element.removeChild(element.firstChild);
     }
 }
+
+/**
+ * 폼 입력 그룹 생성 (label + input)
+ * @param {string} label - 라벨 텍스트
+ * @param {HTMLElement} inputEl - 입력 요소
+ * @param {object} [options={}]
+ * @param {string} [options.helper] - 도움말 텍스트
+ * @returns {HTMLElement}
+ */
+export function createFormGroup(label, inputEl, { helper } = {}) {
+    const children = [
+        createElement('label', { className: 'form-label', for: inputEl.id || '' }, [label]),
+        inputEl,
+    ];
+    if (helper) {
+        children.push(createElement('span', { className: 'slug-helper' }, [helper]));
+    }
+    return createElement('div', { className: 'input-group' }, children);
+}

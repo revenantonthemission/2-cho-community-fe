@@ -4,8 +4,9 @@
 
 import { createElement } from '../utils/dom.js';
 import { formatDate } from '../utils/formatters.js';
+import BaseListView from './BaseListView.js';
 
-class WikiListView {
+class WikiListView extends BaseListView {
     /**
      * 위키 카드 요소 생성
      * @param {object} page - 위키 페이지 데이터
@@ -50,17 +51,6 @@ class WikiListView {
     }
 
     /**
-     * 빈 상태 렌더링
-     * @param {HTMLElement} container
-     * @param {string} [message]
-     */
-    static renderEmptyState(container, message = '등록된 위키 페이지가 없습니다.') {
-        if (!container) return;
-        const empty = createElement('li', { className: 'empty-state' }, [message]);
-        container.appendChild(empty);
-    }
-
-    /**
      * 태그 필터 버튼 렌더링
      * @param {HTMLElement} container
      * @param {Array<string>} tags - 사용 가능한 태그 목록
@@ -68,38 +58,11 @@ class WikiListView {
      * @param {Function} onTagClick - 태그 클릭 핸들러
      */
     static renderTagFilters(container, tags, activeTag, onTagClick) {
-        if (!container) return;
-        container.textContent = '';
-
-        // 전체 버튼
-        const allBtn = createElement('button', {
-            className: `category-filter-btn${!activeTag ? ' active' : ''}`,
-            textContent: '전체',
-            onClick: () => onTagClick(null),
-        });
-        container.appendChild(allBtn);
-
-        // 각 태그 버튼
-        tags.forEach(tag => {
-            const btn = createElement('button', {
-                className: `category-filter-btn${activeTag === tag ? ' active' : ''}`,
-                textContent: tag,
-                dataset: { tag },
-                onClick: () => onTagClick(tag),
-            });
-            container.appendChild(btn);
+        BaseListView.renderFilterButtons(container, tags, activeTag, onTagClick, {
+            className: 'category-filter-btn',
         });
     }
 
-    /**
-     * 로딩 센티넬 토글
-     * @param {HTMLElement|null} sentinel
-     * @param {boolean} show
-     */
-    static toggleLoadingSentinel(sentinel, show) {
-        if (!sentinel) return;
-        sentinel.style.display = show ? '' : 'none';
-    }
 }
 
 export default WikiListView;
