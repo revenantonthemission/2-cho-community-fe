@@ -25,6 +25,10 @@ on:
           - staging
           - prod
 
+concurrency:
+  group: frontend-s3-deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
 permissions: {}
 
 jobs:
