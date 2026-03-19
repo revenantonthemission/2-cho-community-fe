@@ -118,6 +118,10 @@ class PackageListController {
         const container = document.getElementById('category-filters');
         if (!container) return;
 
+        // URL에서 ?category= 파라미터 읽기 (MPA 네비게이션)
+        const urlCategory = new URLSearchParams(location.search).get('category');
+        if (urlCategory) this.filters.category = urlCategory;
+
         PackageListView.renderCategoryFilters(container, this.filters.category, (category) => {
             if (category === this.filters.category) return;
             this.filters.category = category;
@@ -216,9 +220,9 @@ class PackageListController {
 
             if (this.currentOffset === 0 && packages.length === 0) {
                 if (this.filters.search) {
-                    PackageListView.renderEmptyState(listElement, `'${this.filters.search}' 검색 결과가 없습니다.`);
+                    PackageListView.renderEmptyState(listElement, `'${this.filters.search}' 검색 결과가 없습니다.`, `apt search "${this.filters.search}"`);
                 } else {
-                    PackageListView.renderEmptyState(listElement);
+                    PackageListView.renderEmptyState(listElement, '등록된 패키지가 없습니다.', 'apt list --installed');
                 }
                 this.hasMore = false;
                 PackageListView.toggleLoadingSentinel(sentinel, false);

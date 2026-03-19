@@ -4,6 +4,8 @@
 import AuthModel from '../models/AuthModel.js';
 import HeaderView from '../views/HeaderView.js';
 import SidebarView from '../views/SidebarView.js';
+import BottomTabComponent from '../components/BottomTabComponent.js';
+import WikiModel from '../models/WikiModel.js';
 import { ThemeService } from '../services/ThemeService.js';
 import NotificationService from '../services/NotificationService.js';
 import { showToast } from '../views/helpers.js';
@@ -14,6 +16,7 @@ import { Icons } from '../utils/icons.js';
 import ApiService, { getAccessToken } from '../services/ApiService.js';
 
 const logger = Logger.createLogger('HeaderController');
+
 
 /**
  * 헤더 컨트롤러
@@ -71,7 +74,6 @@ class HeaderController {
 
         try {
             const authStatus = await AuthModel.checkAuthStatus();
-
             if (authStatus.isAuthenticated) {
                 this.currentUser = authStatus.user;
 
@@ -102,7 +104,6 @@ class HeaderController {
 
                 // 알림 시스템 초기화 (WebSocket 우선, 폴링 폴백)
                 this._notifService = new NotificationService();
-
                 this._notifService.onNotification(({ count, latest, isNew }) => {
                     this._updateNotificationBadge(count);
                     if (isNew && latest) {
@@ -152,8 +153,6 @@ class HeaderController {
             }
         }
     }
-
-
     /**
      * 현재 사용자 정보 반환
      * @returns {object|null}
@@ -169,11 +168,37 @@ class HeaderController {
     _initSidebar() {
         if (document.getElementById('app-sidebar')) return;
 
-        const sidebar = SidebarView.create({
-            user: this.currentUser,
-            isAdmin: this.currentUser?.role === 'admin',
-        });
-        SidebarView.inject(sidebar);
+        if (!this._isAuthPage()) {
+            const sidebar = SidebarView.create({
+                user: this.currentUser,
+                isAdmin: this.currentUser?.role === 'admin',
+            });
+            SidebarView.inject(sidebar);
+
+            // 위키 페이지: 인기 태그를 사이드바에 로드
+            if (location.pathname.startsWith('/wiki')) {
+                this._loadWikiSidebarTags();
+            }
+
+            // 하단 탭 바 (CSS가 데스크톱에서 숨김)
+            BottomTabComponent.init();
+        }
+    }
+
+    /**
+     * 위키 사이드바 인기 태그 로드
+     * @private
+     */
+    async _loadWikiSidebarTags() {
+        try {
+            const result = await WikiModel.getPopularTags(10);
+            if (result.ok) {
+                const tags = (result.data?.data?.tags || []).map(t => t.name);
+                if (tags.length > 0) SidebarView.updateWikiTags(tags);
+            }
+        } catch {
+            // 태그 로드 실패 시 무시
+        }
     }
 
     /**
@@ -185,52 +210,27 @@ class HeaderController {
         // 인증 불필요 페이지: 클린 URL과 HTML 파일 경로 모두 지원
         const publicPages = [
             '/login', '/signup', '/find-account', '/verify-email',
+            '/password', '/social-signup',
             '/user_login.html', '/user_signup.html',
             '/user_find_account.html', '/verify-email.html',
+            '/user_password.html', '/social_signup.html',
         ];
         return publicPages.includes(path);
     }
 
     /**
-     * 회원정보 수정 이동
+     * 페이지 이동 공통 헬퍼
+     * @param {string} path - 이동할 경로
      * @private
      */
-    _handleEditInfo() {
-        location.href = resolveNavPath('/edit-profile');
+    _navigate(path) {
+        location.href = resolveNavPath(path);
     }
-
-    /**
-     * 비밀번호 수정 이동
-     * @private
-     */
-    _handleChangePassword() {
-        location.href = resolveNavPath('/password');
-    }
-
-    /**
-     * 내 활동 페이지 이동
-     * @private
-     */
-    _handleMyActivity() {
-        location.href = resolveNavPath(NAV_PATHS.MY_ACTIVITY);
-    }
-
-    /**
-     * 관리자 대시보드 이동 (관리자)
-     * @private
-     */
-    _handleAdminDashboard() {
-        location.href = resolveNavPath(NAV_PATHS.ADMIN_DASHBOARD);
-    }
-
-    /**
-     * 신고 관리 페이지 이동 (관리자)
-     * @private
-     */
-    _handleAdminReports() {
-        location.href = resolveNavPath(NAV_PATHS.ADMIN_REPORTS);
-    }
-
+    _handleEditInfo() { this._navigate('/edit-profile'); }
+    _handleChangePassword() { this._navigate('/password'); }
+    _handleMyActivity() { this._navigate(NAV_PATHS.MY_ACTIVITY); }
+    _handleAdminDashboard() { this._navigate(NAV_PATHS.ADMIN_DASHBOARD); }
+    _handleAdminReports() { this._navigate(NAV_PATHS.ADMIN_REPORTS); }
     /**
      * 로그아웃 처리
      * @private
@@ -354,6 +354,7 @@ class HeaderController {
         }
         HeaderView.updateBadge('dm-badge', count);
         SidebarView.updateBadge('sidebar-dm-badge', count);
+        BottomTabComponent.updateBadge('bottom-tab-dm-badge', count);
     }
 
     /**
@@ -380,6 +381,7 @@ class HeaderController {
         }
         HeaderView.updateBadge('notification-badge', count);
         SidebarView.updateBadge('sidebar-notif-badge', count);
+        BottomTabComponent.updateBadge('bottom-tab-notif-badge', count);
     }
 }
 
