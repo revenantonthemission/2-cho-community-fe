@@ -135,11 +135,11 @@
     background: var(--color-notification-badge);
     color: var(--color-text-white);
     font-family: var(--font-family-mono);
-    font-size: 10px;
+    font-size: var(--font-size-2xs);
     font-weight: var(--font-weight-semibold);
     min-width: 16px;
     height: 16px;
-    border-radius: var(--badge-radius);
+    border-radius: var(--radius-pill);
     display: flex;
     align-items: center;
     justify-content: center;

@@ -222,6 +222,7 @@
   --font-family-display: 'IBM Plex Serif', 'IBM Plex Sans KR', Georgia, serif;
   --font-family-mono: 'IBM Plex Mono', 'Consolas', monospace;
 
+  --font-size-2xs: 10px;
   --font-size-xs: 12px;
   --font-size-sm: 13px;
   --font-size-caption: 14px;

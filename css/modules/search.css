@@ -42,7 +42,7 @@
 .feed-filter-btn,
 .sort-btn,
 .category-filter-btn {
-    padding: 6px var(--spacing-md);
+    padding: var(--spacing-xs) var(--spacing-md);
     background: transparent;
     border: 1px solid var(--color-border);
     border-radius: var(--btn-radius);

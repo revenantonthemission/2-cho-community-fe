@@ -55,7 +55,7 @@
 
 /* comment-sort-btn — 필터 공통 스타일 패턴 */
 .comment-sort-btn {
-    padding: 6px var(--spacing-md);
+    padding: var(--spacing-xs) var(--spacing-md);
     border: 1px solid var(--border-default);
     border-radius: var(--btn-radius);
     background: transparent;
