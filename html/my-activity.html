@@ -42,8 +42,19 @@
         <div id="activity-list" class="activity-list">
             <!-- 활동 목록이 여기에 주입됩니다 -->
         </div>
-        <div id="activity-empty" class="activity-empty hidden">
-            <p>활동 내역이 없습니다.</p>
+        <div id="activity-empty" class="hidden">
+            <div class="terminal-state">
+                <div class="terminal-state__bar">
+                    <span class="terminal-state__dot terminal-state__dot--red"></span>
+                    <span class="terminal-state__dot terminal-state__dot--yellow"></span>
+                    <span class="terminal-state__dot terminal-state__dot--green"></span>
+                </div>
+                <div class="terminal-state__body">
+                    <p><span class="terminal-state__prompt">$</span> history</p>
+                    <span class="terminal-state__output">활동 내역이 없습니다.</span>
+                    <span class="terminal-state__cursor">_</span>
+                </div>
+            </div>
         </div>
     </main>
 

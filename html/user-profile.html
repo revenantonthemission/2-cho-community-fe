@@ -51,8 +51,19 @@
             <div id="user-posts-list" class="post-list">
                 <!-- 사용자의 게시글 목록이 여기에 주입됩니다 -->
             </div>
-            <div id="user-posts-empty" class="activity-empty hidden">
-                <p>작성한 글이 없습니다.</p>
+            <div id="user-posts-empty" class="hidden">
+                <div class="terminal-state">
+                    <div class="terminal-state__bar">
+                        <span class="terminal-state__dot terminal-state__dot--red"></span>
+                        <span class="terminal-state__dot terminal-state__dot--yellow"></span>
+                        <span class="terminal-state__dot terminal-state__dot--green"></span>
+                    </div>
+                    <div class="terminal-state__body">
+                        <p><span class="terminal-state__prompt">$</span> ls posts/</p>
+                        <span class="terminal-state__output">작성한 글이 없습니다.</span>
+                        <span class="terminal-state__cursor">_</span>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
