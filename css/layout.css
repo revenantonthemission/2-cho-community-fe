@@ -283,7 +283,7 @@ header {
 
 .welcome-hero__sub {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-caption);
     color: var(--color-text-tertiary);
     letter-spacing: var(--tracking-wide);
     margin: 0;

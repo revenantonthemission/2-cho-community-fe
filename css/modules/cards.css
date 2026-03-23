@@ -111,7 +111,7 @@
 /* 뱃지·태그 스타일은 tags.css에서 통합 관리 */
 .post-badges {
     display: flex;
-    gap: 6px;
+    gap: var(--spacing-xs);
     flex-wrap: wrap;
 }
 
@@ -143,7 +143,7 @@
 }
 
 .post-card.read {
-    opacity: 0.7;
+    opacity: 0.85;
 }
 
 /* ============================= */
