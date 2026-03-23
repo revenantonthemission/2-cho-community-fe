@@ -176,8 +176,12 @@ class MainController {
                     if (forYouBtn) forYouBtn.classList.remove('active');
                 }
 
-                sortButtons.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                sortButtons.querySelectorAll('.sort-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-pressed', 'false');
+                });
                 btn.classList.add('active');
+                btn.setAttribute('aria-pressed', 'true');
 
                 this.filters.sort = sort;
                 this._resetAndReload();
@@ -299,6 +303,12 @@ class MainController {
         const sentinel = document.getElementById('loading-sentinel');
 
         PostListView.toggleLoadingSentinel(sentinel, true);
+
+        // 첫 페이지 로드 시 스켈레톤 카드 표시 (무한 스크롤 append는 제외)
+        if (this.currentOffset === 0 && listElement) {
+            listElement.textContent = '';
+            listElement.appendChild(PostListView.createSkeletonCards(3));
+        }
 
         try {
             const sort = this.filters.forYou ? 'for_you' : this.filters.sort;

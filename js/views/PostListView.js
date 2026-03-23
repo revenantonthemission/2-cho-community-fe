@@ -113,10 +113,18 @@ class PostListView extends BaseListView {
         // --- 카드 조립 ---
         const card = createElement('li', {
             className: `post-card${post.is_pinned ? ' pinned' : ''}${post.is_read ? ' read' : ''}`,
+            tabindex: '0',
+            role: 'article',
         }, [metaBar, body, footer]);
 
         if (onClick) {
             card.addEventListener('click', () => onClick(post.post_id));
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onClick(post.post_id);
+                }
+            });
         }
 
         return card;
@@ -159,6 +167,29 @@ class PostListView extends BaseListView {
         if (sentinel) {
             sentinel.innerText = message;
         }
+    }
+
+    /**
+     * 스켈레톤 로딩 카드 생성
+     * @param {number} count - 스켈레톤 카드 수
+     * @returns {DocumentFragment}
+     */
+    static createSkeletonCards(count = 3) {
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < count; i++) {
+            fragment.appendChild(createElement('li', { className: 'skeleton-post' }, [
+                createElement('div', { className: 'skeleton-post-header' }, [
+                    createElement('div', { className: 'skeleton skeleton-avatar' }),
+                    createElement('div', { className: 'skeleton-post-meta' }, [
+                        createElement('div', { className: 'skeleton skeleton-text' }),
+                        createElement('div', { className: 'skeleton skeleton-text' }),
+                    ]),
+                ]),
+                createElement('div', { className: 'skeleton skeleton-title' }),
+                createElement('div', { className: 'skeleton skeleton-text medium' }),
+            ]));
+        }
+        return fragment;
     }
 
     /**
