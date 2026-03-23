@@ -5,6 +5,7 @@
 import { formatDate, formatCount, truncateTitle, escapeCssUrl } from '../utils/formatters.js';
 import { getImageUrl } from './helpers.js';
 import { createElement } from '../utils/dom.js';
+// 상수 및 경로 유틸리티
 import { NAV_PATHS, CATEGORY_LABELS } from '../constants.js';
 import { resolveNavPath } from '../config.js';
 import { createDistroBadge } from '../utils/distro.js';
@@ -17,7 +18,7 @@ class PostListView extends BaseListView {
     /**
      * 게시글 카드 요소 생성
      * 구조: 작성자 메타 → 제목(+배지) → 통계+태그
-     * @param {object} post - 게시글 데이터
+     * @param {Record<string, any>} post - 게시글 데이터
      * @param {Function} onClick - 클릭 핸들러
      * @returns {HTMLElement} - 게시글 카드 요소
      */
@@ -44,7 +45,7 @@ class PostListView extends BaseListView {
                     const nameRow = createElement('span', {
                         className: `post-card__author${post.author?.user_id ? ' clickable-nickname' : ''}`,
                         ...(post.author?.user_id ? {
-                            onClick: (e) => {
+                            onClick: (/** @type {any} */ e) => {
                                 e.stopPropagation();
                                 location.href = resolveNavPath(NAV_PATHS.USER_PROFILE(post.author.user_id));
                             },
@@ -86,10 +87,10 @@ class PostListView extends BaseListView {
         if (post.tags && post.tags.length > 0) {
             bodyChildren.push(
                 createElement('div', { className: 'post-tags' },
-                    post.tags.map(tag =>
+                    post.tags.map(/** @param {any} tag */ tag =>
                         createElement('span', {
                             className: 'tag-badge',
-                            onClick: (e) => {
+                            onClick: (/** @type {any} */ e) => {
                                 e.stopPropagation();
                                 location.href = resolveNavPath(`${NAV_PATHS.MAIN}?tag=${encodeURIComponent(tag.name)}`);
                             },
@@ -100,15 +101,13 @@ class PostListView extends BaseListView {
         }
 
         const body = createElement('div', { className: 'post-card__body' }, bodyChildren);
-
         // --- 3. 하단 통계 바 ---
-        const footer = createElement('div', { className: 'post-card__footer' }, [
-            createElement('div', { className: 'post-stats' }, [
-                createElement('span', {}, [`♥ ${formatCount(likes)}`]),
-                createElement('span', {}, [`◆ ${formatCount(comments)}`]),
-                createElement('span', {}, [`▸ ${formatCount(views)}`]),
-            ]),
+        const postStats = createElement('div', { className: 'post-stats' }, [
+            createElement('span', {}, [`♥ ${formatCount(likes)}`]),
+            createElement('span', {}, [`◆ ${formatCount(comments)}`]),
+            createElement('span', {}, [`▸ ${formatCount(views)}`]),
         ]);
+        const footer = createElement('div', { className: 'post-card__footer' }, [postStats]);
 
         // --- 카드 조립 ---
         const card = createElement('li', {
@@ -133,7 +132,7 @@ class PostListView extends BaseListView {
     /**
      * 게시글 목록 렌더링
      * @param {HTMLElement} container - 목록 컨테이너
-     * @param {Array} posts - 게시글 배열
+     * @param {Array<any>} posts - 게시글 배열
      * @param {Function} onPostClick - 게시글 클릭 핸들러
      */
     static renderPosts(container, posts, onPostClick) {
@@ -195,7 +194,7 @@ class PostListView extends BaseListView {
     /**
      * 카테고리 탭 렌더링
      * @param {HTMLElement} container - 탭 컨테이너
-     * @param {Array} categories - 카테고리 목록
+     * @param {Array<any>} categories - 카테고리 목록
      * @param {number|null} activeCategoryId - 현재 선택된 카테고리 ID
      * @param {Function} onSelect - 카테고리 선택 핸들러
      */
@@ -203,8 +202,8 @@ class PostListView extends BaseListView {
         BaseListView.renderFilterButtons(container, categories, activeCategoryId, onSelect, {
             className: 'category-tab',
             allLabel: '전체',
-            getKey: (cat) => cat.category_id,
-            getLabel: (cat) => cat.name,
+            getKey: (/** @type {any} */ cat) => cat.category_id,
+            getLabel: (/** @type {any} */ cat) => cat.name,
         });
     }
 }
