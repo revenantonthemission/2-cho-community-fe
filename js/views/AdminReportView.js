@@ -55,7 +55,7 @@ class AdminReportView {
             ]),
         ];
 
-        // 대기중 상태에서만 처리 버튼 표시
+        // 대기중: 처리/기각 버튼 | 처리완료/기각: 다시 열기 버튼
         if (report.status === 'pending') {
             cardChildren.push(
                 createElement('div', { className: 'report-card-actions' }, [
@@ -67,6 +67,15 @@ class AdminReportView {
                         className: 'report-action-btn dismiss-btn',
                         onClick: () => handlers.onDismiss(report.report_id),
                     }, ['기각']),
+                ])
+            );
+        } else {
+            cardChildren.push(
+                createElement('div', { className: 'report-card-actions' }, [
+                    createElement('button', {
+                        className: 'report-action-btn action-btn',
+                        onClick: () => handlers.onReopen(report.report_id),
+                    }, ['다시 열기']),
                 ])
             );
         }
