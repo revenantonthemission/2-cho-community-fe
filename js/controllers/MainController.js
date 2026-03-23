@@ -281,6 +281,10 @@ class MainController {
                 this.hasMore = false;
                 PostListView.toggleLoadingSentinel(sentinel, false);
             }
+            // 첫 페이지 로드 완료 시 스켈레톤 카드 제거
+            if (this.currentOffset === 0 && listElement) {
+                listElement.querySelectorAll('.skeleton-post').forEach(el => el.remove());
+            }
             if (this.currentOffset === 0 && newPosts.length === 0) {
                 this._renderEmptyFeed(listElement, sentinel);
                 return;
