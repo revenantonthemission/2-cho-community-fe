@@ -185,9 +185,9 @@ body:has(.login-page) {
 }
 
 /* ============================= */
-/* 모바일 — 세로 스택             */
+/* 모바일/태블릿 — 세로 스택 (900px: 스플릿 레이아웃 좁아짐 방지) */
 /* ============================= */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .login-page {
         flex-direction: column;
     }

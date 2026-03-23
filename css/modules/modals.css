@@ -69,14 +69,17 @@
     transition: all var(--transition-fast);
 }
 
-/* 취소 버튼 - 어두운색/검정 (Cancel Button - Dark/Black) */
+/* 취소 버튼 — Outlined 스타일 (Cancel Button — Outlined) */
 .modal-buttons .secondary-btn {
-    background-color: var(--color-gray-600);
-    color: var(--color-text-white);
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
 }
 
 .modal-buttons .secondary-btn:hover {
-    background-color: var(--color-gray-700);
+    background-color: var(--color-bg-tertiary);
+    border-color: var(--color-border-dark);
+    color: var(--color-text-primary);
 }
 
 /* 확인 버튼 - 보라색 (Confirm Button - Purple) */

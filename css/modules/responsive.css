@@ -543,6 +543,10 @@ html {
         max-width: 760px;
     }
 
+    body.has-sidebar .main-container--wide {
+        max-width: 860px;
+    }
+
     /* 와이드 패키지 3열 */
     .package-grid {
         grid-template-columns: repeat(3, 1fr);
