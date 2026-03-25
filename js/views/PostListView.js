@@ -10,6 +10,7 @@ import { NAV_PATHS, CATEGORY_LABELS } from '../constants.js';
 import { resolveNavPath } from '../config.js';
 import { createDistroBadge } from '../utils/distro.js';
 import BaseListView from './BaseListView.js';
+import { Icons } from '../utils/icons.js';
 
 /**
  * 게시글 목록 View 클래스
@@ -113,7 +114,9 @@ class PostListView extends BaseListView {
         ];
         // 구독 중(watching) 표시
         if (post.is_watching) {
-            statsChildren.push(createElement('span', { className: 'watching-indicator', title: '구독 중' }, ['🔔']));
+            const watchSpan = createElement('span', { className: 'watching-indicator', title: '구독 중' });
+            watchSpan.appendChild(Icons.bell(14));
+            statsChildren.push(watchSpan);
         }
         const postStats = createElement('div', { className: 'post-stats' }, statsChildren);
         const footer = createElement('div', { className: 'post-card__footer' }, [postStats]);
