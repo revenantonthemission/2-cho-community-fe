@@ -91,6 +91,7 @@ class HeaderController {
                     onEditInfo: () => this._handleEditInfo(),
                     onChangePassword: () => this._handleChangePassword(),
                     onMyActivity: () => this._handleMyActivity(),
+                    onBadges: () => this._handleBadges(),
                     onLogout: () => this._handleLogout(),
                 };
                 if (this.currentUser.role === 'admin') {
@@ -229,6 +230,7 @@ class HeaderController {
     _handleEditInfo() { this._navigate('/edit-profile'); }
     _handleChangePassword() { this._navigate('/password'); }
     _handleMyActivity() { this._navigate(NAV_PATHS.MY_ACTIVITY); }
+    _handleBadges() { this._navigate(NAV_PATHS.BADGES); }
     _handleAdminDashboard() { this._navigate(NAV_PATHS.ADMIN_DASHBOARD); }
     _handleAdminReports() { this._navigate(NAV_PATHS.ADMIN_REPORTS); }
     /**
