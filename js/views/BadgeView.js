@@ -3,6 +3,7 @@
 // 배지 목록 렌더링
 
 import { createElement } from '../utils/dom.js';
+import { Icons } from '../utils/icons.js';
 
 /** @type {Record<string, string>} */
 const CATEGORY_LABELS = {
@@ -13,13 +14,6 @@ const CATEGORY_LABELS = {
 
 /** @type {Array<string>} */
 const CATEGORY_ORDER = ['bronze', 'silver', 'gold'];
-
-/** @type {Record<string, string>} */
-const BADGE_ICONS = {
-    bronze: '\u2B50',
-    silver: '\u2B50',
-    gold: '\u2B50',
-};
 
 class BadgeView {
     /**
@@ -78,11 +72,19 @@ class BadgeView {
      */
     static createBadgeCard(badge, isEarned, earnedAt) {
         const category = badge.category || 'bronze';
-        const icon = badge.icon || BADGE_ICONS[category] || '\u2B50';
+
+        // Lucide SVG 아이콘 렌더링 (DB icon 이름으로 매칭)
+        const iconEl = createElement('div', { className: `badge-icon ${category}` });
+        const iconFn = badge.icon ? Icons[badge.icon] : null;
+        if (iconFn) {
+            iconEl.appendChild(iconFn(24));
+        } else {
+            iconEl.textContent = '\u2B50';
+        }
 
         /** @type {Array<string|Node|false>} */
         const children = [
-            createElement('div', { className: `badge-icon ${category}` }, [icon]),
+            iconEl,
             createElement('span', { className: 'badge-name' }, [badge.name || '']),
             createElement('span', { className: 'badge-description' }, [badge.description || '']),
         ];
