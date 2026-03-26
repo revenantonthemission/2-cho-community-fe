@@ -43,7 +43,7 @@ class BadgeController {
             /** @type {Array<any>} */
             let earnedBadges = [];
             if (this.currentUser) {
-                const earnedResult = await ReputationModel.getUserBadges(this.currentUser.id);
+                const earnedResult = await ReputationModel.getUserBadges(this.currentUser.user_id);
                 if (earnedResult.ok) {
                     earnedBadges = earnedResult.data?.data?.badges || [];
                 }
