@@ -93,12 +93,11 @@ class PostListView extends BaseListView {
             bodyChildren.push(
                 createElement('div', { className: 'post-tags' },
                     post.tags.map(/** @param {any} tag */ tag =>
-                        createElement('span', {
+                        createElement('a', {
                             className: 'tag-badge',
-                            onClick: (/** @type {any} */ e) => {
-                                e.stopPropagation();
-                                location.href = resolveNavPath(`${NAV_PATHS.MAIN}?tag=${encodeURIComponent(tag.name)}`);
-                            },
+                            href: resolveNavPath(NAV_PATHS.TAG_DETAIL(tag.name)),
+                            title: tag.description || undefined,
+                            onClick: (/** @type {any} */ e) => e.stopPropagation(),
                         }, [`#${tag.name}`])
                     )
                 )
