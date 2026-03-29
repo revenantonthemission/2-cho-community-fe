@@ -74,7 +74,7 @@ class WikiHistoryController {
                 return;
             }
 
-            const revisions = result.data?.data?.revisions || result.data?.revisions || [];
+            const revisions = /** @type {any} */ (result.data?.data)?.revisions || [];
 
             if (revisions.length === 0) {
                 BaseListView.renderEmptyState(container, '편집 기록이 없습니다.', 'git log --oneline');

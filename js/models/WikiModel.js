@@ -101,7 +101,7 @@ class WikiModel {
      * @param {number} revisionNumber
      */
     static async rollback(slug, revisionNumber) {
-        return ApiService.post(API_ENDPOINTS.WIKI.ROLLBACK(slug, revisionNumber));
+        return ApiService.post(API_ENDPOINTS.WIKI.ROLLBACK(slug, revisionNumber), {});
     }
 }
 

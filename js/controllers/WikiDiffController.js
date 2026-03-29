@@ -95,7 +95,7 @@ class WikiDiffController {
                 /** @type {number} */ (this.toRev),
             );
             if (!result.ok) {
-                const status = result.data?.status || result.status;
+                const status = result.status;
                 if (status === 400) {
                     showToast('리비전 순서가 올바르지 않습니다.');
                 } else if (status === 404) {
