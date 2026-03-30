@@ -25,6 +25,10 @@ import WikiEditPage from './pages/wiki/WikiEditPage';
 import WikiHistoryPage from './pages/wiki/WikiHistoryPage';
 import WikiRevisionPage from './pages/wiki/WikiRevisionPage';
 import WikiDiffPage from './pages/wiki/WikiDiffPage';
+import PackageListPage from './pages/packages/PackageListPage';
+import PackageDetailPage from './pages/packages/PackageDetailPage';
+import PackageWritePage from './pages/packages/PackageWritePage';
+import PackageEditPage from './pages/packages/PackageEditPage';
 
 export default function App() {
   return (
@@ -62,6 +66,14 @@ export default function App() {
                     <Route path="/wiki/:slug/history" element={<WikiHistoryPage />} />
                     <Route path="/wiki/:slug/revisions/:n" element={<WikiRevisionPage />} />
                     <Route path="/wiki/:slug/diff" element={<WikiDiffPage />} />
+
+                    {/* 패키지 */}
+                    <Route path="/packages" element={<PackageListPage />} />
+                    <Route element={<AuthGuard />}>
+                      <Route path="/packages/write" element={<PackageWritePage />} />
+                      <Route path="/packages/edit/:id" element={<PackageEditPage />} />
+                    </Route>
+                    <Route path="/packages/:id" element={<PackageDetailPage />} />
                   </Route>
 
                   <Route path="*" element={<NotFoundPage />} />
