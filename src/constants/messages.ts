@@ -50,4 +50,6 @@ export const UI_MESSAGES = {
   REPORT_RESOLVE_SUCCESS: '신고가 처리되었습니다.',
   REPORT_REOPEN_SUCCESS: '신고가 다시 열렸습니다.',
   REPORT_FAIL: '신고 처리에 실패했습니다.',
+  ACTIVITY_LOAD_FAIL: '활동 내역을 불러오지 못했습니다.',
+  BADGES_LOAD_FAIL: '뱃지를 불러오지 못했습니다.',
 } as const;

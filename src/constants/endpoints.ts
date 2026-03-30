@@ -85,6 +85,19 @@ export const API_ENDPOINTS = {
     REPORT_RESOLVE: (id: number) => `/v1/admin/reports/${id}`,
     REPORT_REOPEN: (id: number) => `/v1/admin/reports/${id}/reopen`,
   },
+  ACTIVITY: {
+    MY_POSTS: '/v1/users/me/posts',
+    MY_COMMENTS: '/v1/users/me/comments',
+    MY_LIKES: '/v1/users/me/likes',
+    MY_BOOKMARKS: '/v1/users/me/bookmarks',
+    MY_BLOCKS: '/v1/users/me/blocks',
+    MY_FOLLOWING: '/v1/users/me/following',
+    MY_FOLLOWERS: '/v1/users/me/followers',
+  },
+  BADGES: {
+    ALL: '/v1/badges',
+    TRUST_LEVELS: '/v1/trust-levels',
+  },
 } as const;
 
 const IS_LOCAL =

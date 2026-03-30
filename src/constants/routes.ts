@@ -22,4 +22,6 @@ export const ROUTES = {
   PACKAGE_DETAIL: (id: number) => `/packages/${id}`,
   ADMIN: '/admin',
   ADMIN_REPORTS: '/admin/reports',
+  MY_ACTIVITY: '/my-activity',
+  BADGES: '/badges',
 } as const;
