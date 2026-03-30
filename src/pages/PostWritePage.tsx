@@ -19,7 +19,7 @@ export default function PostWritePage() {
   }) {
     const res = await api.post<ApiResponse<Post>>(API_ENDPOINTS.POSTS.ROOT, data);
     showToast(UI_MESSAGES.POST_CREATE_SUCCESS);
-    const postId = res?.data?.id;
+    const postId = res?.data?.post_id;
     navigate(postId ? ROUTES.POST_DETAIL(postId) : ROUTES.HOME);
   }
 
