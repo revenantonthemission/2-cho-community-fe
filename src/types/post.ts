@@ -1,3 +1,8 @@
+export interface Tag {
+  id: number;
+  name: string;
+}
+
 export interface Post {
   id: number;
   title: string;
@@ -14,7 +19,7 @@ export interface Post {
   is_pinned: boolean;
   is_liked?: boolean;
   is_bookmarked?: boolean;
-  tags: string[];
+  tags: Tag[];
   created_at: string;
   updated_at: string;
 }

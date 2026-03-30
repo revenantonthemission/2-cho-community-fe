@@ -51,7 +51,7 @@ export default function PostEditPage() {
           title: post.title,
           content: post.content,
           category_id: post.category_id,
-          tags: post.tags,
+          tags: post.tags.map((t) => t.name),
         }}
         onSubmit={handleSubmit}
         submitLabel="수정"

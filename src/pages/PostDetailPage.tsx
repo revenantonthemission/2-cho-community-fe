@@ -155,8 +155,8 @@ export default function PostDetailPage() {
         {post.tags.length > 0 && (
           <div className="post-tags">
             {post.tags.map((tag) => (
-              <span className="tag-badge" key={tag}>
-                #{tag}
+              <span className="tag-badge" key={tag.id}>
+                #{tag.name}
               </span>
             ))}
           </div>

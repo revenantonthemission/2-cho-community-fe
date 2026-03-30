@@ -42,8 +42,8 @@ export default function PostCard({ post }: PostCardProps) {
         {post.tags.length > 0 && (
           <div className="post-tags">
             {post.tags.map((tag) => (
-              <span key={tag} className="tag-badge">
-                {tag}
+              <span key={tag.id} className="tag-badge">
+                #{tag.name}
               </span>
             ))}
           </div>
