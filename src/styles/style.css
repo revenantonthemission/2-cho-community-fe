@@ -1,0 +1,55 @@
+/* css/style.css */
+@import url('variables.css');
+/* SMACSS 기반 CSS 구조화 - 모든 모듈 Import */
+
+/* ============================= */
+/* 1. Base - Reset & Typography  */
+/* ============================= */
+@import url('base.css');
+
+/* ============================= */
+/* 2. Layout - Structure         */
+/* ============================= */
+@import url('layout.css');
+
+/* ============================= */
+/* 3. Modules - Reusable         */
+/* ============================= */
+@import url('modules/buttons.css');
+@import url('modules/forms.css');
+@import url('modules/cards.css');
+@import url('modules/search.css');
+@import url('modules/modals.css');
+@import url('modules/comments.css');
+@import url('modules/mention.css');
+@import url('modules/toast.css');
+@import url('modules/animations.css');
+@import url('modules/notifications.css');
+@import url('modules/markdown.css');
+@import url('modules/tags.css');
+@import url('modules/dm.css');
+@import url('modules/social-login.css');
+@import url('modules/code.css');
+@import url('modules/distro.css');
+@import url('modules/reputation.css');
+@import url('modules/sidebar.css');
+@import url('modules/bottom-tabs.css');
+@import url('modules/responsive.css');
+
+/* ============================= */
+/* 4. Pages - Page-specific      */
+/* ============================= */
+
+/* 5. Pages - SPA에서는 전역 로드 */
+@import url('pages/login.css');
+@import url('pages/signup.css');
+@import url('pages/detail.css');
+@import url('pages/write.css');
+@import url('pages/profile.css');
+@import url('pages/find_account.css');
+@import url('pages/admin.css');
+@import url('pages/tags.css');
+@import url('pages/wiki.css');
+@import url('pages/packages.css');
+@import url('pages/badges.css');
+@import url('pages/social-signup.css');

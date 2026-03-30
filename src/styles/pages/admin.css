@@ -1,0 +1,489 @@
+/* css/pages/admin.css */
+/* 신고 관리 페이지 스타일 */
+
+/* ============================= */
+/* 페이지 타이틀 */
+/* ============================= */
+.admin-page-title {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+}
+
+/* ============================= */
+/* 필터 탭 */
+/* ============================= */
+.report-filter-tabs {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xl);
+    padding: 0 var(--spacing-lg);
+}
+
+.report-filter-tab {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-caption);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    color: var(--color-text-secondary);
+}
+
+.report-filter-tab:hover {
+    background: var(--color-badge-category-bg);
+    border-color: var(--color-primary-accent);
+}
+
+.report-filter-tab.active {
+    background: var(--color-primary-accent);
+    color: var(--color-text-white);
+    border-color: var(--color-primary-accent);
+}
+
+/* ============================= */
+/* 신고 카드 목록 */
+/* ============================= */
+.report-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    padding: 0 var(--spacing-lg);
+}
+
+/* ============================= */
+/* 신고 카드 */
+/* ============================= */
+.report-card {
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border-light);
+}
+
+.report-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.report-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.report-target-type {
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.report-date {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+}
+
+/* ============================= */
+/* 상태 배지 */
+/* ============================= */
+.report-status-badge {
+    display: inline-block;
+    padding: var(--spacing-2xs) var(--spacing-md);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+}
+
+.report-status-badge.status-pending {
+    background: var(--color-badge-pending-bg);
+    color: var(--color-badge-pending-text);
+}
+
+.report-status-badge.status-resolved {
+    background: var(--color-badge-resolved-bg);
+    color: var(--color-badge-resolved-text);
+}
+
+.report-status-badge.status-dismissed {
+    background: var(--color-badge-dismissed-bg);
+    color: var(--color-badge-dismissed-text);
+}
+
+/* ============================= */
+/* 신고 상세 정보 */
+/* ============================= */
+.report-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.report-info-row {
+    display: flex;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-caption);
+    line-height: var(--line-height-normal);
+}
+
+.report-label {
+    color: var(--color-text-tertiary);
+    min-width: 60px;
+    flex-shrink: 0;
+    font-weight: var(--font-weight-medium);
+}
+
+/* ============================= */
+/* 신고 카드 액션 버튼 */
+/* ============================= */
+.report-card-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-border-light);
+}
+
+.report-action-btn {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: none;
+    border-radius: var(--btn-radius);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.resolve-btn {
+    background: var(--color-danger-light);
+    color: var(--color-text-white);
+}
+
+.resolve-btn:hover {
+    background: var(--color-danger-dark);
+}
+
+.dismiss-btn {
+    background: var(--color-gray-200);
+    color: var(--color-text-primary);
+}
+
+.dismiss-btn:hover {
+    background: var(--color-gray-500);
+}
+
+/* ============================= */
+/* 신고 모달 폼 */
+/* ============================= */
+.report-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+}
+
+.report-form label {
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.report-form textarea {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    resize: vertical;
+    font-family: inherit;
+}
+
+.report-form textarea:focus {
+    outline: none;
+    border-color: var(--color-primary-accent);
+}
+
+/* ============================= */
+/* 정지 옵션 (신고 처리 모달)    */
+/* ============================= */
+.suspend-option {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-md) 0;
+    padding: var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    text-align: left;
+}
+
+.suspend-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    cursor: pointer;
+}
+
+.suspend-option .modal-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-base);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    box-sizing: border-box;
+}
+
+.suspend-option .modal-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================= */
+/* 대시보드 공통                  */
+/* ============================= */
+.dashboard-section {
+    margin-bottom: var(--spacing-xl);
+    padding: 0 var(--spacing-lg);
+}
+
+.dashboard-section-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+/* ============================= */
+/* 대시보드 통계 카드              */
+/* ============================= */
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+    padding: 0 var(--spacing-lg);
+}
+
+.stat-card {
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.stat-card .stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+/* ============================= */
+/* 일별 통계 테이블                */
+/* ============================= */
+.dashboard-table-wrapper {
+    overflow-x: auto;
+}
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--spacing-md);
+}
+
+.dashboard-table th,
+.dashboard-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--color-border-light);
+    text-align: center;
+}
+
+.dashboard-table th {
+    background: var(--color-bg-secondary);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.dashboard-table td {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+}
+
+/* ============================= */
+/* 사용자 관리 목록                */
+/* ============================= */
+.user-search-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-md);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    box-sizing: border-box;
+}
+
+.user-search-input::placeholder {
+    color: var(--color-text-placeholder);
+}
+
+.user-search-input:focus {
+    outline: none;
+    border-color: var(--color-primary-accent);
+}
+
+.user-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-sm);
+    background: var(--color-bg-primary);
+}
+
+.user-card .user-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.user-card .user-info-top {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.user-card .user-nickname {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.user-card .user-email {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.user-card .user-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-shrink: 0;
+}
+
+.role-badge {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-2xs) var(--spacing-sm);
+    border-radius: var(--radius-pill);
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
+}
+
+.role-badge.admin {
+    background: var(--color-primary-accent);
+    color: var(--color-text-white);
+}
+
+.suspended-badge {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-2xs) var(--spacing-sm);
+    border-radius: var(--radius-pill);
+    background: var(--color-error);
+    color: var(--color-text-white);
+}
+
+.danger-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-error);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-error);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-fast);
+}
+
+.danger-btn:hover {
+    background: var(--color-error);
+    color: var(--color-text-white);
+}
+
+.success-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-success);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-success);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-fast);
+}
+
+.success-btn:hover {
+    background: var(--color-success);
+    color: var(--color-text-white);
+}
+
+/* ============================= */
+/* 정지 모달 폼 (대시보드)         */
+/* ============================= */
+.suspend-modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-md) 0;
+    text-align: left;
+}
+
+.suspend-modal-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.modal-textarea {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    font-family: inherit;
+    resize: vertical;
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    box-sizing: border-box;
+}
+
+.modal-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary-accent);
+}
+
+.empty-message {
+    text-align: center;
+    color: var(--color-text-tertiary);
+    padding: var(--spacing-xl);
+    font-size: var(--font-size-sm);
+}

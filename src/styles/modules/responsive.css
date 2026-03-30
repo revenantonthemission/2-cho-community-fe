@@ -1,0 +1,596 @@
+/* css/modules/responsive.css */
+/* 반응형 — Terminal Editorial 디자인 시스템 */
+/* 브레이크포인트: 480(모바일) / 768(태블릿) / 1024(데스크톱) / 1200(와이드) */
+
+/* ============================= */
+/* Safe Area (노치 폰 대응)       */
+/* ============================= */
+html {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* ============================= */
+/* 모바일 (480px 이하)            */
+/* ============================= */
+@media (max-width: 480px) {
+    /* --- 헤더 축소 — 변수 오버라이드로 사이드바 top과 동기화 --- */
+    :root {
+        --header-height: 56px;
+    }
+
+    .main-container {
+        padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-4xl);
+    }
+
+    .header-title-wrapper {
+        padding: 0 var(--spacing-lg);
+    }
+
+    .header-home-link h2 {
+        font-size: var(--font-size-lg);
+    }
+
+    .header-auth {
+        right: var(--spacing-lg);
+        gap: var(--spacing-sm);
+    }
+
+    .back-button {
+        left: var(--spacing-sm);
+    }
+
+    /* 사이드바 토글이 있을 때 back-button 위치 조정 */
+    body.has-sidebar .back-button {
+        left: calc(var(--spacing-sm) + 36px);
+    }
+
+    /* --- 헤더 드롭다운 화면 밖 방지 --- */
+    .header-dropdown {
+        right: calc(-1 * var(--spacing-sm));
+    }
+
+    /* --- 입력 필드 iOS 줌 방지 (16px 이상) --- */
+    input,
+    textarea,
+    select,
+    .input-group input,
+    .profile-input,
+    .search-bar input,
+    .category-select,
+    .modal-input,
+    #comment-input,
+    .content-textarea {
+        font-size: 16px !important;
+    }
+
+    /* --- 터치 타겟 최소 44px --- */
+    .action-btn {
+        padding: var(--spacing-md);
+        font-size: var(--font-size-base);
+        min-height: 44px;
+    }
+
+    .small-btn {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: var(--font-size-sm);
+        min-height: 44px;
+    }
+
+    .comment-like-btn {
+        padding: var(--spacing-sm) var(--spacing-md);
+        min-height: 44px;
+    }
+
+    .comment-sort-btn {
+        padding: var(--spacing-sm) var(--spacing-md);
+        min-height: 36px;
+    }
+
+    .write-btn,
+    .comment-submit-btn,
+    .search-btn {
+        padding: var(--spacing-md) var(--spacing-xl);
+        min-height: 44px;
+    }
+
+    .back-button {
+        padding: var(--spacing-md);
+    }
+
+    .md-toolbar-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .md-editor-compact .md-toolbar-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    /* --- 댓글 --- */
+    .comment-reply {
+        margin-left: var(--spacing-xl);
+        padding-left: var(--spacing-md);
+    }
+
+    .comment-header {
+        flex-wrap: wrap;
+        gap: var(--spacing-xs);
+    }
+
+    .comment-actions {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    /* --- 게시글 상세 --- */
+    .detail-title {
+        font-size: var(--font-size-xl);
+    }
+
+    .post-info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .post-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .post-stats-box {
+        gap: var(--spacing-sm);
+        margin: var(--spacing-xl) 0;
+    }
+
+    .stat-box {
+        padding: var(--spacing-sm) var(--spacing-lg);
+        min-width: 64px;
+    }
+
+    /* --- 게시글 카드 --- */
+    .post-card {
+        padding: var(--spacing-lg);
+        gap: var(--spacing-md);
+    }
+
+    .post-card__meta-text {
+        gap: var(--spacing-xs);
+    }
+
+    .post-card-header {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .post-title {
+        margin-right: 0;
+        font-size: var(--font-size-md);
+    }
+
+    .post-card__footer {
+        padding-top: var(--spacing-xs);
+    }
+
+    /* --- 모달 --- */
+    .modal-content {
+        width: 92%;
+        padding: var(--spacing-xl);
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .modal-buttons button {
+        width: 100%;
+        padding: var(--spacing-md);
+        min-height: 44px;
+    }
+
+    /* --- 토스트 키보드 겹침 방지 --- */
+    #toast {
+        bottom: max(40px, env(safe-area-inset-bottom, 40px));
+        max-width: calc(100vw - var(--spacing-3xl));
+    }
+
+    /* --- 검색/정렬 --- */
+    .search-bar {
+        flex-wrap: wrap;
+    }
+
+    .search-bar__prompt {
+        display: none;
+    }
+
+    .search-bar input {
+        flex: 1 1 100%;
+    }
+
+    .search-btn {
+        flex: 1;
+    }
+
+    /* --- 글쓰기 페이지 --- */
+    .post-detail-container,
+    .write-container {
+        max-width: 100%;
+    }
+
+    /* --- 이미지 갤러리 모바일 1열 --- */
+    .image-gallery.multi-image img {
+        width: 100%;
+    }
+
+    /* --- DM --- */
+    .dm-detail-container {
+        height: calc(100vh - var(--header-height));
+        height: calc(100dvh - var(--header-height));
+    }
+
+    .dm-msg {
+        max-width: 85%;
+    }
+
+    .dm-input-area {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    /* --- 환영 섹션 --- */
+    .welcome-hero {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+    }
+
+    .welcome-hero__heading {
+        font-size: var(--font-size-xl);
+    }
+
+    .welcome-hero__nav {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .welcome-section h3 {
+        font-size: var(--font-size-lg);
+    }
+
+    /* --- 추가 액션 버튼 줄바꿈 --- */
+    .post-extra-actions {
+        flex-wrap: wrap;
+    }
+
+    /* --- 로그인/회원가입 --- */
+    .login-container,
+    .signup-container {
+        padding: var(--spacing-lg);
+    }
+
+    /* --- 댓글 정렬 바 --- */
+    .comment-sort-bar {
+        flex-wrap: wrap;
+    }
+
+    /* --- 마크다운 테이블 가로 스크롤 --- */
+    .markdown-body table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* --- 피드 필터 가로 스크롤 --- */
+    .feed-filters {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: var(--spacing-xs);
+    }
+
+    .feed-filters::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* --- 투표 --- */
+    .poll-container {
+        padding: var(--spacing-lg);
+    }
+
+    /* --- 알림 --- */
+    .notification-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .notification-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .notification-delete-btn {
+        margin-left: 0;
+        align-self: flex-end;
+        min-height: 36px;
+    }
+
+    /* --- 내 활동 --- */
+    .activity-tabs {
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        flex: none;
+        padding: var(--spacing-sm) var(--spacing-lg);
+    }
+
+    .comment-card {
+        padding: var(--spacing-lg);
+    }
+
+    .comment-card-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+
+    .block-card {
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+
+    /* --- 관리자 --- */
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .report-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .report-card-actions {
+        flex-direction: column;
+    }
+
+    .user-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .user-card .user-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    /* --- 프로필 --- */
+    .profile-stats {
+        gap: var(--spacing-xl);
+    }
+
+    .profile-action-buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .user-profile-header {
+        padding: var(--spacing-xl) var(--spacing-lg);
+    }
+
+    .user-profile-posts {
+        padding: 0 var(--spacing-lg) var(--spacing-4xl);
+    }
+
+    /* --- 위키 --- */
+    .wiki-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .wiki-meta {
+        flex-wrap: wrap;
+        gap: var(--spacing-xs);
+    }
+
+    /* --- 패키지 --- */
+    .package-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .package-header {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .review-card {
+        padding: var(--spacing-lg);
+    }
+}
+
+/* ============================= */
+/* 태블릿 (481px ~ 768px)        */
+/* ============================= */
+@media (min-width: 481px) and (max-width: 768px) {
+    .header-home-link h2 {
+        font-size: var(--font-size-xl);
+    }
+
+    /* 입력 필드 iOS 줌 방지 */
+    input,
+    textarea,
+    select {
+        font-size: 16px !important;
+    }
+
+    .markdown-body table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* --- 태블릿 카드 레이아웃 --- */
+    .post-card {
+        padding: var(--spacing-xl);
+    }
+
+    /* --- 태블릿 DM --- */
+    .dm-detail-container {
+        height: calc(100vh - var(--header-height));
+        height: calc(100dvh - var(--header-height));
+    }
+
+    /* --- 태블릿 관리자 --- */
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* --- 태블릿 패키지 2열 --- */
+    .package-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* --- 태블릿 프로필 --- */
+    .profile-action-buttons {
+        flex-wrap: wrap;
+    }
+}
+
+/* ============================= */
+/* 터치 디바이스 호버 효과 보정   */
+/* ============================= */
+@media (hover: none) and (pointer: coarse) {
+    /* 터치 디바이스에서 hover 효과 제거 (잔상 방지) */
+    .btn:hover:not(:disabled),
+    button:hover:not(:disabled),
+    [type="submit"]:hover:not(:disabled) {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .post-card:hover {
+        box-shadow: var(--card-shadow);
+    }
+
+    .back-button:hover {
+        background-color: transparent;
+    }
+
+    .header-home-link:hover {
+        opacity: 1;
+    }
+
+    .dm-card:hover {
+        background: transparent;
+    }
+
+    .dm-card.unread:hover {
+        background: var(--color-notification-unread);
+    }
+
+    .sidebar__link:hover {
+        background: transparent;
+        border-left-color: transparent;
+    }
+
+    /* active 효과 강화 (터치 피드백) */
+    .btn:active:not(:disabled),
+    button:active:not(:disabled),
+    [type="submit"]:active:not(:disabled) {
+        transform: scale(0.97);
+        opacity: 0.85;
+    }
+
+    .post-card:active {
+        transform: scale(0.99);
+    }
+
+    .back-button:active {
+        transform: translateY(-50%) scale(0.97);
+        opacity: 0.85;
+    }
+
+    .header-home-link:active {
+        opacity: 0.7;
+    }
+
+    .dm-card:active {
+        background: var(--surface-hover);
+    }
+
+    .sidebar__link:active {
+        background: var(--color-overlay-light);
+    }
+
+    /* 헤더 드롭다운 터치 타겟 확대 */
+    .header-dropdown li {
+        padding: var(--spacing-md);
+        min-height: 44px;
+    }
+}
+
+/* ============================= */
+/* 와이드 데스크톱 (1200px 이상)   */
+/* ============================= */
+@media (min-width: 1200px) {
+    /* 사이드바가 있을 때 콘텐츠 max-width를 약간 넓힘 */
+    body.has-sidebar .main-container {
+        max-width: 760px;
+    }
+
+    body.has-sidebar .main-container--wide {
+        max-width: 860px;
+    }
+
+    /* 와이드 패키지 3열 */
+    .package-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ============================= */
+/* 가로 모드 (landscape)          */
+/* ============================= */
+@media (max-height: 500px) and (orientation: landscape) {
+    :root {
+        --header-height: 48px;
+        --sidebar-width: 160px;
+    }
+
+    .header-home-link h2 {
+        font-size: var(--font-size-lg);
+    }
+
+    .dm-detail-container {
+        height: calc(100vh - var(--header-height));
+        height: calc(100dvh - var(--header-height));
+    }
+
+    /* 사이드바 compact */
+    .sidebar__link {
+        padding-top: var(--spacing-xs);
+        padding-bottom: var(--spacing-xs);
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* ============================= */
+/* DM 분할 레이아웃               */
+/* ============================= */
+@media (max-width: 768px) {
+    .dm-desktop-layout {
+        display: none;
+    }
+}
+
+@media (min-width: 769px) {
+    .dm-sidebar {
+        min-width: 280px;
+        max-width: 400px;
+    }
+}

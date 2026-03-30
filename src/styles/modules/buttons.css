@@ -1,0 +1,257 @@
+/* css/modules/buttons.css */
+/* 버튼 시스템 — Terminal Editorial */
+/* 3단계: Primary(채움) / Outlined(보더) / Filter(필터·탭) */
+
+/* ============================= */
+/* 공통 버튼 기반 스타일            */
+/* ============================= */
+
+/* 모든 버튼 공통 속성 */
+.write-btn,
+.submit-btn,
+.login-btn,
+.signup-btn,
+.search-btn,
+.comment-submit-btn,
+.action-btn,
+.small-btn,
+.nav-link-btn,
+.poll-vote-btn,
+.poll-change-btn,
+.poll-cancel-btn {
+    font-family: var(--font-family-mono);
+    letter-spacing: var(--tracking-wide);
+    cursor: pointer;
+    border-radius: var(--btn-radius);
+    transition: background-color var(--transition-fast),
+                border-color var(--transition-fast),
+                color var(--transition-fast),
+                box-shadow var(--transition-fast);
+    line-height: 1.4;
+    box-sizing: border-box;
+}
+
+/* ============================= */
+/* Primary 버튼 — 채움, 강조 액션  */
+/* ============================= */
+
+/* 표준 Primary (글쓰기, 검색, 댓글 제출) */
+.write-btn,
+.search-btn,
+.comment-submit-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background-color: var(--color-primary);
+    color: var(--color-text-white);
+    border: none;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+}
+
+.write-btn:hover,
+.search-btn:hover,
+.comment-submit-btn:hover {
+    background-color: var(--color-primary-hover);
+    box-shadow: var(--shadow-primary);
+}
+
+.write-btn:active,
+.search-btn:active,
+.comment-submit-btn:active {
+    box-shadow: var(--shadow-primary-active);
+}
+
+/* 전폭 Primary (로그인, 회원가입, 제출) */
+.submit-btn,
+.login-btn,
+.signup-btn {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-xl);
+    background-color: var(--color-primary);
+    color: var(--color-text-white);
+    border: none;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+}
+
+.login-btn,
+.signup-btn {
+    margin-top: var(--spacing-lg);
+}
+
+.submit-btn:hover,
+.login-btn:hover,
+.signup-btn:hover {
+    background-color: var(--color-primary-hover);
+    box-shadow: var(--shadow-primary);
+}
+
+.submit-btn:active,
+.login-btn:active,
+.signup-btn:active {
+    box-shadow: var(--shadow-primary-active);
+}
+
+.submit-btn:disabled,
+.login-btn:disabled,
+.signup-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.submit-btn.active {
+    opacity: 1;
+    cursor: pointer;
+}
+
+/* Generic primary/secondary 클래스 */
+.primary-btn {
+    background: var(--color-primary);
+    color: var(--color-text-white);
+}
+
+.primary-btn:hover {
+    background: var(--color-primary-hover);
+}
+
+.secondary-btn {
+    background: var(--surface-hover);
+    color: var(--color-text-primary);
+}
+
+/* ============================= */
+/* Outlined 버튼 — 보더, 보조 액션 */
+/* ============================= */
+.action-btn,
+.nav-link-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.action-btn:hover,
+.nav-link-btn:hover {
+    background: var(--color-primary-subtle);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.action-btn:active,
+.nav-link-btn:active {
+    background: var(--color-primary-lightest);
+}
+
+.nav-link-btn {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+/* Small 버튼 */
+.small-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+}
+
+.small-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+/* ============================= */
+/* 시맨틱 Outlined 변형           */
+/* ============================= */
+
+/* 신고 */
+.report-btn {
+    color: var(--color-error-dark);
+    border-color: var(--color-danger-bg-light);
+}
+
+.report-btn:hover {
+    background: var(--color-danger-bg);
+    border-color: var(--color-error-dark);
+    color: var(--color-error-dark);
+}
+
+/* 고정 */
+.pin-btn {
+    color: var(--color-warning);
+    border-color: var(--color-warning-bg-light);
+}
+
+.pin-btn:hover {
+    background: var(--color-warning-bg);
+    border-color: var(--color-warning-dark);
+    color: var(--color-warning-dark);
+}
+
+/* ============================= */
+/* 추가 액션 영역 (Extra Actions) */
+/* ============================= */
+.post-extra-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    justify-content: flex-end;
+}
+
+/* ============================= */
+/* 카테고리 셀렉트 (Category Select) */
+/* ============================= */
+.category-select {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--btn-radius);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family);
+    background: var(--surface-elevated);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    outline: none;
+    transition: border-color var(--transition-fast);
+    appearance: auto;
+}
+
+.category-select:focus {
+    border-color: var(--color-primary);
+}
+
+.category-select option:disabled {
+    color: var(--color-border-dark);
+}
+
+/* ============================= */
+/* 관리자 메뉴 아이템 (Admin Menu) */
+/* ============================= */
+.menu-admin {
+    color: var(--color-error-dark);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* ============================= */
+/* 탈퇴 버튼 (Withdraw Button) */
+/* ============================= */
+.withdraw-btn {
+    margin-top: var(--spacing-md);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
+    color: var(--color-text-secondary);
+    text-decoration: underline;
+    letter-spacing: var(--tracking-wide);
+}
+
+.withdraw-btn:hover {
+    color: var(--color-danger);
+}

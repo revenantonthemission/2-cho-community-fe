@@ -1,0 +1,31 @@
+/* css/modules/distro.css */
+/* 배포판 플레어 뱃지 — Terminal Editorial */
+
+.distro-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2xs);
+    vertical-align: middle;
+    margin-left: var(--spacing-xs);
+}
+
+.distro-badge__dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
+.distro-badge--normal .distro-badge__dot {
+    width: 10px;
+    height: 10px;
+}
+
+.distro-badge__label {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    white-space: nowrap;
+    letter-spacing: var(--tracking-wide);
+}

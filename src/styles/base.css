@@ -1,0 +1,187 @@
+/* css/base.css */
+/* 기본 스타일 및 Reset — Terminal Editorial */
+
+/* ============================= */
+/* 초기화 및 박스 사이징 (Reset & Box Sizing) */
+/* ============================= */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* ============================= */
+/* 본문 및 타이포그래피 (Body & Typography) */
+/* ============================= */
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: var(--font-family);
+    background-color: var(--color-bg-secondary);
+    line-height: var(--line-height-normal);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================= */
+/* 타이포그래피 — 에디토리얼 세리프 위계 */
+/* ============================= */
+h1,
+h2,
+h3 {
+    margin: 0;
+    font-family: var(--font-family-display);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--line-height-tight);
+}
+
+h4,
+h5,
+h6 {
+    margin: 0;
+    font-weight: var(--font-weight-semibold);
+}
+
+p {
+    margin: 0;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul,
+ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* ============================= */
+/* 유틸리티 클래스 (Utility Classes) */
+/* ============================= */
+.text-center {
+    text-align: center;
+}
+
+.page-title {
+    text-align: center;
+    margin-bottom: var(--spacing-3xl);
+    font-family: var(--font-family-display);
+}
+
+.hidden {
+    display: none !important;
+}
+
+.hidden-input {
+    display: none;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* ============================= */
+/* 포커스 표시 — 키보드 내비게이션 (Focus Visible) */
+/* ============================= */
+:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    box-shadow: var(--input-focus-ring);
+}
+
+/* ============================= */
+/* 본문 건너뛰기 링크 (Skip Navigation) */
+/* ============================= */
+.skip-nav {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+    background: var(--color-primary);
+    color: var(--color-text-white);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    text-decoration: none;
+    z-index: calc(var(--z-modal) + 10);
+}
+
+.skip-nav:focus {
+    position: fixed;
+    top: var(--spacing-sm);
+    left: var(--spacing-sm);
+    width: auto;
+    height: auto;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    border-radius: var(--radius-sm);
+}
+
+/* 모노스페이스 유틸리티 — 메타데이터, 날짜, 통계에 사용 */
+.mono {
+    font-family: var(--font-family-mono);
+    letter-spacing: var(--tracking-wide);
+}
+
+/* ============================= */
+/* 구분선 (Dividers) */
+/* ============================= */
+.post-divider {
+    width: 100%;
+    height: 1px;
+    background-color: var(--color-border);
+    margin: var(--spacing-md) 0;
+}
+
+/* ============================= */
+/* 도움말 텍스트 (Helper Text) */
+/* ============================= */
+.helper-text {
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
+    color: var(--color-error);
+    margin-bottom: var(--spacing-sm);
+    display: none;
+    white-space: pre-line;
+}
+
+.helper-text.visible,
+.helper-text.error {
+    display: block;
+}
+
+.validation-helper {
+    font-size: var(--font-size-base);
+    font-family: var(--font-family-mono);
+    color: var(--color-error);
+    font-weight: var(--font-weight-medium);
+    margin-top: var(--spacing-sm);
+    display: none;
+}
+
+.validation-helper.visible {
+    display: block;
+}

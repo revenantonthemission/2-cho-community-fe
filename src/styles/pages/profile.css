@@ -1,0 +1,63 @@
+/* css/pages/profile.css */
+/* 프로필 수정 페이지 전용 스타일 */
+
+/* ============================= */
+/* 프로필 수정 섹션 (Profile Edit Section) */
+/* ============================= */
+.profile-edit-section {
+    text-align: center;
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-3xl);
+    position: relative;
+    display: inline-block;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.profile-label {
+    text-align: left;
+    margin-bottom: var(--spacing-md);
+}
+
+.profile-img-wrapper {
+    display: flex;
+    /* 중앙 정렬을 위한 Flexbox 활성화 */
+    justify-content: center;
+    align-items: center;
+    width: 140px;
+    height: 140px;
+    border-radius: var(--radius-full);
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    background-color: var(--color-border);
+    background-size: cover;
+    background-position: center;
+
+}
+
+.profile-img-overlay {
+    background-color: var(--color-overlay);
+    border: 1px solid var(--color-border-dark);
+    border-radius: var(--btn-radius);
+    width: max-content;
+    /* 전체 너비 늘어짐 방지 */
+    height: auto;
+    padding: var(--spacing-xs) var(--spacing-lg);
+    /* 알약 모양 패딩 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    /* 명확성을 위해 항상 표시 */
+    pointer-events: none;
+    transition: background-color var(--transition-fast);
+
+    /* 클릭이 래퍼로 전달되도록 설정 */
+}
+
+.change-btn-text {
+    color: var(--color-text-white);
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-medium);
+}
