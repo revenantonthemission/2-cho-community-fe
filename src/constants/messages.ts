@@ -16,4 +16,8 @@ export const UI_MESSAGES = {
   REPORT_SUCCESS: '신고가 접수되었습니다.',
   SIGNUP_SUCCESS: '회원가입이 완료되었습니다!',
   LOGOUT_SUCCESS: '로그아웃 되었습니다.',
+  NOTIFICATION_LOAD_FAIL: '알림을 불러오지 못했습니다.',
+  NOTIFICATION_READ_FAIL: '알림 읽음 처리에 실패했습니다.',
+  NOTIFICATION_DELETE_FAIL: '알림 삭제에 실패했습니다.',
+  NOTIFICATION_ALL_READ: '모든 알림을 읽음 처리했습니다.',
 } as const;

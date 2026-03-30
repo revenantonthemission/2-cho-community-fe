@@ -46,4 +46,11 @@ export const API_ENDPOINTS = {
     USER: (userId: number) => `/v1/users/${userId}/reputation`,
     USER_BADGES: (userId: number) => `/v1/users/${userId}/badges`,
   },
+  NOTIFICATIONS: {
+    ROOT: '/v1/notifications',
+    UNREAD_COUNT: '/v1/notifications/unread-count',
+    READ: (id: number) => `/v1/notifications/${id}/read`,
+    READ_ALL: '/v1/notifications/read-all',
+    DELETE: (id: number) => `/v1/notifications/${id}`,
+  },
 } as const;
