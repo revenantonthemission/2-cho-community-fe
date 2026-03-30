@@ -6,6 +6,7 @@ import { ROUTES } from '../constants/routes';
 import { showToast } from '../utils/toast';
 import { UI_MESSAGES } from '../constants/messages';
 import NotificationBell from './NotificationBell';
+import DMBadge from './dm/DMBadge';
 
 export default function Header() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -46,6 +47,7 @@ export default function Header() {
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
           {isAuthenticated && user && <NotificationBell />}
+          {isAuthenticated && user && <DMBadge />}
           {isAuthenticated && user ? (
             <div ref={dropdownRef} style={{ position: 'relative' }}>
               <div
