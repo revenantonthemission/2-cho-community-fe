@@ -45,7 +45,7 @@ export default function Header() {
           >
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
-          {isAuthenticated && <NotificationBell />}
+          {isAuthenticated && user && <NotificationBell />}
           {isAuthenticated && user ? (
             <div ref={dropdownRef} style={{ position: 'relative' }}>
               <div
@@ -57,7 +57,7 @@ export default function Header() {
                     : undefined
                 }
               >
-                {!user.profile_image && user.nickname.charAt(0).toUpperCase()}
+                {!user.profile_image && user.nickname?.charAt(0).toUpperCase()}
               </div>
               {dropdownOpen && (
                 <div className="header-dropdown">
