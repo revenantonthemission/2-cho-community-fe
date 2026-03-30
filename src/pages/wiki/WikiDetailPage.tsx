@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Eye } from 'lucide-react';
 import { Marked } from 'marked';
 import DOMPurify from 'dompurify';
 import hljs from 'highlight.js';
@@ -100,7 +101,7 @@ export default function WikiDetailPage() {
           {page.editor_nickname && (
             <span>· 최종 편집: {page.editor_nickname} ({timeAgo(page.updated_at ?? page.created_at)})</span>
           )}
-          <span>· 👁 {page.views_count}</span>
+          <span>· <Eye size={14} /> {page.views_count}</span>
         </div>
         {page.tags.length > 0 && (
           <div className="wiki-detail__tags">

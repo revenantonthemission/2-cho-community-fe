@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Eye } from 'lucide-react';
 import { ROUTES } from '../../constants/routes';
 import { timeAgo } from '../../utils/formatters';
 import type { WikiPageSummary } from '../../types/wiki';
@@ -18,7 +19,7 @@ export default function WikiCard({ page }: Props) {
       <h3 className="wiki-card__title">{page.title}</h3>
       <div className="wiki-card__meta">
         <span className="wiki-card__author">{page.author.nickname}</span>
-        <span className="wiki-card__views">👁 {page.views_count}</span>
+        <span className="wiki-card__views"><Eye size={14} /> {page.views_count}</span>
         <span className="wiki-card__date">{timeAgo(page.created_at)}</span>
       </div>
     </Link>

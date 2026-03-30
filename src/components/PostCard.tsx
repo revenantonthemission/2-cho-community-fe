@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Heart, MessageCircle, Eye } from 'lucide-react';
 import { Post } from '../types/post';
 import { ROUTES } from '../constants/routes';
 import { timeAgo, formatCount } from '../utils/formatters';
@@ -52,9 +53,9 @@ export default function PostCard({ post }: PostCardProps) {
 
       <div className="post-card__footer">
         <div className="post-stats">
-          <span>♥ {formatCount(post.likes_count)}</span>
-          <span>💬 {formatCount(post.comments_count)}</span>
-          <span>👁 {formatCount(post.views_count)}</span>
+          <span><Heart size={14} /> {formatCount(post.likes_count)}</span>
+          <span><MessageCircle size={14} /> {formatCount(post.comments_count)}</span>
+          <span><Eye size={14} /> {formatCount(post.views_count)}</span>
         </div>
       </div>
     </li>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Sun, Moon } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../contexts/ThemeContext';
 import { ROUTES } from '../constants/routes';
@@ -44,7 +45,7 @@ export default function Header() {
             onClick={toggleTheme}
             aria-label="테마 전환"
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
           {isAuthenticated && user && <NotificationBell />}
           {isAuthenticated && user && <DMBadge />}

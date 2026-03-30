@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { Heart, MessageCircle, Eye } from 'lucide-react';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { ROUTES } from '../constants/routes';
@@ -123,9 +124,9 @@ export default function MyActivityPage() {
       <Link key={p.post_id} to={ROUTES.POST_DETAIL(p.post_id)} className="activity-post-card">
         <h4 className="activity-post-card__title">{p.title}</h4>
         <div className="activity-post-card__meta">
-          <span>♥ {p.likes_count}</span>
-          <span>💬 {p.comments_count}</span>
-          <span>👁 {p.views_count}</span>
+          <span><Heart size={14} /> {p.likes_count}</span>
+          <span><MessageCircle size={14} /> {p.comments_count}</span>
+          <span><Eye size={14} /> {p.views_count}</span>
           <span>{timeAgo(p.created_at)}</span>
         </div>
       </Link>
