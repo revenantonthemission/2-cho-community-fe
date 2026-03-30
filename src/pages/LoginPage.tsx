@@ -20,9 +20,12 @@ export default function LoginPage() {
       await login(email, password);
       navigate(ROUTES.HOME);
     } catch (err: unknown) {
-      const apiErr = err as { data?: { message?: string; detail?: string } };
+      const apiErr = err as { data?: { message?: string; detail?: string | object } };
+      const detail = apiErr?.data?.detail;
       const message =
-        apiErr?.data?.message ?? apiErr?.data?.detail ?? '로그인에 실패했습니다.';
+        apiErr?.data?.message
+        ?? (typeof detail === 'string' ? detail : null)
+        ?? '로그인에 실패했습니다.';
       setError(message);
     } finally {
       setIsSubmitting(false);
