@@ -88,48 +88,54 @@ export default function UserProfilePage() {
   if (!profile) return <div>사용자를 찾을 수 없습니다.</div>;
 
   return (
-    <div className="user-profile-container">
+    <div className="main-container">
       <div className="user-profile-header">
-        <div
-          className="profile-circle"
-          style={
-            profile.profile_image
-              ? { backgroundImage: `url(${profile.profile_image})`, backgroundSize: 'cover', width: 80, height: 80 }
-              : { width: 80, height: 80, fontSize: '2rem' }
-          }
-        >
-          {!profile.profile_image && profile.nickname.charAt(0).toUpperCase()}
+        <div className="profile-img-wrapper">
+          <div
+            className="profile-img-large"
+            style={
+              profile.profile_image
+                ? { backgroundImage: `url(${profile.profile_image})`, backgroundSize: 'cover' }
+                : undefined
+            }
+          >
+            {!profile.profile_image && profile.nickname.charAt(0).toUpperCase()}
+          </div>
         </div>
-        <div className="user-profile-info">
-          <h2>{profile.nickname}</h2>
+        <div>
+          <h2 id="profile-nickname">{profile.nickname}</h2>
           {profile.distro && <span className="distro-badge">{profile.distro}</span>}
-          {profile.bio && <p>{profile.bio}</p>}
+          {profile.bio && <p id="profile-bio">{profile.bio}</p>}
         </div>
+
+        {!isSelf && currentUser && (
+          <>
+            <button
+              type="button"
+              className={['follow-btn', isFollowing ? 'following' : ''].filter(Boolean).join(' ')}
+              onClick={handleFollow}
+            >
+              {isFollowing ? '언팔로우' : '팔로우'}
+            </button>
+            <button type="button" className="block-btn" onClick={handleBlock}>
+              {isBlocked ? '차단 해제' : '차단'}
+            </button>
+          </>
+        )}
       </div>
 
       {reputation && (
-        <div className="user-profile-stats">
-          <div><strong>평판</strong> {reputation.score}</div>
-          <div><strong>신뢰 등급</strong> {reputation.trust_level_name}</div>
+        <div className="profile-stats">
+          <div className="profile-stat-item"><strong>평판</strong> {reputation.score}</div>
+          <div className="profile-stat-item"><strong>신뢰 등급</strong> {reputation.trust_level_name}</div>
         </div>
       )}
 
-      {!isSelf && currentUser && (
-        <div className="user-profile-actions">
-          <button type="button" className="action-btn" onClick={handleFollow}>
-            {isFollowing ? '언팔로우' : '팔로우'}
-          </button>
-          <button type="button" className="action-btn" onClick={handleBlock}>
-            {isBlocked ? '차단 해제' : '차단'}
-          </button>
-        </div>
-      )}
-
-      <div className="profile-tabs">
-        <button type="button" className="profile-tab active">작성글</button>
+      <div className="profile-content-tabs">
+        <button type="button" className="content-tab active">작성글</button>
       </div>
 
-      <div className="profile-tab-content">
+      <div>
         {posts.length === 0 ? (
           <p>작성한 게시글이 없습니다.</p>
         ) : (

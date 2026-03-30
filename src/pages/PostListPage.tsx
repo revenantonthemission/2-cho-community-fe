@@ -77,11 +77,11 @@ export default function PostListPage() {
   return (
     <div className="post-list-page">
       <div className="search-sort-section">
-        <div className="sort-tabs">
+        <div className="sort-buttons">
           {SORT_OPTIONS.map((option) => (
             <button
               key={option.value}
-              className={['sort-tab', sort === option.value ? 'active' : ''].filter(Boolean).join(' ')}
+              className={['sort-btn', sort === option.value ? 'active' : ''].filter(Boolean).join(' ')}
               onClick={() => handleSortChange(option.value)}
             >
               {option.label}

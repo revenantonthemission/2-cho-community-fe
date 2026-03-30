@@ -63,9 +63,9 @@ export default function SignupPage() {
   return (
     <>
       <header className="write-header">
-        <a href="/" className="write-header__logo">
+        <Link to="/" className="write-header__logo">
           Camp Linux
-        </a>
+        </Link>
       </header>
       <div className="signup-container">
         <h2 className="signup-title">회원가입</h2>

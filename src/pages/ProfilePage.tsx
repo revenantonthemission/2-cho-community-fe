@@ -58,7 +58,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="profile-edit-container">
+    <div className="profile-edit-section">
       <h2 className="page-title">프로필 편집</h2>
       <form onSubmit={handleSubmit}>
         <div className="profile-section">
@@ -117,7 +117,7 @@ export default function ProfilePage() {
           />
         </div>
 
-        <button type="submit" className="save-btn" disabled={isSubmitting}>
+        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
           {isSubmitting ? '저장 중...' : '저장'}
         </button>
       </form>

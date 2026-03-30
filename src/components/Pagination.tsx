@@ -14,11 +14,12 @@ export default function Pagination({ page, totalPages, onPageChange }: Paginatio
 
   return (
     <div className="pagination">
-      <button disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
+      <button type="button" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
         이전
       </button>
       {pages.map((p) => (
         <button
+          type="button"
           key={p}
           className={p === page ? 'active' : ''}
           onClick={() => onPageChange(p)}
@@ -26,7 +27,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Paginatio
           {p}
         </button>
       ))}
-      <button disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>
+      <button type="button" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>
         다음
       </button>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../contexts/ThemeContext';
@@ -11,6 +11,18 @@ export default function Header() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [dropdownOpen]);
 
   async function handleLogout() {
     await logout();
@@ -33,7 +45,7 @@ export default function Header() {
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
           {isAuthenticated && user ? (
-            <div style={{ position: 'relative' }}>
+            <div ref={dropdownRef} style={{ position: 'relative' }}>
               <div
                 className="profile-circle"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
