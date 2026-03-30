@@ -11,7 +11,7 @@ export default function PostCard({ post }: PostCardProps) {
   const navigate = useNavigate();
 
   function handleClick() {
-    navigate(ROUTES.POST_DETAIL(post.id));
+    navigate(ROUTES.POST_DETAIL(post.post_id));
   }
 
   const cardClass = ['post-card', post.is_pinned ? 'pinned' : ''].filter(Boolean).join(' ');
@@ -22,13 +22,13 @@ export default function PostCard({ post }: PostCardProps) {
         <div
           className="post-card__avatar"
           style={
-            post.author_profile_image
-              ? { backgroundImage: `url(${post.author_profile_image})` }
+            post.author.profileImageUrl
+              ? { backgroundImage: `url(${post.author.profileImageUrl})` }
               : undefined
           }
         />
         <div className="post-card__meta-text">
-          <span className="post-card__author">{post.author_nickname}</span>
+          <span className="post-card__author">{post.author.nickname}</span>
           <span className="post-card__date">{timeAgo(post.created_at)}</span>
         </div>
       </div>
@@ -52,9 +52,9 @@ export default function PostCard({ post }: PostCardProps) {
 
       <div className="post-card__footer">
         <div className="post-stats">
-          <span>♥ {formatCount(post.like_count)}</span>
-          <span>💬 {formatCount(post.comment_count)}</span>
-          <span>👁 {formatCount(post.view_count)}</span>
+          <span>♥ {formatCount(post.likes_count)}</span>
+          <span>💬 {formatCount(post.comments_count)}</span>
+          <span>👁 {formatCount(post.views_count)}</span>
         </div>
       </div>
     </li>

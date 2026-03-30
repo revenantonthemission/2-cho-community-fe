@@ -141,7 +141,7 @@ export default function UserProfilePage() {
         ) : (
           <ul className="post-list">
             {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
+              <PostCard key={post.post_id} post={post} />
             ))}
           </ul>
         )}

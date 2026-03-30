@@ -3,25 +3,44 @@ export interface Tag {
   name: string;
 }
 
+export interface PostAuthor {
+  user_id: number;
+  nickname: string;
+  profileImageUrl: string;
+  distro: string | null;
+}
+
 export interface Post {
-  id: number;
+  post_id: number;
   title: string;
   content: string;
-  author_id: number;
-  author_nickname: string;
-  author_profile_image: string | null;
-  author_distro: string | null;
+  image_url: string | null;
+  views_count: number;
+  created_at: string;
+  updated_at: string | null;
+  author: PostAuthor;
+  likes_count: number;
+  comments_count: number;
+  is_pinned: boolean;
   category_id: number;
   category_name: string;
-  view_count: number;
-  like_count: number;
-  comment_count: number;
-  is_pinned: boolean;
+  bookmarks_count: number;
+  is_solved: boolean;
+  tags: Tag[];
+  is_read: boolean;
+  is_watching: boolean;
+  // 상세 페이지 전용 필드
+  accepted_answer_id?: number | null;
   is_liked?: boolean;
   is_bookmarked?: boolean;
-  tags: Tag[];
-  created_at: string;
-  updated_at: string;
+  is_blocked?: boolean;
+  image_urls?: string[];
+  poll?: unknown;
+}
+
+export interface PostDetailResponse {
+  post: Post;
+  comments: Comment[];
 }
 
 export interface Comment {

@@ -15,3 +15,5 @@ export interface PostListResponse {
   posts: import('./post').Post[];
   pagination: Pagination;
 }
+
+export type { PostDetailResponse } from './post';

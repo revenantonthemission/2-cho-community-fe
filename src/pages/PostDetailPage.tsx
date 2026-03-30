@@ -4,7 +4,7 @@ import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { ROUTES } from '../constants/routes';
 import { UI_MESSAGES } from '../constants/messages';
-import { Post, Comment } from '../types/post';
+import { Post, Comment, PostDetailResponse } from '../types/post';
 import { ApiResponse } from '../types/common';
 import { useAuth } from '../hooks/useAuth';
 import { showToast } from '../utils/toast';
@@ -32,10 +32,11 @@ export default function PostDetailPage() {
       setIsLoading(true);
       setError('');
       try {
-        const res = await api.get<ApiResponse<Post>>(
+        const res = await api.get<ApiResponse<PostDetailResponse>>(
           `${API_ENDPOINTS.POSTS.ROOT}/${id}`,
         );
-        setPost(res.data);
+        setPost(res.data.post);
+        setComments(res.data.comments);
       } catch {
         setError(UI_MESSAGES.POST_DETAIL_FAIL);
       } finally {
@@ -64,18 +65,18 @@ export default function PostDetailPage() {
     if (!post) return;
     try {
       if (post.is_liked) {
-        await api.delete(API_ENDPOINTS.LIKES.ROOT(post.id));
+        await api.delete(API_ENDPOINTS.LIKES.ROOT(post.post_id));
       } else {
-        await api.post(API_ENDPOINTS.LIKES.ROOT(post.id), {});
+        await api.post(API_ENDPOINTS.LIKES.ROOT(post.post_id), {});
       }
       setPost((prev) =>
         prev
           ? {
               ...prev,
               is_liked: !prev.is_liked,
-              like_count: prev.is_liked
-                ? prev.like_count - 1
-                : prev.like_count + 1,
+              likes_count: prev.is_liked
+                ? prev.likes_count - 1
+                : prev.likes_count + 1,
             }
           : prev,
       );
@@ -88,9 +89,9 @@ export default function PostDetailPage() {
     if (!post) return;
     try {
       if (post.is_bookmarked) {
-        await api.delete(API_ENDPOINTS.BOOKMARKS.ROOT(post.id));
+        await api.delete(API_ENDPOINTS.BOOKMARKS.ROOT(post.post_id));
       } else {
-        await api.post(API_ENDPOINTS.BOOKMARKS.ROOT(post.id), {});
+        await api.post(API_ENDPOINTS.BOOKMARKS.ROOT(post.post_id), {});
       }
       setPost((prev) =>
         prev ? { ...prev, is_bookmarked: !prev.is_bookmarked } : prev,
@@ -104,7 +105,7 @@ export default function PostDetailPage() {
     if (!post) return;
     if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
-      await api.delete(`${API_ENDPOINTS.POSTS.ROOT}/${post.id}`);
+      await api.delete(`${API_ENDPOINTS.POSTS.ROOT}/${post.post_id}`);
       showToast(UI_MESSAGES.POST_DELETE_SUCCESS);
       navigate(ROUTES.HOME);
     } catch {
@@ -124,7 +125,7 @@ export default function PostDetailPage() {
     showToast(UI_MESSAGES.REPORT_SUCCESS);
   }
 
-  const isOwner = user?.id === post?.author_id;
+  const isOwner = user?.id === post?.author.user_id;
 
   if (isLoading) {
     return (
@@ -171,9 +172,9 @@ export default function PostDetailPage() {
             <div
               className="author-profile-img"
               style={
-                post.author_profile_image
+                post.author.profileImageUrl
                   ? {
-                      backgroundImage: `url(${post.author_profile_image})`,
+                      backgroundImage: `url(${post.author.profileImageUrl})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                     }
@@ -181,10 +182,10 @@ export default function PostDetailPage() {
               }
             />
             <Link
-              to={ROUTES.USER_PROFILE(post.author_id)}
+              to={ROUTES.USER_PROFILE(post.author.user_id)}
               className="author-nickname"
             >
-              {post.author_nickname}
+              {post.author.nickname}
             </Link>
             <span className="post-date">{formatDate(post.created_at)}</span>
           </div>
@@ -192,7 +193,7 @@ export default function PostDetailPage() {
           {isOwner && (
             <div className="post-actions">
               <Link
-                to={ROUTES.POST_EDIT(post.id)}
+                to={ROUTES.POST_EDIT(post.post_id)}
                 className="action-btn"
               >
                 수정
@@ -213,12 +214,12 @@ export default function PostDetailPage() {
 
         {/* 통계 (좋아요, 북마크, 조회수, 댓글) */}
         <PostActionBar
-          postId={post.id}
-          likeCount={post.like_count}
+          postId={post.post_id}
+          likeCount={post.likes_count}
           isLiked={post.is_liked ?? false}
           isBookmarked={post.is_bookmarked ?? false}
-          viewCount={post.view_count}
-          commentCount={post.comment_count}
+          viewCount={post.views_count}
+          commentCount={post.comments_count}
           onLike={handleLike}
           onBookmark={handleBookmark}
         />
@@ -236,8 +237,8 @@ export default function PostDetailPage() {
 
       {/* 댓글 영역 */}
       <section className="comment-section">
-        <CommentForm postId={post.id} onSubmit={loadComments} />
-        <CommentList postId={post.id} comments={comments} onCommentChange={loadComments} />
+        <CommentForm postId={post.post_id} onSubmit={loadComments} />
+        <CommentList postId={post.post_id} comments={comments} onCommentChange={loadComments} />
       </section>
     </main>
   );
