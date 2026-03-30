@@ -7,7 +7,7 @@
 :root {
     --sidebar-width: 220px;
     --sidebar-bg: var(--surface-elevated);
-    --sidebar-border: var(--color-border);
+    --sidebar-border: var(--color-border-light);
 }
 
 [data-theme="dark"] {

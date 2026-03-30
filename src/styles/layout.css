@@ -244,7 +244,7 @@ header {
     margin-top: var(--header-height);
     width: 100%;
     max-width: 680px;
-    padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-4xl);
+    padding: var(--spacing-md) var(--spacing-xl) var(--spacing-4xl);
     box-sizing: border-box;
 }
 

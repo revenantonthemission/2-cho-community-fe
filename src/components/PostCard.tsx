@@ -17,17 +17,24 @@ export default function PostCard({ post }: PostCardProps) {
 
   const cardClass = ['post-card', post.is_pinned ? 'pinned' : ''].filter(Boolean).join(' ');
 
+  // 절대 URL인 경우에만 backgroundImage로 표시, 상대 경로는 폴백 처리
+  const isAbsoluteUrl = (url: string) => url.startsWith('http://') || url.startsWith('https://');
+  const hasValidImage = post.author.profileImageUrl && isAbsoluteUrl(post.author.profileImageUrl);
+  const avatarInitial = post.author.nickname.charAt(0).toUpperCase();
+
   return (
     <li className={cardClass} onClick={handleClick} style={{ cursor: 'pointer' }}>
       <div className="post-card__meta">
-        <div
-          className="post-card__avatar"
-          style={
-            post.author.profileImageUrl
-              ? { backgroundImage: `url(${post.author.profileImageUrl})` }
-              : undefined
-          }
-        />
+        {hasValidImage ? (
+          <div
+            className="post-card__avatar"
+            style={{ backgroundImage: `url(${post.author.profileImageUrl})` }}
+          />
+        ) : (
+          <div className="post-card__avatar post-card__avatar--initials">
+            {avatarInitial}
+          </div>
+        )}
         <div className="post-card__meta-text">
           <span className="post-card__author">{post.author.nickname}</span>
           <span className="post-card__date">{timeAgo(post.created_at)}</span>
