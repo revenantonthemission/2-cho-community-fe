@@ -18,6 +18,9 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     flex-wrap: nowrap;
+    /* 오른쪽 끝 스크롤 힌트 — 페이드 마스크 */
+    mask-image: linear-gradient(to right, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
 }
 
 .category-tabs::-webkit-scrollbar {
@@ -73,6 +76,15 @@
     background: var(--color-primary);
     color: var(--color-text-white);
     border-color: var(--color-primary);
+}
+
+/* focus-visible — 키보드 접근성 */
+.category-tab:focus-visible,
+.feed-filter-btn:focus-visible,
+.sort-btn:focus-visible,
+.category-filter-btn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 
 /* ============================= */
