@@ -53,4 +53,30 @@ export const API_ENDPOINTS = {
     READ_ALL: '/v1/notifications/read-all',
     DELETE: (id: number) => `/v1/notifications/${id}`,
   },
+  DM: {
+    ROOT: '/v1/dms',
+    MESSAGES: (id: number) => `/v1/dms/${id}`,
+    SEND: (id: number) => `/v1/dms/${id}/messages`,
+    READ: (id: number) => `/v1/dms/${id}/read`,
+    DELETE_CONVERSATION: (id: number) => `/v1/dms/${id}`,
+    DELETE_MESSAGE: (convId: number, msgId: number) => `/v1/dms/${convId}/messages/${msgId}`,
+    UNREAD_COUNT: '/v1/dms/unread-count',
+  },
 } as const;
+
+const IS_LOCAL =
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1';
+
+function deriveWsUrl(): string {
+  const host = window.location.hostname;
+  if (host === 'my-community.shop') return 'wss://api.my-community.shop/ws';
+  const parts = host.split('.');
+  return `wss://api-${parts[0]}.${parts.slice(1).join('.')}/ws`;
+}
+
+export const WS_URL = import.meta.env.DEV
+  ? 'ws://127.0.0.1:8000/ws'
+  : IS_LOCAL
+    ? `ws://${window.location.host}/ws`
+    : deriveWsUrl();

@@ -20,4 +20,10 @@ export const UI_MESSAGES = {
   NOTIFICATION_READ_FAIL: '알림 읽음 처리에 실패했습니다.',
   NOTIFICATION_DELETE_FAIL: '알림 삭제에 실패했습니다.',
   NOTIFICATION_ALL_READ: '모든 알림을 읽음 처리했습니다.',
+  DM_LOAD_FAIL: '대화 목록을 불러오지 못했습니다.',
+  DM_MESSAGES_FAIL: '메시지를 불러오지 못했습니다.',
+  DM_SEND_FAIL: '메시지 전송에 실패했습니다.',
+  DM_DELETE_FAIL: '삭제에 실패했습니다.',
+  DM_BLOCKED: '차단 관계에서는 쪽지를 보낼 수 없습니다.',
+  DM_DELETED: '대화가 삭제되었습니다.',
 } as const;

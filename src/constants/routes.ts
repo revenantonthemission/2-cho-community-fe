@@ -8,4 +8,5 @@ export const ROUTES = {
   PROFILE: '/edit-profile',
   USER_PROFILE: (id: number | string) => `/user-profile/${id}`,
   NOTIFICATIONS: '/notifications',
+  DM: '/dm',
 } as const;
