@@ -5,6 +5,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { ROUTES } from '../constants/routes';
 import { showToast } from '../utils/toast';
 import { UI_MESSAGES } from '../constants/messages';
+import NotificationBell from './NotificationBell';
 
 export default function Header() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -44,6 +45,7 @@ export default function Header() {
           >
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
+          {isAuthenticated && <NotificationBell />}
           {isAuthenticated && user ? (
             <div ref={dropdownRef} style={{ position: 'relative' }}>
               <div
