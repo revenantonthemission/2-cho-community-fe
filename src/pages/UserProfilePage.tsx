@@ -99,7 +99,7 @@ export default function UserProfilePage() {
                 : undefined
             }
           >
-            {!profile.profile_image && profile.nickname.charAt(0).toUpperCase()}
+            {!profile.profile_image && profile.nickname?.charAt(0).toUpperCase()}
           </div>
         </div>
         <div>

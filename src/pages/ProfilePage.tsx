@@ -72,7 +72,7 @@ export default function ProfilePage() {
                   : { cursor: 'pointer' }
               }
             >
-              {!profileImage && user.nickname.charAt(0).toUpperCase()}
+              {!profileImage && user.nickname?.charAt(0).toUpperCase()}
               <input
                 type="file"
                 accept="image/*"
