@@ -12,8 +12,8 @@ const TYPE_CONFIG: Record<
   follow: { label: '팔로우', color: '#059669' },
   bookmark: { label: '북마크', color: '#2563EB' },
   reply: { label: '답글', color: '#7C3AED' },
-  badge_earned: { label: '뱃지', color: '#D97706' },
-  level_up: { label: '레벨업', color: '#D97706' },
+  badge_earned: { label: '뱃지', color: '#CA8A04' },
+  level_up: { label: '레벨업', color: '#CA8A04' },
 };
 
 const MESSAGE_MAP: Record<NotificationType, string> = {

@@ -3,6 +3,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useMemo,
   useRef,
   type ReactNode,
 } from 'react';
@@ -268,22 +269,37 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const refreshUnreadCount = pollUnreadCount;
 
+  const value = useMemo(
+    () => ({
+      unreadCount,
+      recentNotifications,
+      notifications,
+      hasMore,
+      isLoading,
+      fetchNotifications,
+      fetchMore,
+      markAsRead,
+      markAllAsRead,
+      deleteNotification,
+      refreshUnreadCount,
+    }),
+    [
+      unreadCount,
+      recentNotifications,
+      notifications,
+      hasMore,
+      isLoading,
+      fetchNotifications,
+      fetchMore,
+      markAsRead,
+      markAllAsRead,
+      deleteNotification,
+      refreshUnreadCount,
+    ],
+  );
+
   return (
-    <NotificationContext.Provider
-      value={{
-        unreadCount,
-        recentNotifications,
-        notifications,
-        hasMore,
-        isLoading,
-        fetchNotifications,
-        fetchMore,
-        markAsRead,
-        markAllAsRead,
-        deleteNotification,
-        refreshUnreadCount,
-      }}
-    >
+    <NotificationContext.Provider value={value}>
       {children}
     </NotificationContext.Provider>
   );
