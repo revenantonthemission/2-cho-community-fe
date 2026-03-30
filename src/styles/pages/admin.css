@@ -487,3 +487,330 @@
     padding: var(--spacing-xl);
     font-size: var(--font-size-sm);
 }
+
+/* ============================= */
+/* React BEM 컴포넌트 스타일       */
+/* ============================= */
+
+/* AdminDashboardPage */
+.admin-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.admin-stat-card {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+}
+
+.admin-stat-card__value {
+    font-size: 2rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-xs);
+    display: block;
+}
+
+.admin-stat-card__label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    display: block;
+}
+
+/* 일별 통계 테이블 */
+.admin-daily-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-xl);
+}
+
+.admin-daily-table th,
+.admin-daily-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+    text-align: center;
+}
+
+.admin-daily-table th {
+    background: var(--color-bg-secondary);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-semibold);
+}
+
+.admin-daily-table td {
+    color: var(--color-text-primary);
+}
+
+/* 사용자 관리 섹션 */
+.admin-users {
+    margin-bottom: var(--spacing-xl);
+}
+
+.admin-users__header {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+.admin-users__search {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-md);
+    box-sizing: border-box;
+    transition: border-color var(--transition-fast);
+}
+
+.admin-users__search:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.admin-users__search::placeholder {
+    color: var(--color-text-tertiary);
+}
+
+/* 사용자 목록 */
+.admin-user-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+/* 사용자 카드 */
+.admin-user-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-secondary);
+    gap: var(--spacing-md);
+}
+
+.admin-user-card__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xs);
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-user-card__nickname {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-base);
+}
+
+.admin-user-card__email {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-user-card__actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-shrink: 0;
+}
+
+/* ============================= */
+/* AdminReportsPage               */
+/* ============================= */
+.admin-reports {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.admin-reports__tabs {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xl);
+    flex-wrap: wrap;
+}
+
+.admin-reports__empty {
+    text-align: center;
+    color: var(--color-text-tertiary);
+    padding: var(--spacing-xl);
+    font-size: var(--font-size-sm);
+}
+
+/* 탭 버튼 */
+.admin-tab {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: var(--font-family-mono);
+}
+
+.admin-tab:hover {
+    background: var(--color-primary-subtle);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.admin-tab.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-text-white);
+}
+
+/* ============================= */
+/* ReportCard BEM                */
+/* ============================= */
+.report-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.report-card__target {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.report-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+}
+
+.report-card__info {
+    display: flex;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-normal);
+}
+
+.report-card__desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    line-height: var(--line-height-normal);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-sm);
+    border-left: 2px solid var(--color-border);
+}
+
+.report-card__actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+}
+
+/* ============================= */
+/* SuspendModal                  */
+/* ============================= */
+.admin-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: var(--spacing-lg);
+    backdrop-filter: blur(2px);
+}
+
+.admin-modal {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.admin-modal__actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+    justify-content: flex-end;
+}
+
+/* ============================= */
+/* admin-badge (공유 배지)         */
+/* ============================= */
+.admin-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--spacing-2xs) var(--spacing-sm);
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    font-family: var(--font-family-mono);
+    white-space: nowrap;
+    background: var(--color-bg-secondary);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+}
+
+/* 관리자 배지 */
+.admin-badge--admin {
+    background: var(--color-primary-subtle);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+/* 정지 배지 */
+.admin-badge--suspended {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+    border-color: var(--color-danger);
+}
+
+/* 처리 대기 배지 (황색/호박색) */
+.admin-badge--pending {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #f59e0b;
+}
+
+/* 처리 완료 배지 (녹색) */
+.admin-badge--resolved {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #10b981;
+}
+
+/* 기각 배지 (회색) */
+.admin-badge--dismissed {
+    background: var(--color-bg-secondary);
+    color: var(--color-text-tertiary);
+    border-color: var(--color-border);
+}
