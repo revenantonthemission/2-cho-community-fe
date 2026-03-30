@@ -661,3 +661,348 @@
 .dm-detail-header .back-button:hover {
     color: var(--color-primary);
 }
+
+/* ── React DM Page Layout ── */
+.dm-page {
+    display: flex;
+    height: calc(100vh - var(--header-height) - var(--spacing-xl));
+    overflow: hidden;
+}
+
+.dm-page__sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.dm-page__chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+}
+
+/* ── DMSidebar (React BEM 확장) ── */
+.dm-sidebar__search {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.dm-sidebar__search-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-input, var(--color-bg-secondary));
+    color: var(--color-text-primary);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+}
+
+.dm-sidebar__list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.dm-sidebar__empty {
+    padding: var(--spacing-xl);
+    text-align: center;
+    color: var(--color-text-placeholder);
+    font-size: var(--font-size-sm);
+}
+
+/* ── DMConversationCard ── */
+.dm-conv-card {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border-light);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+}
+
+.dm-conv-card:hover {
+    background: var(--color-bg-input, var(--color-bg-secondary));
+}
+
+.dm-conv-card--selected {
+    border-left: 3px solid var(--color-primary);
+    background: var(--color-notification-unread);
+}
+
+.dm-conv-card--selected:hover {
+    background: var(--color-notification-unread-hover);
+}
+
+.dm-conv-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dm-conv-card__nickname {
+    font-weight: var(--font-weight-semibold);
+}
+
+.dm-conv-card--unread .dm-conv-card__nickname {
+    color: var(--color-primary);
+}
+
+.dm-conv-card__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.dm-conv-card__badge {
+    background: var(--color-notification-badge);
+    color: var(--color-text-white);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-semibold);
+    padding: 1px 5px;
+    border-radius: var(--radius-pill);
+    min-width: 16px;
+    text-align: center;
+}
+
+.dm-conv-card__time {
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-xs);
+}
+
+.dm-conv-card__preview {
+    margin-top: var(--spacing-xs);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── DMChatPanel ── */
+.dm-chat-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.dm-chat-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.dm-chat-panel__header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.dm-chat-panel__back {
+    background: none;
+    border: none;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-lg);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    display: none;
+}
+
+.dm-chat-panel__nickname {
+    font-weight: var(--font-weight-bold);
+    font-family: var(--font-family-mono);
+}
+
+.dm-chat-panel__delete {
+    background: none;
+    border: none;
+    color: var(--color-text-tertiary);
+    opacity: 0.3;
+    cursor: pointer;
+    font-size: var(--font-size-lg);
+    transition: all var(--transition-fast);
+}
+
+.dm-chat-panel__delete:hover {
+    opacity: 1;
+    color: var(--color-danger);
+}
+
+/* ── DMMessageList ── */
+.dm-message-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-lg);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+}
+
+.dm-message-list__loader {
+    text-align: center;
+    padding: var(--spacing-md);
+}
+
+/* ── DMMessage BEM (React 확장) ── */
+.dm-msg--deleted {
+    opacity: 0.3;
+    font-style: italic;
+}
+
+.dm-msg__nickname {
+    color: var(--color-primary-accent);
+    font-weight: var(--font-weight-medium);
+}
+
+.dm-msg__nickname--mine {
+    color: var(--color-primary);
+}
+
+.dm-msg__content--deleted {
+    color: var(--color-text-tertiary);
+    font-style: italic;
+}
+
+.dm-msg__read {
+    margin-left: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    opacity: 0.3;
+}
+
+.dm-msg__read--read {
+    color: var(--color-primary);
+    opacity: 1;
+}
+
+/* ── DMTypingIndicator (React 확장) ── */
+.dm-typing__dots {
+    animation: dm-typing-blink 1.4s infinite;
+}
+
+@keyframes dm-typing-blink {
+    0%, 20% { opacity: 0.2; }
+    50% { opacity: 1; }
+    100% { opacity: 0.2; }
+}
+
+/* ── DMInput ── */
+.dm-input {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+}
+
+.dm-input__prompt {
+    color: var(--color-text-tertiary);
+    font-family: var(--font-family-mono);
+    flex-shrink: 0;
+    line-height: 1.6;
+}
+
+.dm-input__textarea {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--color-text-primary);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    resize: none;
+    outline: none;
+    line-height: 1.6;
+    max-height: 120px;
+}
+
+.dm-input__send {
+    background: var(--color-primary);
+    color: var(--color-text-white);
+    border: none;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.dm-input__send:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* ── DMBadge (헤더) ── */
+.dm-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    padding: var(--spacing-xs);
+}
+
+.dm-badge__count {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    background: var(--color-notification-badge);
+    color: var(--color-text-white);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-semibold);
+    padding: 1px 5px;
+    border-radius: var(--radius-pill);
+    min-width: 16px;
+    text-align: center;
+    line-height: 1.4;
+}
+
+/* ── Empty State ── */
+.dm-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-placeholder);
+}
+
+.dm-empty-state code {
+    display: block;
+}
+
+.dm-empty-state p {
+    margin-top: var(--spacing-lg);
+}
+
+/* ── 반응형: 모바일 (<768px) ── */
+@media (max-width: 767px) {
+    .dm-page__sidebar {
+        width: 100%;
+        border-right: none;
+    }
+
+    .dm-page__sidebar--hidden-mobile {
+        display: none;
+    }
+
+    .dm-page__chat {
+        width: 100%;
+    }
+
+    .dm-page__chat--hidden-mobile {
+        display: none;
+    }
+
+    .dm-chat-panel__back {
+        display: block;
+    }
+}
