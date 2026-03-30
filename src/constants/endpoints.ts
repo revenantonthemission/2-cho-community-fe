@@ -62,6 +62,15 @@ export const API_ENDPOINTS = {
     DELETE_MESSAGE: (convId: number, msgId: number) => `/v1/dms/${convId}/messages/${msgId}`,
     UNREAD_COUNT: '/v1/dms/unread-count',
   },
+  WIKI: {
+    ROOT: '/v1/wiki',
+    DETAIL: (slug: string) => `/v1/wiki/${slug}`,
+    TAGS_POPULAR: '/v1/wiki/tags/popular',
+    HISTORY: (slug: string) => `/v1/wiki/${slug}/history`,
+    REVISION: (slug: string, n: number) => `/v1/wiki/${slug}/revisions/${n}`,
+    DIFF: (slug: string) => `/v1/wiki/${slug}/diff`,
+    ROLLBACK: (slug: string, n: number) => `/v1/wiki/${slug}/rollback/${n}`,
+  },
 } as const;
 
 const IS_LOCAL =

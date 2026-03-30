@@ -9,4 +9,11 @@ export const ROUTES = {
   USER_PROFILE: (id: number | string) => `/user-profile/${id}`,
   NOTIFICATIONS: '/notifications',
   DM: '/dm',
+  WIKI: '/wiki',
+  WIKI_WRITE: '/wiki/write',
+  WIKI_EDIT: (slug: string) => `/wiki/edit/${slug}`,
+  WIKI_DETAIL: (slug: string) => `/wiki/${slug}`,
+  WIKI_HISTORY: (slug: string) => `/wiki/${slug}/history`,
+  WIKI_REVISION: (slug: string, n: number) => `/wiki/${slug}/revisions/${n}`,
+  WIKI_DIFF: (slug: string) => `/wiki/${slug}/diff`,
 } as const;

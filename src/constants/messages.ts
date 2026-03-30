@@ -26,4 +26,12 @@ export const UI_MESSAGES = {
   DM_DELETE_FAIL: '삭제에 실패했습니다.',
   DM_BLOCKED: '차단 관계에서는 쪽지를 보낼 수 없습니다.',
   DM_DELETED: '대화가 삭제되었습니다.',
+  WIKI_LOAD_FAIL: '위키 페이지를 불러오지 못했습니다.',
+  WIKI_CREATE_SUCCESS: '위키 페이지가 생성되었습니다.',
+  WIKI_UPDATE_SUCCESS: '위키 페이지가 수정되었습니다.',
+  WIKI_DELETE_SUCCESS: '위키 페이지가 삭제되었습니다.',
+  WIKI_DELETE_FAIL: '삭제에 실패했습니다.',
+  WIKI_SLUG_DUPLICATE: '이미 사용 중인 슬러그입니다.',
+  WIKI_ROLLBACK_SUCCESS: '위키 페이지가 롤백되었습니다.',
+  WIKI_ROLLBACK_FAIL: '롤백에 실패했습니다.',
 } as const;
