@@ -238,6 +238,25 @@ header {
 }
 
 /* ============================= */
+/* 콘텐츠 영역 fade-in 애니메이션   */
+/* ============================= */
+@keyframes contentFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.content {
+    animation: contentFadeIn 200ms ease-out;
+}
+
+/* ============================= */
 /* Main Container — 에디토리얼 너비  */
 /* ============================= */
 .main-container {
