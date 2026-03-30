@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { ROUTES } from '../constants/routes';
 import { UI_MESSAGES } from '../constants/messages';
-import { Post } from '../types/post';
+import { Post, Comment } from '../types/post';
 import { ApiResponse } from '../types/common';
 import { useAuth } from '../hooks/useAuth';
 import { showToast } from '../utils/toast';
@@ -12,6 +12,8 @@ import { formatDate } from '../utils/formatters';
 import LoadingSpinner from '../components/LoadingSpinner';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import PostActionBar from '../components/PostActionBar';
+import CommentForm from '../components/CommentForm';
+import CommentList from '../components/CommentList';
 
 export default function PostDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +23,7 @@ export default function PostDetailPage() {
   const [post, setPost] = useState<Post | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -42,6 +45,20 @@ export default function PostDetailPage() {
 
     void fetchPost();
   }, [id]);
+
+  const loadComments = useCallback(async () => {
+    if (!id) return;
+    try {
+      const res = await api.get<ApiResponse<Comment[]>>(
+        API_ENDPOINTS.COMMENTS.ROOT(Number(id)),
+      );
+      setComments(res.data);
+    } catch { /* 댓글 로드 실패 시 무시 */ }
+  }, [id]);
+
+  useEffect(() => {
+    void loadComments();
+  }, [loadComments]);
 
   async function handleLike() {
     if (!post) return;
@@ -209,8 +226,11 @@ export default function PostDetailPage() {
         </div>
       </article>
 
-      {/* 댓글 영역 (Task 18에서 구현 예정) */}
-      <div id="comments-section">댓글 영역 (준비 중)</div>
+      {/* 댓글 영역 */}
+      <section className="comment-section">
+        <CommentForm postId={post.id} onSubmit={loadComments} />
+        <CommentList postId={post.id} comments={comments} onCommentChange={loadComments} />
+      </section>
     </main>
   );
 }
