@@ -126,6 +126,7 @@
     display: inline-flex;
     align-items: center;
     color: var(--color-text-primary);
+    position: relative;
 }
 
 .notification-badge {
@@ -230,4 +231,213 @@
     font-size: var(--font-size-sm);
     cursor: pointer;
     letter-spacing: var(--tracking-wide);
+}
+
+/* ── React NotificationItem BEM 확장 ── */
+.notification-item--unread {
+    border-left: 3px solid var(--color-primary);
+    background: var(--color-notification-unread);
+}
+
+.notification-item--unread:hover {
+    background: var(--color-notification-unread-hover);
+}
+
+.notification-item--read {
+    border-left: 3px solid transparent;
+    opacity: 0.5;
+}
+
+.notification-item--read:hover {
+    opacity: 0.8;
+}
+
+.notification-item__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-item__meta {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.notification-item__time {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    letter-spacing: var(--tracking-wide);
+}
+
+.notification-item__tag {
+    color: var(--color-text-white);
+    font-size: var(--font-size-2xs);
+    font-family: var(--font-family-mono);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    letter-spacing: var(--tracking-wide);
+}
+
+.notification-item__message {
+    margin-top: var(--spacing-xs);
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+}
+
+.notification-item__actor {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+.notification-item__post-title {
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-sm);
+    margin-top: var(--spacing-xs);
+}
+
+.notification-item__delete {
+    background: none;
+    border: none;
+    color: var(--color-text-tertiary);
+    opacity: 0.3;
+    cursor: pointer;
+    font-size: var(--font-size-lg);
+    padding: 0 var(--spacing-xs);
+    flex-shrink: 0;
+    transition: all var(--transition-fast);
+}
+
+.notification-item__delete:hover {
+    opacity: 1;
+    color: var(--color-danger);
+}
+
+/* ── React NotificationBell BEM 확장 ── */
+.notification-bell__button {
+    background: none;
+    border: none;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    position: relative;
+    padding: var(--spacing-xs);
+    display: flex;
+    align-items: center;
+}
+
+.notification-bell__badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    background: var(--color-notification-badge);
+    color: var(--color-text-white);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-semibold);
+    padding: 1px 5px;
+    border-radius: var(--radius-pill);
+    min-width: 16px;
+    text-align: center;
+    line-height: 1.4;
+}
+
+/* ── React NotificationDropdown ── */
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 360px;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg, 0 4px 12px rgba(0, 0, 0, 0.15));
+    z-index: 100;
+    overflow: hidden;
+    margin-top: var(--spacing-xs);
+}
+
+.notification-dropdown__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.notification-dropdown__title {
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-base);
+}
+
+.notification-dropdown__mark-all {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
+    letter-spacing: var(--tracking-wide);
+}
+
+.notification-dropdown__mark-all:hover {
+    color: var(--color-primary-hover);
+}
+
+.notification-dropdown__list {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.notification-dropdown__empty {
+    padding: var(--spacing-xl) var(--spacing-lg);
+    text-align: center;
+    color: var(--color-text-placeholder);
+    font-size: var(--font-size-sm);
+}
+
+.notification-dropdown__footer {
+    display: block;
+    text-align: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    color: var(--color-primary);
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
+    text-decoration: none;
+    letter-spacing: var(--tracking-wide);
+    transition: background var(--transition-fast);
+}
+
+.notification-dropdown__footer:hover {
+    background: var(--color-primary-subtle);
+}
+
+/* ── React NotificationPage ── */
+.notification-page__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.notification-page__header h1 {
+    margin: 0;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+}
+
+.notification-page__sentinel {
+    padding: var(--spacing-xl);
+    text-align: center;
+}
+
+.notification-empty code {
+    display: block;
+    font-family: var(--font-family-mono);
+}
+
+.notification-empty p {
+    margin-top: var(--spacing-lg);
 }
