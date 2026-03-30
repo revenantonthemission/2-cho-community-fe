@@ -1,15 +1,20 @@
 {
   "compilerOptions": {
-    "checkJs": false,
-    "allowJs": true,
-    "noEmit": true,
-    "strict": true,
-    "target": "ES2022",
-    "module": "ES2022",
+    "target": "ES2020",
+    "module": "ESNext",
     "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-  "include": ["js/**/*.js", "js/**/*.d.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src"]
 }
