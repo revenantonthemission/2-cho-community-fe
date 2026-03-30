@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import MarkdownEditor from './MarkdownEditor';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
-import type { Category } from '../types/post';
+import type { Category, CategoriesResponse } from '../types/post';
 import type { ApiResponse } from '../types/common';
 
 interface PostFormProps {
@@ -33,8 +33,8 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
   useEffect(() => {
     (async () => {
       try {
-        const res = await api.get<ApiResponse<Category[]>>(API_ENDPOINTS.CATEGORIES.ROOT);
-        setCategories(res.data ?? []);
+        const res = await api.get<ApiResponse<CategoriesResponse>>(API_ENDPOINTS.CATEGORIES.ROOT);
+        setCategories(res.data?.categories ?? []);
       } catch { /* ignore */ }
     })();
   }, []);
@@ -82,7 +82,7 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
         >
           <option value={0} disabled>카테고리를 선택하세요</option>
           {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
+            <option key={cat.category_id} value={cat.category_id}>{cat.name}</option>
           ))}
         </select>
       </div>

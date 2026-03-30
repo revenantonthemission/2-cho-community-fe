@@ -37,8 +37,13 @@ export interface Comment {
 }
 
 export interface Category {
-  id: number;
+  category_id: number;
   name: string;
   slug: string;
   description: string;
+  sort_order: number;
+}
+
+export interface CategoriesResponse {
+  categories: Category[];
 }

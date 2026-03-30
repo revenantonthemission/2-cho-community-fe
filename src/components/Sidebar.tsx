@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
-import type { Category } from '../types/post';
+import type { Category, CategoriesResponse } from '../types/post';
 import type { ApiResponse } from '../types/common';
 
 export default function Sidebar() {
@@ -13,8 +13,8 @@ export default function Sidebar() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await api.get<ApiResponse<Category[]>>(API_ENDPOINTS.CATEGORIES.ROOT);
-        setCategories(res.data ?? []);
+        const res = await api.get<ApiResponse<CategoriesResponse>>(API_ENDPOINTS.CATEGORIES.ROOT);
+        setCategories(res.data?.categories ?? []);
       } catch {
         // 카테고리 로드 실패 시 빈 목록
       }
@@ -46,10 +46,10 @@ export default function Sidebar() {
             </button>
           </li>
           {categories.map((cat) => (
-            <li key={cat.id}>
+            <li key={cat.category_id}>
               <button
-                className={currentCategory === String(cat.id) ? 'active' : ''}
-                onClick={() => handleCategoryClick(cat.id)}
+                className={currentCategory === String(cat.category_id) ? 'active' : ''}
+                onClick={() => handleCategoryClick(cat.category_id)}
               >
                 {cat.name}
               </button>
