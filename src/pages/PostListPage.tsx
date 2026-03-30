@@ -4,7 +4,7 @@ import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { ROUTES } from '../constants/routes';
 import { Post } from '../types/post';
-import { ApiResponse, PaginatedData } from '../types/common';
+import { ApiResponse, PostListResponse } from '../types/common';
 import PostCard from '../components/PostCard';
 import Pagination from '../components/Pagination';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -36,9 +36,11 @@ export default function PostListPage() {
       setIsLoading(true);
       setError('');
 
-      // 쿼리 파라미터 조합
+      // 쿼리 파라미터 조합 (offset/limit 기반 페이지네이션)
+      const LIMIT = 10;
       const params = new URLSearchParams();
-      params.set('page', String(page));
+      params.set('offset', String((page - 1) * LIMIT));
+      params.set('limit', String(LIMIT));
       params.set('sort', sort);
       if (categoryId) params.set('category_id', categoryId);
       if (search) params.set('search', search);
@@ -46,9 +48,9 @@ export default function PostListPage() {
       const endpoint = `${API_ENDPOINTS.POSTS.ROOT}?${params.toString()}`;
 
       try {
-        const res = await api.get<ApiResponse<PaginatedData<Post>>>(endpoint);
-        setPosts(res.data.items);
-        setTotalPages(res.data.total_pages);
+        const res = await api.get<ApiResponse<PostListResponse>>(endpoint);
+        setPosts(res.data.posts);
+        setTotalPages(Math.ceil((res.data.pagination?.total_count ?? 0) / 10));
       } catch {
         setError('게시글을 불러오는 중 오류가 발생했습니다.');
       } finally {

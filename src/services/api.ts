@@ -1,8 +1,5 @@
 // 환경별 API Base URL
-const IS_VITE_DEV =
-  window.location.hostname === '127.0.0.1' &&
-  window.location.port !== '8080' &&
-  window.location.port !== '3000';
+// Vite dev 모드: import.meta.env.DEV로 감지 (포트 기반 감지 제거)
 const IS_LOCAL =
   window.location.hostname === 'localhost' ||
   window.location.hostname === '127.0.0.1';
@@ -14,11 +11,11 @@ function deriveApiDomain(): string {
   return `api-${parts[0]}.${parts.slice(1).join('.')}`;
 }
 
-export const API_BASE_URL = IS_VITE_DEV
-  ? 'http://127.0.0.1:8000'
+export const API_BASE_URL = import.meta.env.DEV
+  ? 'http://127.0.0.1:8000'    // Vite dev 모드: BE 직접 연결
   : IS_LOCAL
-    ? ''
-    : `https://${deriveApiDomain()}`;
+    ? ''                         // Docker Compose: nginx 프록시
+    : `https://${deriveApiDomain()}`;  // K8s: hostname에서 도출
 
 // FastAPI는 trailing slash 없는 경로를 307로 리다이렉트하며 body가 유실됨
 function ensureTrailingSlash(endpoint: string): string {
@@ -149,12 +146,26 @@ export const api = {
     if (accessToken) {
       headers['Authorization'] = `Bearer ${accessToken}`;
     }
-    const res = await fetch(url, {
+    let res = await fetch(url, {
       method: 'POST',
       headers,
       body: formData,
       credentials: 'include',
     });
+    // 401 → refresh 시도 → 재요청
+    if (res.status === 401) {
+      const refreshed = await tryRefresh();
+      if (refreshed) {
+        const retryHeaders: Record<string, string> = {};
+        if (accessToken) retryHeaders['Authorization'] = `Bearer ${accessToken}`;
+        res = await fetch(url, {
+          method: 'POST',
+          headers: retryHeaders,
+          body: formData,
+          credentials: 'include',
+        });
+      }
+    }
     if (!res.ok) {
       const errorBody = await res.json().catch(() => ({}));
       throw { status: res.status, data: errorBody };

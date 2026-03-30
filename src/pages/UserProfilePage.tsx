@@ -7,7 +7,7 @@ import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { showToast } from '../utils/toast';
 import type { Post } from '../types/post';
-import type { ApiResponse, PaginatedData } from '../types/common';
+import type { ApiResponse, PostListResponse } from '../types/common';
 
 interface UserProfile {
   id: number;
@@ -43,11 +43,11 @@ export default function UserProfilePage() {
         const [profileRes, repRes, postsRes] = await Promise.all([
           api.get<ApiResponse<UserProfile>>(`${API_ENDPOINTS.USERS.ROOT}/${id}`),
           api.get<ApiResponse<Reputation>>(API_ENDPOINTS.REPUTATION.USER(Number(id))),
-          api.get<ApiResponse<PaginatedData<Post>>>(`${API_ENDPOINTS.POSTS.ROOT}?author_id=${id}`),
+          api.get<ApiResponse<PostListResponse>>(`${API_ENDPOINTS.POSTS.ROOT}?author_id=${id}`),
         ]);
         setProfile(profileRes.data);
         setReputation(repRes.data);
-        setPosts(postsRes.data?.items ?? []);
+        setPosts(postsRes.data?.posts ?? []);
       } catch {
         /* 조회 실패 시 빈 상태 유지 */
       } finally {
@@ -58,7 +58,11 @@ export default function UserProfilePage() {
 
   async function handleFollow() {
     try {
-      await api.post(API_ENDPOINTS.FOLLOW.FOLLOW(Number(id)), {});
+      if (isFollowing) {
+        await api.delete(API_ENDPOINTS.FOLLOW.FOLLOW(Number(id)));
+      } else {
+        await api.post(API_ENDPOINTS.FOLLOW.FOLLOW(Number(id)), {});
+      }
       setIsFollowing(!isFollowing);
       showToast(isFollowing ? '팔로우를 취소했습니다.' : '팔로우했습니다.');
     } catch {

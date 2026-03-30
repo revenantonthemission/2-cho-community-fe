@@ -4,10 +4,14 @@ export interface ApiResponse<T = unknown> {
   data: T;
 }
 
-export interface PaginatedData<T> {
-  items: T[];
-  total: number;
-  page: number;
-  size: number;
-  total_pages: number;
+export interface Pagination {
+  offset: number;
+  limit: number;
+  total_count: number;
+  has_more: boolean;
+}
+
+export interface PostListResponse {
+  posts: import('./post').Post[];
+  pagination: Pagination;
 }

@@ -63,7 +63,11 @@ export default function PostDetailPage() {
   async function handleLike() {
     if (!post) return;
     try {
-      await api.post(API_ENDPOINTS.LIKES.ROOT(post.id), {});
+      if (post.is_liked) {
+        await api.delete(API_ENDPOINTS.LIKES.ROOT(post.id));
+      } else {
+        await api.post(API_ENDPOINTS.LIKES.ROOT(post.id), {});
+      }
       setPost((prev) =>
         prev
           ? {
@@ -83,7 +87,11 @@ export default function PostDetailPage() {
   async function handleBookmark() {
     if (!post) return;
     try {
-      await api.post(API_ENDPOINTS.BOOKMARKS.ROOT(post.id), {});
+      if (post.is_bookmarked) {
+        await api.delete(API_ENDPOINTS.BOOKMARKS.ROOT(post.id));
+      } else {
+        await api.post(API_ENDPOINTS.BOOKMARKS.ROOT(post.id), {});
+      }
       setPost((prev) =>
         prev ? { ...prev, is_bookmarked: !prev.is_bookmarked } : prev,
       );

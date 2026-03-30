@@ -38,7 +38,11 @@ function CommentItem({
 
   async function handleLike() {
     try {
-      await api.post(API_ENDPOINTS.COMMENT_LIKES.ROOT(postId, comment.id), {});
+      if (isLiked) {
+        await api.delete(API_ENDPOINTS.COMMENT_LIKES.ROOT(postId, comment.id));
+      } else {
+        await api.post(API_ENDPOINTS.COMMENT_LIKES.ROOT(postId, comment.id), {});
+      }
       setIsLiked(!isLiked);
       setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
     } catch { /* 좋아요 실패 시 무시 */ }
