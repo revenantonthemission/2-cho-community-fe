@@ -457,3 +457,481 @@
     font-size: var(--font-size-caption);
     letter-spacing: var(--tracking-wide);
 }
+
+/* ============================================= */
+/* React BEM 컴포넌트 — pkg-* 네임스페이스        */
+/* Vanilla JS의 .package-* 클래스와 충돌 없음    */
+/* ============================================= */
+
+/* ============================= */
+/* PackageListPage                */
+/* ============================= */
+.pkg-list-page {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.pkg-list-page__header {
+    margin-bottom: var(--spacing-xl);
+}
+
+.pkg-list-page__categories {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-md);
+}
+
+.pkg-list-page__controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.pkg-list-page__search {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family-mono);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.pkg-list-page__search::placeholder {
+    color: var(--color-text-placeholder);
+}
+
+.pkg-list-page__search:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-subtle);
+}
+
+.pkg-list-page__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.pkg-list-page__empty {
+    /* .pkg-empty로 위임 */
+}
+
+/* ============================= */
+/* 카테고리 탭 버튼               */
+/* ============================= */
+.pkg-category-btn {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+    white-space: nowrap;
+}
+
+.pkg-category-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: var(--color-primary-subtle);
+}
+
+.pkg-category-btn.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+    font-weight: var(--font-weight-semibold);
+}
+
+/* ============================= */
+/* PackageCard                   */
+/* ============================= */
+.pkg-card {
+    display: block;
+    text-decoration: none;
+    background: var(--card-bg, var(--color-bg-secondary));
+    border: 1px solid var(--color-border);
+    border-top: 2px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    cursor: pointer;
+    transition: box-shadow var(--transition-fast), border-top-color var(--transition-fast);
+    color: inherit;
+}
+
+.pkg-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border-top-color: var(--color-primary);
+    text-decoration: none;
+}
+
+.pkg-card__header {
+    margin-bottom: var(--spacing-sm);
+}
+
+.pkg-card__name {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-2xs);
+    line-height: var(--line-height-tight, 1.25);
+}
+
+.pkg-card__tech-name {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+    margin: 0;
+    letter-spacing: 0.03em;
+}
+
+.pkg-card__badges {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;
+    margin: var(--spacing-sm) 0;
+}
+
+.pkg-card__category {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--spacing-2xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    background: var(--color-primary-subtle);
+    color: var(--color-primary);
+    letter-spacing: 0.04em;
+}
+
+.pkg-card__manager {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--spacing-2xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    background: transparent;
+    letter-spacing: 0.04em;
+}
+
+.pkg-card__desc {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    margin: 0 0 var(--spacing-md);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.pkg-card__footer {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--color-border-light);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+}
+
+.pkg-card__rating {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.pkg-card__rating-text {
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+}
+
+.pkg-card__meta {
+    color: var(--color-text-tertiary);
+    margin-left: auto;
+    letter-spacing: 0.03em;
+}
+
+/* ============================= */
+/* PackageDetailPage             */
+/* ============================= */
+.pkg-detail {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.pkg-detail__header {
+    margin-bottom: var(--spacing-xl);
+}
+
+.pkg-detail__name {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-2xl, 1.75rem);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-xs);
+    line-height: var(--line-height-tight, 1.25);
+}
+
+.pkg-detail__badges {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;
+    margin: var(--spacing-md) 0;
+}
+
+.pkg-detail__category {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    background: var(--color-primary-subtle);
+    color: var(--color-primary);
+    letter-spacing: 0.04em;
+}
+
+.pkg-detail__manager {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    background: transparent;
+}
+
+.pkg-detail__desc {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    margin: 0 0 var(--spacing-lg);
+}
+
+.pkg-detail__link {
+    display: block;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-primary);
+    text-decoration: none;
+    word-break: break-all;
+    margin-bottom: var(--spacing-lg);
+}
+
+.pkg-detail__link:hover {
+    text-decoration: underline;
+}
+
+.pkg-detail__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    letter-spacing: 0.04em;
+    flex-wrap: wrap;
+}
+
+.pkg-not-found {
+    text-align: center;
+    padding: var(--spacing-4xl) 0;
+    font-family: var(--font-family-mono);
+    color: var(--color-text-secondary);
+}
+
+/* ============================= */
+/* 리뷰 목록 (pkg-reviews)       */
+/* ============================= */
+.pkg-reviews {
+    margin-top: var(--spacing-2xl);
+}
+
+.pkg-reviews__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.pkg-reviews__empty {
+    /* .pkg-empty로 위임 */
+}
+
+.pkg-review-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-2xl);
+}
+
+/* ============================= */
+/* 개별 리뷰 카드 (pkg-review-card) */
+/* ============================= */
+.pkg-review-card {
+    background: var(--card-bg, var(--color-bg-secondary));
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+}
+
+.pkg-review-card__header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.pkg-review-card__author {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.pkg-review-card__date {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin-left: auto;
+    letter-spacing: 0.04em;
+}
+
+.pkg-review-card__title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin: var(--spacing-xs) 0;
+}
+
+.pkg-review-card__content {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.pkg-review-card__actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-sm);
+}
+
+/* ============================= */
+/* 리뷰 작성 폼 (pkg-review-form) */
+/* ============================= */
+.pkg-review-form {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+    background: var(--color-bg-secondary);
+}
+
+.pkg-review-form__rating {
+    margin-bottom: var(--spacing-md);
+}
+
+.pkg-review-form__actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+/* ============================= */
+/* 별점 컴포넌트 (star-rating)    */
+/* ============================= */
+.star-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.star-rating--sm .star-rating__star {
+    font-size: var(--font-size-sm);
+}
+
+.star-rating--md .star-rating__star {
+    font-size: var(--font-size-xl);
+}
+
+.star-rating__star {
+    font-size: var(--font-size-base);
+    cursor: pointer;
+    color: var(--color-border);
+    transition: color var(--transition-fast);
+    user-select: none;
+    line-height: 1;
+}
+
+.star-rating__star--filled {
+    color: #f5a623;  /* 골드/노란 별 */
+}
+
+.star-rating__star:hover,
+.star-rating__star:hover ~ .star-rating__star--filled {
+    color: #f5a623;
+}
+
+/* ============================= */
+/* PackageForm (등록/수정 폼)     */
+/* ============================= */
+.pkg-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    max-width: 640px;
+}
+
+.pkg-form .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+/* ============================= */
+/* 빈 상태 공통 — terminal 스타일 */
+/* ============================= */
+.pkg-empty {
+    text-align: center;
+    padding: var(--spacing-4xl) var(--spacing-lg);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    letter-spacing: 0.04em;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+}
+
+.pkg-empty::before {
+    display: block;
+    content: "$";
+    font-size: var(--font-size-2xl, 1.75rem);
+    color: var(--color-text-tertiary);
+    margin-bottom: var(--spacing-md);
+    font-family: var(--font-family-mono);
+}
