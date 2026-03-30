@@ -18,6 +18,13 @@ import UserProfilePage from './pages/UserProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
 import NotificationPage from './pages/NotificationPage';
 import DMPage from './pages/DMPage';
+import WikiListPage from './pages/wiki/WikiListPage';
+import WikiDetailPage from './pages/wiki/WikiDetailPage';
+import WikiWritePage from './pages/wiki/WikiWritePage';
+import WikiEditPage from './pages/wiki/WikiEditPage';
+import WikiHistoryPage from './pages/wiki/WikiHistoryPage';
+import WikiRevisionPage from './pages/wiki/WikiRevisionPage';
+import WikiDiffPage from './pages/wiki/WikiDiffPage';
 
 export default function App() {
   return (
@@ -44,6 +51,17 @@ export default function App() {
                       <Route path="/edit-profile" element={<ProfilePage />} />
                       <Route path="/dm" element={<DMPage />} />
                     </Route>
+
+                    {/* 위키 */}
+                    <Route path="/wiki" element={<WikiListPage />} />
+                    <Route element={<AuthGuard />}>
+                      <Route path="/wiki/write" element={<WikiWritePage />} />
+                      <Route path="/wiki/edit/:slug" element={<WikiEditPage />} />
+                    </Route>
+                    <Route path="/wiki/:slug" element={<WikiDetailPage />} />
+                    <Route path="/wiki/:slug/history" element={<WikiHistoryPage />} />
+                    <Route path="/wiki/:slug/revisions/:n" element={<WikiRevisionPage />} />
+                    <Route path="/wiki/:slug/diff" element={<WikiDiffPage />} />
                   </Route>
 
                   <Route path="*" element={<NotFoundPage />} />
