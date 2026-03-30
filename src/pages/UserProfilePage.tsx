@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useDM } from '../hooks/useDM';
 import PostCard from '../components/PostCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
+import { ROUTES } from '../constants/routes';
 import { showToast } from '../utils/toast';
 import type { Post } from '../types/post';
 import type { ApiResponse, PostListResponse } from '../types/common';
@@ -28,6 +30,8 @@ interface Reputation {
 export default function UserProfilePage() {
   const { id } = useParams<{ id: string }>();
   const { user: currentUser } = useAuth();
+  const { createConversation, selectConversation } = useDM();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [reputation, setReputation] = useState<Reputation | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -116,6 +120,21 @@ export default function UserProfilePage() {
               onClick={handleFollow}
             >
               {isFollowing ? '언팔로우' : '팔로우'}
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={async () => {
+                try {
+                  const convId = await createConversation(Number(id));
+                  await selectConversation(convId);
+                  navigate(ROUTES.DM);
+                } catch {
+                  showToast('쪽지 보내기에 실패했습니다.', 'error');
+                }
+              }}
+            >
+              쪽지 보내기
             </button>
             <button type="button" className="block-btn" onClick={handleBlock}>
               {isBlocked ? '차단 해제' : '차단'}
