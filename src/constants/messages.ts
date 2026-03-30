@@ -43,4 +43,11 @@ export const UI_MESSAGES = {
   REVIEW_DELETE_SUCCESS: '리뷰가 삭제되었습니다.',
   REVIEW_DUPLICATE: '이미 이 패키지에 리뷰를 작성했습니다.',
   REVIEW_FAIL: '리뷰 처리에 실패했습니다.',
+  ADMIN_LOAD_FAIL: '관리자 데이터를 불러오지 못했습니다.',
+  ADMIN_SUSPEND_SUCCESS: '사용자가 정지되었습니다.',
+  ADMIN_UNSUSPEND_SUCCESS: '정지가 해제되었습니다.',
+  ADMIN_SUSPEND_FAIL: '정지 처리에 실패했습니다.',
+  REPORT_RESOLVE_SUCCESS: '신고가 처리되었습니다.',
+  REPORT_REOPEN_SUCCESS: '신고가 다시 열렸습니다.',
+  REPORT_FAIL: '신고 처리에 실패했습니다.',
 } as const;

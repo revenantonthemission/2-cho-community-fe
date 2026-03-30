@@ -77,6 +77,14 @@ export const API_ENDPOINTS = {
     REVIEWS: (id: number) => `/v1/packages/${id}/reviews`,
     REVIEW_DETAIL: (pkgId: number, reviewId: number) => `/v1/packages/${pkgId}/reviews/${reviewId}`,
   },
+  ADMIN: {
+    DASHBOARD: '/v1/admin/dashboard',
+    USERS: '/v1/admin/users',
+    SUSPEND: (userId: number) => `/v1/admin/users/${userId}/suspend`,
+    REPORTS: '/v1/admin/reports',
+    REPORT_RESOLVE: (id: number) => `/v1/admin/reports/${id}`,
+    REPORT_REOPEN: (id: number) => `/v1/admin/reports/${id}/reopen`,
+  },
 } as const;
 
 const IS_LOCAL =

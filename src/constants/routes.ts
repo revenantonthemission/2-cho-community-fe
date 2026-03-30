@@ -20,4 +20,6 @@ export const ROUTES = {
   PACKAGE_WRITE: '/packages/write',
   PACKAGE_EDIT: (id: number) => `/packages/edit/${id}`,
   PACKAGE_DETAIL: (id: number) => `/packages/${id}`,
+  ADMIN: '/admin',
+  ADMIN_REPORTS: '/admin/reports',
 } as const;
