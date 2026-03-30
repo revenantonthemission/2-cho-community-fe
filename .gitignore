@@ -1,5 +1,8 @@
 # Dependencies
 node_modules/
+
+# Visual brainstorming
+.superpowers/
 .venv/
 venv/
 env/

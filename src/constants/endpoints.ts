@@ -71,6 +71,12 @@ export const API_ENDPOINTS = {
     DIFF: (slug: string) => `/v1/wiki/${slug}/diff`,
     ROLLBACK: (slug: string, n: number) => `/v1/wiki/${slug}/rollback/${n}`,
   },
+  PACKAGES: {
+    ROOT: '/v1/packages',
+    DETAIL: (id: number) => `/v1/packages/${id}`,
+    REVIEWS: (id: number) => `/v1/packages/${id}/reviews`,
+    REVIEW_DETAIL: (pkgId: number, reviewId: number) => `/v1/packages/${pkgId}/reviews/${reviewId}`,
+  },
 } as const;
 
 const IS_LOCAL =

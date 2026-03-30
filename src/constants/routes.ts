@@ -16,4 +16,8 @@ export const ROUTES = {
   WIKI_HISTORY: (slug: string) => `/wiki/${slug}/history`,
   WIKI_REVISION: (slug: string, n: number) => `/wiki/${slug}/revisions/${n}`,
   WIKI_DIFF: (slug: string) => `/wiki/${slug}/diff`,
+  PACKAGES: '/packages',
+  PACKAGE_WRITE: '/packages/write',
+  PACKAGE_EDIT: (id: number) => `/packages/edit/${id}`,
+  PACKAGE_DETAIL: (id: number) => `/packages/${id}`,
 } as const;

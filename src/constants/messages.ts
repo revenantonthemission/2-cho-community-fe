@@ -34,4 +34,13 @@ export const UI_MESSAGES = {
   WIKI_SLUG_DUPLICATE: '이미 사용 중인 슬러그입니다.',
   WIKI_ROLLBACK_SUCCESS: '위키 페이지가 롤백되었습니다.',
   WIKI_ROLLBACK_FAIL: '롤백에 실패했습니다.',
+  PKG_LOAD_FAIL: '패키지를 불러오지 못했습니다.',
+  PKG_CREATE_SUCCESS: '패키지가 등록되었습니다.',
+  PKG_UPDATE_SUCCESS: '패키지가 수정되었습니다.',
+  PKG_NAME_DUPLICATE: '이미 등록된 패키지 이름입니다.',
+  REVIEW_CREATE_SUCCESS: '리뷰가 작성되었습니다.',
+  REVIEW_UPDATE_SUCCESS: '리뷰가 수정되었습니다.',
+  REVIEW_DELETE_SUCCESS: '리뷰가 삭제되었습니다.',
+  REVIEW_DUPLICATE: '이미 이 패키지에 리뷰를 작성했습니다.',
+  REVIEW_FAIL: '리뷰 처리에 실패했습니다.',
 } as const;
