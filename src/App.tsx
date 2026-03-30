@@ -31,6 +31,8 @@ import PackageWritePage from './pages/packages/PackageWritePage';
 import PackageEditPage from './pages/packages/PackageEditPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminReportsPage from './pages/admin/AdminReportsPage';
+import MyActivityPage from './pages/MyActivityPage';
+import BadgesPage from './pages/BadgesPage';
 
 export default function App() {
   return (
@@ -82,6 +84,12 @@ export default function App() {
                       <Route path="/admin" element={<AdminDashboardPage />} />
                       <Route path="/admin/reports" element={<AdminReportsPage />} />
                     </Route>
+
+                    {/* 활동 / 뱃지 */}
+                    <Route element={<AuthGuard />}>
+                      <Route path="/my-activity" element={<MyActivityPage />} />
+                    </Route>
+                    <Route path="/badges" element={<BadgesPage />} />
                   </Route>
 
                   <Route path="*" element={<NotFoundPage />} />
