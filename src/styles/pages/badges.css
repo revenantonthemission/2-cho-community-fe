@@ -43,3 +43,156 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* ============================= */
+/* React BEM — 뱃지 페이지       */
+/* ============================= */
+
+/* 페이지 컨테이너 */
+.badges-page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+/* 평판 요약 섹션 */
+.badges-page__reputation {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xl);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-2xl);
+}
+
+.badges-page__score {
+    font-size: var(--font-size-3xl, 2rem);
+    font-weight: 700;
+    color: var(--color-primary);
+    font-family: var(--font-family-mono);
+    line-height: 1;
+}
+
+.badges-page__trust {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.badges-page__count {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+    font-family: var(--font-family-mono);
+}
+
+/* 뱃지 카테고리 섹션 */
+.badges-category {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.badges-category__title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--color-border);
+    font-family: var(--font-family-mono);
+}
+
+/* 뱃지 그리드 */
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+/* 뱃지 카드 — 기본 */
+.badge-card {
+    display: flex;
+    gap: var(--spacing-lg);
+    align-items: flex-start;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    transition: border-color var(--transition-fast), opacity var(--transition-fast);
+}
+
+/* 획득 뱃지 */
+.badge-card--earned {
+    opacity: 1;
+    border-color: var(--color-primary-subtle);
+}
+
+.badge-card--earned:hover {
+    border-color: var(--color-primary);
+}
+
+/* 미획득 뱃지 */
+.badge-card--locked {
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
+.badge-card--locked:hover {
+    opacity: 0.65;
+}
+
+/* 뱃지 아이콘 */
+.badge-card__icon {
+    font-size: 2.5rem;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 48px;
+    text-align: center;
+}
+
+/* 뱃지 정보 영역 */
+.badge-card__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xs);
+    min-width: 0;
+    flex: 1;
+}
+
+.badge-card__name {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.badge-card__desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+}
+
+.badge-card__date {
+    font-size: var(--font-size-xs);
+    color: var(--color-primary);
+    font-family: var(--font-family-mono);
+}
+
+.badge-card__threshold {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    font-family: var(--font-family-mono);
+}
+
+@media (max-width: 600px) {
+    .badges-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .badges-page__reputation {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+}

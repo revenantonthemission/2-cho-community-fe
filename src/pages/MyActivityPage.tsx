@@ -55,15 +55,15 @@ export default function MyActivityPage() {
       let pagination = { has_more: false, total_count: 0 };
 
       if (tab === 'comments') {
-        const d = data as MyCommentsResponse;
+        const d = data as unknown as MyCommentsResponse;
         fetched = d.comments;
         pagination = d.pagination;
       } else if (tab === 'blocks') {
-        const d = data as MyBlocksResponse;
+        const d = data as unknown as MyBlocksResponse;
         fetched = d.blocked_users;
         pagination = d.pagination;
       } else {
-        const d = data as MyPostsResponse;
+        const d = data as unknown as MyPostsResponse;
         fetched = d.posts;
         pagination = d.pagination;
       }
