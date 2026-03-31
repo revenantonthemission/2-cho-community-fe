@@ -79,7 +79,12 @@
 /* 검색 + 정렬 섹션               */
 /* ============================= */
 .search-sort-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
     padding: 0 0 var(--spacing-lg);
+    flex-wrap: wrap;
 }
 
 /* 커맨드 바 스타일 검색 */
