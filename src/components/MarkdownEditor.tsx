@@ -1,7 +1,9 @@
 import { useState, useRef } from 'react';
 import MarkdownRenderer from './MarkdownRenderer';
+import MentionDropdown from './MentionDropdown';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
+import { useMention } from '../hooks/useMention';
 
 interface MarkdownEditorProps {
   value: string;
@@ -13,6 +15,46 @@ export default function MarkdownEditor({ value, onChange, placeholder }: Markdow
   const [showPreview, setShowPreview] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { mentionUsers, showMention, selectedIndex, handleInput, handleKeyDown, handleBlur, closeMention } = useMention();
+
+  function handleChange(newValue: string) {
+    onChange(newValue);
+    const ta = textareaRef.current;
+    if (ta) handleInput(newValue, ta.selectionStart);
+  }
+
+  function handleKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const result = handleKeyDown(e, value, ta.selectionStart);
+    if (result !== null) {
+      onChange(result);
+      const cursorPos = result.indexOf(' ', result.lastIndexOf('@')) + 1;
+      requestAnimationFrame(() => {
+        ta.selectionStart = cursorPos;
+        ta.selectionEnd = cursorPos;
+      });
+    }
+  }
+
+  function handleMentionSelect(user: { user_id: number; nickname: string; profileImageUrl: string | null }) {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const beforeCursor = value.slice(0, ta.selectionStart);
+    const atIndex = beforeCursor.lastIndexOf('@');
+    if (atIndex === -1) return;
+    const before = value.slice(0, atIndex);
+    const after = value.slice(ta.selectionStart);
+    const insert = `@${user.nickname} `;
+    onChange(before + insert + after);
+    closeMention();
+    const cursorPos = before.length + insert.length;
+    requestAnimationFrame(() => {
+      ta.selectionStart = cursorPos;
+      ta.selectionEnd = cursorPos;
+      ta.focus();
+    });
+  }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -24,7 +66,7 @@ export default function MarkdownEditor({ value, onChange, placeholder }: Markdow
         API_ENDPOINTS.POSTS.IMAGE,
         formData,
       );
-      const url = res?.data?.url ?? (res as any)?.url;
+      const url = res?.data?.url;
       if (url) {
         const imageMarkdown = `\n![${file.name}](${url})\n`;
         onChange(value + imageMarkdown);
@@ -57,14 +99,25 @@ export default function MarkdownEditor({ value, onChange, placeholder }: Markdow
           <MarkdownRenderer content={value} />
         </div>
       ) : (
-        <textarea
-          ref={textareaRef}
-          className="content-textarea"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder ?? '내용을 입력해주세요.'}
-          rows={15}
-        />
+        <div style={{ position: 'relative' }}>
+          <textarea
+            ref={textareaRef}
+            className="content-textarea"
+            value={value}
+            onChange={(e) => handleChange(e.target.value)}
+            onKeyDown={handleKey}
+            onBlur={handleBlur}
+            placeholder={placeholder ?? '내용을 입력해주세요. (@로 멘션)'}
+            rows={15}
+          />
+          {showMention && (
+            <MentionDropdown
+              users={mentionUsers}
+              selectedIndex={selectedIndex}
+              onSelect={handleMentionSelect}
+            />
+          )}
+        </div>
       )}
     </div>
   );
