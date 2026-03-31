@@ -172,3 +172,26 @@
 .terms-link:hover {
     color: var(--color-primary-hover);
 }
+
+.terms-checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    margin: var(--spacing-lg) 0;
+}
+
+.terms-checkbox input[type="checkbox"] {
+    accent-color: var(--color-primary);
+}
+
+.signup-profile-upload {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xl);
+}

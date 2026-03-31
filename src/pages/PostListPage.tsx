@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
@@ -34,11 +34,45 @@ export default function PostListPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchInput, setSearchInput] = useState(search);
+  const [suggestions, setSuggestions] = useState<{ post_id: number; title: string; author_nickname: string }[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchBarRef = useRef<HTMLDivElement>(null);
 
   // URL search 파라미터 변경 시 입력값 동기화
   useEffect(() => {
     setSearchInput(search);
   }, [search]);
+
+  // 검색 자동완성 — 2글자 이상 입력 시 300ms 디바운스
+  const fetchSuggestions = useCallback((query: string) => {
+    if (suggestTimerRef.current) clearTimeout(suggestTimerRef.current);
+    if (query.length < 2) { setSuggestions([]); setShowSuggestions(false); return; }
+    suggestTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await api.get<ApiResponse<PostListResponse>>(
+          `${API_ENDPOINTS.POSTS.ROOT}?search=${encodeURIComponent(query)}&limit=5`,
+        );
+        setSuggestions((res.data?.posts ?? []).map((p) => ({
+          post_id: p.post_id,
+          title: p.title,
+          author_nickname: p.author.nickname,
+        })));
+        setShowSuggestions(true);
+      } catch { setSuggestions([]); }
+    }, 300);
+  }, []);
+
+  // 외부 클릭 시 자동완성 닫기
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (searchBarRef.current && !searchBarRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => { document.removeEventListener('mousedown', handleClickOutside); if (suggestTimerRef.current) clearTimeout(suggestTimerRef.current); };
+  }, []);
 
   useEffect(() => {
     async function fetchPosts() {
@@ -107,23 +141,38 @@ export default function PostListPage() {
   return (
     <div className="post-list-page">
       {/* 검색 */}
-      <div className="search-bar">
+      <div className="search-bar" ref={searchBarRef}>
         <input
           type="text"
           className="search-bar__input"
           placeholder="게시글 검색..."
           value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
+          onChange={(e) => { setSearchInput(e.target.value); fetchSuggestions(e.target.value); }}
           onKeyDown={handleSearchKeyDown}
+          onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
         />
         {search && (
           <button className="search-bar__clear" onClick={handleClearSearch} aria-label="검색 초기화">
             ×
           </button>
         )}
-        <button className="search-bar__btn" onClick={() => handleSearch(searchInput)}>
+        <button className="search-bar__btn" onClick={() => { handleSearch(searchInput); setShowSuggestions(false); }}>
           검색
         </button>
+        {showSuggestions && suggestions.length > 0 && (
+          <ul className="search-suggestions">
+            {suggestions.map((s) => (
+              <li
+                key={s.post_id}
+                className="search-suggestion-item"
+                onMouseDown={() => { setShowSuggestions(false); navigate(ROUTES.POST_DETAIL(s.post_id)); }}
+              >
+                <span className="suggestion-title">{s.title}</span>
+                <span className="suggestion-author">{s.author_nickname}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {search && (

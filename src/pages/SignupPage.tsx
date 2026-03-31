@@ -18,6 +18,9 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [nickname, setNickname] = useState('');
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [profilePreview, setProfilePreview] = useState('');
+  const [termsAgreed, setTermsAgreed] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -27,6 +30,7 @@ export default function SignupPage() {
       return '비밀번호는 영문·숫자·특수문자(!@#$%^&*) 포함 8자 이상이어야 합니다.';
     if (password !== passwordConfirm) return '비밀번호가 일치하지 않습니다.';
     if (!isValidNickname(nickname)) return '닉네임은 2~20자 사이여야 합니다.';
+    if (!termsAgreed) return '이용약관에 동의해주세요.';
     return '';
   };
 
@@ -46,6 +50,7 @@ export default function SignupPage() {
       formData.append('email', email);
       formData.append('password', password);
       formData.append('nickname', nickname);
+      if (profileImage) formData.append('profile_image', profileImage);
 
       await api.postFormData(API_ENDPOINTS.USERS.ROOT, formData);
       showToast(UI_MESSAGES.SIGNUP_SUCCESS);
@@ -70,6 +75,34 @@ export default function SignupPage() {
       <div className="signup-container">
         <h2 className="signup-title">회원가입</h2>
         <form onSubmit={handleSubmit}>
+          {/* 프로필 이미지 */}
+          <div className="input-group" style={{ textAlign: 'center' }}>
+            <label className="input-label">프로필 사진 (선택)</label>
+            <label
+              className="profile-circle signup-profile-upload"
+              style={
+                profilePreview
+                  ? { backgroundImage: `url(${profilePreview})`, backgroundSize: 'cover', cursor: 'pointer' }
+                  : { cursor: 'pointer' }
+              }
+            >
+              {!profilePreview && '📷'}
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setProfileImage(file);
+                  const reader = new FileReader();
+                  reader.onload = () => setProfilePreview(reader.result as string);
+                  reader.readAsDataURL(file);
+                }}
+              />
+            </label>
+          </div>
+
           <div className="input-group">
             <label className="input-label" htmlFor="email">
               이메일*
@@ -126,6 +159,14 @@ export default function SignupPage() {
               autoComplete="username"
             />
           </div>
+          <label className="terms-checkbox">
+            <input
+              type="checkbox"
+              checked={termsAgreed}
+              onChange={(e) => setTermsAgreed(e.target.checked)}
+            />
+            이용약관 및 개인정보 처리방침에 동의합니다
+          </label>
           {error && <span className="error-msg">{error}</span>}
           <button
             type="submit"

@@ -4,10 +4,13 @@ import { useAuth } from '../hooks/useAuth';
 import { useDM } from '../hooks/useDM';
 import PostCard from '../components/PostCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import Modal from '../components/Modal';
+import SuspendModal from '../components/admin/SuspendModal';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { ROUTES } from '../constants/routes';
 import { showToast } from '../utils/toast';
+import { UI_MESSAGES } from '../constants/messages';
 import type { Post } from '../types/post';
 import type { ApiResponse, PostListResponse } from '../types/common';
 
@@ -21,6 +24,15 @@ interface UserProfile {
   created_at: string;
   is_following?: boolean;
   is_blocked?: boolean;
+  followers_count?: number;
+  following_count?: number;
+  suspended_until?: string | null;
+}
+
+interface FollowUser {
+  user_id: number;
+  nickname: string;
+  profile_image: string | null;
 }
 
 interface Reputation {
@@ -40,6 +52,10 @@ export default function UserProfilePage() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [followModalType, setFollowModalType] = useState<'followers' | 'following' | null>(null);
+  const [followList, setFollowList] = useState<FollowUser[]>([]);
+  const [followListLoading, setFollowListLoading] = useState(false);
+  const [suspendModalOpen, setSuspendModalOpen] = useState(false);
 
   const isSelf = currentUser?.id === Number(id);
 
@@ -92,6 +108,46 @@ export default function UserProfilePage() {
       showToast('차단 처리에 실패했습니다.', 'error');
     }
   }
+
+  async function openFollowModal(type: 'followers' | 'following') {
+    setFollowModalType(type);
+    setFollowList([]);
+    setFollowListLoading(true);
+    try {
+      const endpoint = type === 'followers'
+        ? `${API_ENDPOINTS.USERS.ROOT}/${id}/followers`
+        : `${API_ENDPOINTS.USERS.ROOT}/${id}/following`;
+      const res = await api.get<ApiResponse<{ users: FollowUser[] }>>(endpoint);
+      setFollowList(res.data?.users ?? []);
+    } catch { /* ignore */ }
+    finally { setFollowListLoading(false); }
+  }
+
+  async function handleSuspend(days: number, reason: string) {
+    try {
+      await api.post(API_ENDPOINTS.ADMIN.SUSPEND(Number(id)), {
+        duration_days: days,
+        reason,
+      });
+      showToast(UI_MESSAGES.ADMIN_SUSPEND_SUCCESS);
+      setSuspendModalOpen(false);
+    } catch {
+      showToast(UI_MESSAGES.ADMIN_SUSPEND_FAIL, 'error');
+    }
+  }
+
+  async function handleUnsuspend() {
+    if (!window.confirm('정지를 해제하시겠습니까?')) return;
+    try {
+      await api.delete(API_ENDPOINTS.ADMIN.SUSPEND(Number(id)));
+      showToast(UI_MESSAGES.ADMIN_UNSUSPEND_SUCCESS);
+      setProfile((prev) => prev ? { ...prev, suspended_until: null } : prev);
+    } catch {
+      showToast(UI_MESSAGES.ADMIN_SUSPEND_FAIL, 'error');
+    }
+  }
+
+  const isAdmin = currentUser?.role === 'admin';
 
   if (isLoading) return <LoadingSpinner />;
   if (!profile) return <div>사용자를 찾을 수 없습니다.</div>;
@@ -148,10 +204,33 @@ export default function UserProfilePage() {
         )}
       </div>
 
-      {reputation && (
-        <div className="profile-stats">
-          <div className="profile-stat-item"><strong>평판</strong> {reputation.score}</div>
-          <div className="profile-stat-item"><strong>신뢰 등급</strong> {reputation.trust_level_name}</div>
+      <div className="profile-stats">
+        {reputation && (
+          <>
+            <div className="profile-stat-item"><strong>평판</strong> {reputation.score}</div>
+            <div className="profile-stat-item"><strong>신뢰 등급</strong> {reputation.trust_level_name}</div>
+          </>
+        )}
+        <button type="button" className="profile-stat-item profile-stat-clickable" onClick={() => openFollowModal('followers')}>
+          <strong>팔로워</strong> {profile.followers_count ?? 0}
+        </button>
+        <button type="button" className="profile-stat-item profile-stat-clickable" onClick={() => openFollowModal('following')}>
+          <strong>팔로잉</strong> {profile.following_count ?? 0}
+        </button>
+      </div>
+
+      {/* 관리자: 정지/해제 */}
+      {isAdmin && !isSelf && (
+        <div className="admin-profile-actions">
+          {profile.suspended_until ? (
+            <button type="button" className="btn btn-secondary btn-sm" onClick={handleUnsuspend}>
+              정지 해제 (~{new Date(profile.suspended_until).toLocaleDateString()})
+            </button>
+          ) : (
+            <button type="button" className="btn btn-danger btn-sm" onClick={() => setSuspendModalOpen(true)}>
+              사용자 정지
+            </button>
+          )}
         </div>
       )}
 
@@ -170,6 +249,42 @@ export default function UserProfilePage() {
           </ul>
         )}
       </div>
+
+      {/* 팔로워/팔로잉 모달 */}
+      <Modal
+        isOpen={followModalType !== null}
+        onClose={() => setFollowModalType(null)}
+        title={followModalType === 'followers' ? '팔로워' : '팔로잉'}
+      >
+        {followListLoading ? (
+          <LoadingSpinner />
+        ) : followList.length === 0 ? (
+          <p>{followModalType === 'followers' ? '팔로워가 없습니다.' : '팔로잉이 없습니다.'}</p>
+        ) : (
+          <ul className="follow-modal-list">
+            {followList.map((u) => (
+              <li key={u.user_id} className="follow-modal-item" onClick={() => { setFollowModalType(null); navigate(ROUTES.USER_PROFILE(u.user_id)); }}>
+                <div
+                  className="follow-modal-avatar"
+                  style={u.profile_image ? { backgroundImage: `url(${u.profile_image})`, backgroundSize: 'cover' } : undefined}
+                >
+                  {!u.profile_image && u.nickname?.charAt(0).toUpperCase()}
+                </div>
+                <span>{u.nickname}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Modal>
+
+      {/* 관리자 정지 모달 */}
+      {suspendModalOpen && (
+        <SuspendModal
+          nickname={profile.nickname}
+          onConfirm={handleSuspend}
+          onClose={() => setSuspendModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

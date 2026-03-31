@@ -50,6 +50,10 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
   const [categoryId, setCategoryId] = useState(initialData?.category_id ?? 0);
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState<string[]>(initialData?.tags ?? []);
+  const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+  const tagTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tagContainerRef = useRef<HTMLDivElement>(null);
 
   // 투표 상태
   const [pollEnabled, setPollEnabled] = useState(false);
@@ -135,6 +139,36 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
     try { await api.delete(API_ENDPOINTS.DRAFTS.ROOT); } catch { /* ignore */ }
   }, [enableDraft]);
 
+  function fetchTagSuggestions(query: string) {
+    if (tagTimerRef.current) clearTimeout(tagTimerRef.current);
+    if (query.length < 1) { setTagSuggestions([]); setShowTagSuggestions(false); return; }
+    tagTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await api.get<{ data: { tags: { name: string }[] } }>(
+          `${API_ENDPOINTS.TAGS.SEARCH}?search=${encodeURIComponent(query)}`,
+        );
+        const names = (res.data?.tags ?? []).map((t) => t.name).filter((n) => !tags.includes(n));
+        setTagSuggestions(names.slice(0, 5));
+        setShowTagSuggestions(names.length > 0);
+      } catch { setTagSuggestions([]); }
+    }, 200);
+  }
+
+  function selectTagSuggestion(name: string) {
+    if (!tags.includes(name)) setTags([...tags, name]);
+    setTagInput('');
+    setShowTagSuggestions(false);
+  }
+
+  // 태그 외부 클릭 시 닫기
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (tagContainerRef.current && !tagContainerRef.current.contains(e.target as Node)) setShowTagSuggestions(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => { document.removeEventListener('mousedown', handleClick); if (tagTimerRef.current) clearTimeout(tagTimerRef.current); };
+  }, []);
+
   function handleTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {
       e.preventDefault();
@@ -210,7 +244,7 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
 
       <div className="input-group">
         <label>태그</label>
-        <div className="tag-input-container">
+        <div className="tag-input-container" ref={tagContainerRef}>
           <div className="tag-chips">
             {tags.map((tag) => (
               <span key={tag} className="tag-badge">
@@ -222,10 +256,23 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
           <input
             type="text"
             value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
+            onChange={(e) => { setTagInput(e.target.value); fetchTagSuggestions(e.target.value); }}
             onKeyDown={handleTagKeyDown}
             placeholder="태그 입력 후 Enter"
           />
+          {showTagSuggestions && tagSuggestions.length > 0 && (
+            <ul className="search-suggestions">
+              {tagSuggestions.map((name) => (
+                <li
+                  key={name}
+                  className="search-suggestion-item"
+                  onMouseDown={() => selectTagSuggestion(name)}
+                >
+                  <span className="suggestion-title">#{name}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
 

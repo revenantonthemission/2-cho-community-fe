@@ -16,6 +16,7 @@ import CommentForm from '../components/CommentForm';
 import CommentList from '../components/CommentList';
 import ReportModal from '../components/ReportModal';
 import PollView from '../components/PollView';
+import PostCard from '../components/PostCard';
 
 export default function PostDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +29,7 @@ export default function PostDetailPage() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentSort, setCommentSort] = useState<'oldest' | 'latest' | 'popular'>('oldest');
   const [reportOpen, setReportOpen] = useState(false);
+  const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -49,6 +51,11 @@ export default function PostDetailPage() {
     }
 
     void fetchPost();
+
+    // 연관 게시글 로드
+    api.get<ApiResponse<{ posts: Post[] }>>(API_ENDPOINTS.POSTS.RELATED(Number(id)))
+      .then((res) => setRelatedPosts(res.data?.posts ?? []))
+      .catch(() => {});
   }, [id]);
 
   const loadComments = useCallback(async (sort?: 'oldest' | 'latest' | 'popular') => {
@@ -76,9 +83,7 @@ export default function PostDetailPage() {
           ? {
               ...prev,
               is_liked: !prev.is_liked,
-              likes_count: prev.is_liked
-                ? prev.likes_count - 1
-                : prev.likes_count + 1,
+              likes_count: prev.is_liked ? prev.likes_count - 1 : prev.likes_count + 1,
             }
           : prev,
       );
@@ -115,6 +120,74 @@ export default function PostDetailPage() {
     }
   }
 
+  // 구독 토글: normal → watching → muted → normal
+  async function handleSubscription() {
+    if (!post) return;
+    try {
+      if (!post.is_watching) {
+        await api.put(API_ENDPOINTS.POSTS.SUBSCRIPTION(post.post_id), { status: 'watching' });
+        setPost((prev) => prev ? { ...prev, is_watching: true } : prev);
+        showToast('게시글 알림을 받습니다.');
+      } else {
+        await api.delete(API_ENDPOINTS.POSTS.SUBSCRIPTION(post.post_id));
+        setPost((prev) => prev ? { ...prev, is_watching: false } : prev);
+        showToast('구독이 해제되었습니다.');
+      }
+    } catch {
+      showToast('구독 처리에 실패했습니다.', 'error');
+    }
+  }
+
+  // 관리자 핀 토글
+  async function handlePin() {
+    if (!post) return;
+    try {
+      if (post.is_pinned) {
+        await api.delete(API_ENDPOINTS.POSTS.PIN(post.post_id));
+      } else {
+        await api.patch(API_ENDPOINTS.POSTS.PIN(post.post_id), {});
+      }
+      setPost((prev) => prev ? { ...prev, is_pinned: !prev.is_pinned } : prev);
+      showToast(post.is_pinned ? '고정이 해제되었습니다.' : '게시글이 고정되었습니다.');
+    } catch {
+      showToast('고정 처리에 실패했습니다.', 'error');
+    }
+  }
+
+  // 사용자 차단
+  async function handleBlock() {
+    if (!post) return;
+    try {
+      if (post.is_blocked) {
+        await api.delete(API_ENDPOINTS.BLOCKS.BLOCK(post.author.user_id));
+      } else {
+        await api.post(API_ENDPOINTS.BLOCKS.BLOCK(post.author.user_id), {});
+      }
+      setPost((prev) => prev ? { ...prev, is_blocked: !prev.is_blocked } : prev);
+      showToast(post.is_blocked ? '차단이 해제되었습니다.' : '사용자를 차단했습니다.');
+    } catch {
+      showToast('차단 처리에 실패했습니다.', 'error');
+    }
+  }
+
+  // Q&A 답변 채택
+  async function handleAcceptAnswer(commentId: number) {
+    if (!post) return;
+    try {
+      if (post.accepted_answer_id === commentId) {
+        await api.delete(API_ENDPOINTS.POSTS.ACCEPTED_ANSWER(post.post_id));
+        setPost((prev) => prev ? { ...prev, accepted_answer_id: null } : prev);
+        showToast('채택이 해제되었습니다.');
+      } else {
+        await api.patch(API_ENDPOINTS.POSTS.ACCEPTED_ANSWER(post.post_id), { comment_id: commentId });
+        setPost((prev) => prev ? { ...prev, accepted_answer_id: commentId } : prev);
+        showToast('답변이 채택되었습니다.');
+      }
+    } catch {
+      showToast('채택 처리에 실패했습니다.', 'error');
+    }
+  }
+
   function handleShare() {
     navigator.clipboard
       .writeText(window.location.href)
@@ -131,6 +204,7 @@ export default function PostDetailPage() {
   }
 
   const isOwner = user?.id === post?.author.user_id;
+  const isAdmin = user?.role === 'admin';
 
   if (isLoading) {
     return (
@@ -197,15 +271,8 @@ export default function PostDetailPage() {
 
           {isOwner && (
             <div className="post-actions">
-              <Link
-                to={ROUTES.POST_EDIT(post.post_id)}
-                className="action-btn"
-              >
-                수정
-              </Link>
-              <button className="action-btn" onClick={handleDelete}>
-                삭제
-              </button>
+              <Link to={ROUTES.POST_EDIT(post.post_id)} className="action-btn">수정</Link>
+              <button className="action-btn" onClick={handleDelete}>삭제</button>
             </div>
           )}
         </div>
@@ -238,14 +305,27 @@ export default function PostDetailPage() {
           onBookmark={handleBookmark}
         />
 
-        {/* 공유/신고 버튼 */}
+        {/* 액션 버튼 */}
         <div className="post-extra-actions">
-          <button className="action-btn" onClick={handleShare}>
-            공유
-          </button>
-          <button className="action-btn" onClick={handleReport}>
-            신고
-          </button>
+          <button className="action-btn" onClick={handleShare}>공유</button>
+          {user && (
+            <button className="action-btn" onClick={handleSubscription}>
+              {post.is_watching ? '구독 해제' : '구독'}
+            </button>
+          )}
+          {user && !isOwner && (
+            <>
+              <button className="action-btn" onClick={handleReport}>신고</button>
+              <button className="action-btn" onClick={handleBlock}>
+                {post.is_blocked ? '차단 해제' : '차단'}
+              </button>
+            </>
+          )}
+          {isAdmin && (
+            <button className="action-btn" onClick={handlePin}>
+              {post.is_pinned ? '고정 해제' : '고정'}
+            </button>
+          )}
         </div>
       </article>
 
@@ -263,8 +343,27 @@ export default function PostDetailPage() {
             </button>
           ))}
         </div>
-        <CommentList postId={post.post_id} comments={comments} onCommentChange={loadComments} />
+        <CommentList
+          postId={post.post_id}
+          comments={comments}
+          onCommentChange={loadComments}
+          acceptedAnswerId={post.accepted_answer_id ?? null}
+          isPostOwner={isOwner}
+          onAcceptAnswer={isOwner ? handleAcceptAnswer : undefined}
+        />
       </section>
+
+      {/* 연관 게시글 */}
+      {relatedPosts.length > 0 && (
+        <section className="related-posts">
+          <h3>연관 게시글</h3>
+          <ul className="post-list">
+            {relatedPosts.slice(0, 5).map((rp) => (
+              <PostCard key={rp.post_id} post={rp} />
+            ))}
+          </ul>
+        </section>
+      )}
 
       <ReportModal
         isOpen={reportOpen}

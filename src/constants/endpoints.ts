@@ -19,6 +19,10 @@ export const API_ENDPOINTS = {
   POSTS: {
     ROOT: '/v1/posts',
     IMAGE: '/v1/posts/image',
+    PIN: (postId: number) => `/v1/posts/${postId}/pin`,
+    SUBSCRIPTION: (postId: number) => `/v1/posts/${postId}/subscription`,
+    RELATED: (postId: number) => `/v1/posts/${postId}/related`,
+    ACCEPTED_ANSWER: (postId: number) => `/v1/posts/${postId}/accepted-answer`,
   },
   CATEGORIES: {
     ROOT: '/v1/categories',
@@ -104,6 +108,9 @@ export const API_ENDPOINTS = {
     MY_BLOCKS: '/v1/users/me/blocks',
     MY_FOLLOWING: '/v1/users/me/following',
     MY_FOLLOWERS: '/v1/users/me/followers',
+  },
+  TAGS: {
+    SEARCH: '/v1/tags',
   },
   BADGES: {
     ALL: '/v1/badges',

@@ -15,6 +15,9 @@ interface CommentListProps {
   postId: number;
   comments: Comment[];
   onCommentChange: () => void;
+  acceptedAnswerId?: number | null;
+  isPostOwner?: boolean;
+  onAcceptAnswer?: (commentId: number) => void;
 }
 
 function CommentItem({
@@ -22,11 +25,17 @@ function CommentItem({
   postId,
   onCommentChange,
   isReply = false,
+  isAccepted = false,
+  isPostOwner = false,
+  onAcceptAnswer,
 }: {
   comment: Comment;
   postId: number;
   onCommentChange: () => void;
   isReply?: boolean;
+  isAccepted?: boolean;
+  isPostOwner?: boolean;
+  onAcceptAnswer?: (commentId: number) => void;
 }) {
   const { user } = useAuth();
   const [replyOpen, setReplyOpen] = useState(false);
@@ -72,12 +81,13 @@ function CommentItem({
   }
 
   return (
-    <li className={`comment-item${isReply ? ' reply' : ''}`}>
+    <li className={`comment-item${isReply ? ' reply' : ''}${isAccepted ? ' comment-item--accepted' : ''}`}>
       <div className="comment-header">
         <Link to={ROUTES.USER_PROFILE(comment.author_id)} className="comment-author">
           {comment.author_nickname}
         </Link>
         <span className="comment-date">{timeAgo(comment.created_at)}</span>
+        {isAccepted && <span className="accepted-badge">채택된 답변</span>}
       </div>
 
       {editing ? (
@@ -110,6 +120,11 @@ function CommentItem({
             <button type="button" className="comment-action-btn" onClick={() => setEditing(true)}>수정</button>
             <button type="button" className="comment-action-btn" onClick={handleDelete}>삭제</button>
           </>
+        )}
+        {isPostOwner && !isReply && onAcceptAnswer && (
+          <button type="button" className="comment-action-btn" onClick={() => onAcceptAnswer(comment.id)}>
+            {isAccepted ? '채택 해제' : '채택'}
+          </button>
         )}
         {user && !isOwner && (
           <button type="button" className="comment-action-btn" onClick={() => setReportOpen(true)}>신고</button>
@@ -149,7 +164,7 @@ function CommentItem({
   );
 }
 
-export default function CommentList({ postId, comments, onCommentChange }: CommentListProps) {
+export default function CommentList({ postId, comments, onCommentChange, acceptedAnswerId, isPostOwner, onAcceptAnswer }: CommentListProps) {
   return (
     <ul className="comment-list">
       {comments.map((comment) => (
@@ -158,6 +173,9 @@ export default function CommentList({ postId, comments, onCommentChange }: Comme
           comment={comment}
           postId={postId}
           onCommentChange={onCommentChange}
+          isAccepted={acceptedAnswerId === comment.id}
+          isPostOwner={isPostOwner}
+          onAcceptAnswer={onAcceptAnswer}
         />
       ))}
     </ul>
