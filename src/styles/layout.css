@@ -23,7 +23,7 @@ header {
     justify-content: center;
     align-items: center;
     width: 100%;
-    max-width: 680px;
+    max-width: var(--container-narrow);
     padding: 0 var(--spacing-xl);
     box-sizing: border-box;
     height: 100%;
@@ -262,14 +262,14 @@ header {
 .main-container {
     margin-top: var(--header-height);
     width: 100%;
-    max-width: 680px;
+    max-width: var(--container-narrow);
     padding: var(--spacing-md) var(--spacing-xl) var(--spacing-4xl);
     box-sizing: border-box;
 }
 
 /* 피드·목록 페이지 — 카드 기반이므로 넓은 너비 허용 */
 .main-container--wide {
-    max-width: 800px;
+    max-width: var(--container-wide);
 }
 
 /* ============================= */

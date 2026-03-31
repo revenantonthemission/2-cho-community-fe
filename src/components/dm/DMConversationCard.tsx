@@ -37,12 +37,10 @@ export default function DMConversationCard({
   onClick,
 }: Props) {
   return (
-    <div
+    <button
+      type="button"
       className={`dm-conv-card ${isSelected ? 'dm-conv-card--selected' : ''} ${c.unread_count > 0 ? 'dm-conv-card--unread' : ''}`}
       onClick={() => onClick(c.id)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && onClick(c.id)}
     >
       <div className="dm-conv-card__top">
         <span className="dm-conv-card__nickname">{c.other_user.nickname}</span>
@@ -58,6 +56,6 @@ export default function DMConversationCard({
         </div>
       </div>
       <div className="dm-conv-card__preview">{getPreviewText(c)}</div>
-    </div>
+    </button>
   );
 }

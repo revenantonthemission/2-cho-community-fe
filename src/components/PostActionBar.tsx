@@ -22,31 +22,15 @@ export default function PostActionBar({
 }: PostActionBarProps) {
   return (
     <div className="post-stats-box">
-      <div
-        className="stat-box"
-        onClick={onLike}
-        style={{ cursor: 'pointer' }}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === 'Enter' && onLike()}
-        aria-label="좋아요"
-      >
+      <button type="button" className="stat-box" onClick={onLike} aria-label="좋아요">
         <div className="stat-value">{formatCount(likeCount)}</div>
         <div className="stat-label">{isLiked ? '❤️ 좋아요' : '🤍 좋아요'}</div>
-      </div>
+      </button>
 
-      <div
-        className="stat-box"
-        onClick={onBookmark}
-        style={{ cursor: 'pointer' }}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === 'Enter' && onBookmark()}
-        aria-label="북마크"
-      >
+      <button type="button" className="stat-box" onClick={onBookmark} aria-label="북마크">
         <div className="stat-value">{isBookmarked ? '🔖' : '📑'}</div>
         <div className="stat-label">북마크</div>
-      </div>
+      </button>
 
       <div className="stat-box">
         <div className="stat-value">{formatCount(viewCount)}</div>

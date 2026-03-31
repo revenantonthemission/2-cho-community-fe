@@ -459,6 +459,41 @@ html {
     .profile-action-buttons {
         flex-wrap: wrap;
     }
+
+    /* --- 태블릿 모달 --- */
+    .modal-content {
+        max-width: 420px;
+        width: 85%;
+    }
+
+    /* --- 태블릿 검색 --- */
+    .search-bar {
+        gap: var(--spacing-xs);
+    }
+
+    .search-bar__btn {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: var(--font-size-xs);
+    }
+
+    /* --- 태블릿 알림 --- */
+    .notification-settings {
+        padding: var(--spacing-md);
+    }
+
+    .notification-settings__list {
+        gap: var(--spacing-xs);
+    }
+
+    /* --- 태블릿 위키 카드 --- */
+    .wiki-card {
+        padding: var(--spacing-lg);
+    }
+
+    /* --- 태블릿 헤더 --- */
+    .header-auth {
+        gap: var(--spacing-sm);
+    }
 }
 
 /* ============================= */

@@ -71,12 +71,10 @@ export default function NotificationItem({
   const showPostTitle = n.post_id !== null;
 
   return (
-    <div
+    <button
+      type="button"
       className={`notification-item ${n.is_read ? 'notification-item--read' : 'notification-item--unread'}`}
       onClick={handleClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && handleClick()}
     >
       <div className="notification-item__body">
         <div className="notification-item__meta">
@@ -108,6 +106,6 @@ export default function NotificationItem({
           ×
         </button>
       )}
-    </div>
+    </button>
   );
 }
