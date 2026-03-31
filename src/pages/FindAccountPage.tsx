@@ -66,23 +66,24 @@ export default function FindAccountPage() {
   }
 
   return (
-    <div className="find-account-page">
-      <div className="find-account-container">
-        <h2>계정 찾기</h2>
-        <div className="find-account-tabs">
-          <button
-            className={`find-account-tab${tab === 'email' ? ' active' : ''}`}
-            onClick={() => handleTabChange('email')}
-          >
-            이메일 찾기
-          </button>
-          <button
-            className={`find-account-tab${tab === 'password' ? ' active' : ''}`}
-            onClick={() => handleTabChange('password')}
-          >
-            비밀번호 찾기
-          </button>
-        </div>
+    <div className="login-page">
+      <div className="login-form-section">
+        <div className="login-container">
+          <h2>계정 찾기</h2>
+          <div className="tab-nav">
+            <button
+              className={`tab-btn${tab === 'email' ? ' active' : ''}`}
+              onClick={() => handleTabChange('email')}
+            >
+              이메일 찾기
+            </button>
+            <button
+              className={`tab-btn${tab === 'password' ? ' active' : ''}`}
+              onClick={() => handleTabChange('password')}
+            >
+              비밀번호 찾기
+            </button>
+          </div>
 
         {tab === 'email' ? (
           <form onSubmit={handleFindEmail}>
@@ -122,10 +123,11 @@ export default function FindAccountPage() {
           </form>
         )}
 
-        {result && <p className="find-account-result">{result}</p>}
+        {result && <div className="result-box"><p>{result}</p></div>}
 
-        <div className="links">
-          <Link to={ROUTES.LOGIN}>로그인으로 돌아가기</Link>
+          <div className="links">
+            <Link to={ROUTES.LOGIN}>로그인으로 돌아가기</Link>
+          </div>
         </div>
       </div>
     </div>

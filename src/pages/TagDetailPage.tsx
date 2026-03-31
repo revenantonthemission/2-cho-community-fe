@@ -81,27 +81,27 @@ export default function TagDetailPage() {
   }, [handleObserver]);
 
   return (
-    <div className="tag-detail-page">
-      <h1 className="page-title">#{name}</h1>
-      {tag?.description && <p className="tag-description">{tag.description}</p>}
+    <div className="tag-detail-container">
+      <h1 className="tag-detail-name">#{name}</h1>
+      {tag?.description && <p className="tag-detail-description">{tag.description}</p>}
 
-      <div className="tag-tabs">
-        <button className={`sort-btn${tab === 'posts' ? ' active' : ''}`} onClick={() => setTab('posts')}>
+      <div className="tag-detail-tabs">
+        <button className={`tag-tab-btn${tab === 'posts' ? ' active' : ''}`} onClick={() => setTab('posts')}>
           게시글
         </button>
-        <button className={`sort-btn${tab === 'wiki' ? ' active' : ''}`} onClick={() => setTab('wiki')}>
+        <button className={`tag-tab-btn${tab === 'wiki' ? ' active' : ''}`} onClick={() => setTab('wiki')}>
           위키
         </button>
       </div>
 
       {tab === 'posts' && (
-        <ul className="post-list">
+        <ul className="tag-detail-list">
           {posts.map((p) => <PostCard key={p.post_id} post={p} />)}
         </ul>
       )}
 
       {tab === 'wiki' && (
-        <ul className="post-list">
+        <ul className="tag-detail-list">
           {wikiPages.map((w) => (
             <li key={w.slug} className="post-card">
               <Link to={ROUTES.WIKI_DETAIL(w.slug)} className="post-card__link">

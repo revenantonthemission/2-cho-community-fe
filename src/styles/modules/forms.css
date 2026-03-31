@@ -309,3 +309,29 @@
     font-size: var(--font-size-base);
     color: var(--color-text-secondary);
 }
+
+/* ============================= */
+/* 공통 입력 필드 (Input Field)   */
+/* ============================= */
+.input-field {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border-dark);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-base);
+    box-sizing: border-box;
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    font-family: inherit;
+    transition: border-color var(--transition-fast);
+}
+
+.input-field:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: var(--input-focus-ring);
+}
+
+.input-field::placeholder {
+    color: var(--color-text-placeholder);
+}

@@ -50,9 +50,10 @@ export default function SocialSignupPage() {
   }
 
   return (
-    <div className="social-signup-page">
-      <div className="social-signup-container">
-        <h2>소셜 계정 설정</h2>
+    <div className="login-page">
+      <div className="login-form-section">
+        <div className="social-signup-container">
+          <h2 className="social-signup-title">소셜 계정 설정</h2>
         <p className="social-signup-desc">GitHub 로그인 성공! 커뮤니티에서 사용할 닉네임을 설정해주세요.</p>
 
         <form onSubmit={handleSubmit}>
@@ -74,7 +75,8 @@ export default function SocialSignupPage() {
           <button type="submit" className="btn btn-primary" disabled={!nickname.trim() || isSubmitting}>
             {isSubmitting ? '설정 중...' : '시작하기'}
           </button>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
