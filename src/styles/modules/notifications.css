@@ -40,12 +40,18 @@
 
 .notification-item {
     display: flex;
+    width: 100%;
     justify-content: space-between;
     align-items: center;
     padding: var(--spacing-lg);
+    border: none;
     border-bottom: 1px solid var(--color-border-light);
+    background: none;
     cursor: pointer;
     transition: background-color var(--transition-fast);
+    font: inherit;
+    color: inherit;
+    text-align: left;
 }
 
 .notification-item:hover {

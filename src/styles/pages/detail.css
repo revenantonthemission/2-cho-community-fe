@@ -79,6 +79,8 @@
     min-width: 80px;
     cursor: default;
     justify-content: center;
+    font: inherit;
+    color: inherit;
 }
 
 /* 좋아요 박스 (Like Box) */
