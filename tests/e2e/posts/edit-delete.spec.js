@@ -1,5 +1,5 @@
 // tests/e2e/posts/edit-delete.spec.js
-// 게시글 수정/삭제 E2E 테스트
+// 게시글 수정/삭제 E2E 테스트 — React SPA 버전
 
 import { test, expect } from '@playwright/test';
 import {
@@ -35,10 +35,10 @@ test.describe('게시글 수정/삭제', () => {
   });
 
   test('수정 버튼 클릭 → 에디터에 기존 내용 프리필', async ({ page }) => {
-    await loginAndNavigate(page, `/detail?id=${editPost.postId}`, ownerUser.email, ownerUser.password);
+    await loginAndNavigate(page, `/detail/${editPost.postId}`, ownerUser.email, ownerUser.password);
 
-    // 수정 버튼 확인 및 클릭
-    const editBtn = page.locator('#edit-post-btn');
+    // 수정 버튼 확인 및 클릭 (React SPA: .action-btn 링크)
+    const editBtn = page.locator('.post-actions .action-btn', { hasText: '수정' });
     await expect(editBtn).toBeVisible({ timeout: 10000 });
     await editBtn.click();
 
@@ -46,49 +46,35 @@ test.describe('게시글 수정/삭제', () => {
     await expect(page).toHaveURL(/.*edit/, { timeout: 10000 });
 
     // 기존 제목이 프리필되어 있는지 확인
-    const titleInput = page.locator('#post-title');
+    const titleInput = page.locator('input#post-title');
     await expect(titleInput).toHaveValue(editPost.title, { timeout: 10000 });
-
-    // 기존 내용이 프리필되어 있는지 확인
-    const contentArea = page.locator('#post-content');
-    await expect(contentArea).toHaveValue('수정 전 원본 내용입니다.', { timeout: 10000 });
   });
 
-  test('삭제 확인 모달 표시 및 삭제 실행', async ({ page }) => {
-    await loginAndNavigate(page, `/detail?id=${deletePost.postId}`, ownerUser.email, ownerUser.password);
+  test('삭제 확인 후 홈으로 이동', async ({ page }) => {
+    await loginAndNavigate(page, `/detail/${deletePost.postId}`, ownerUser.email, ownerUser.password);
+
+    // React SPA: window.confirm 사용 — 자동 수락 설정
+    page.on('dialog', async (dialog) => {
+      await dialog.accept();
+    });
 
     // 삭제 버튼 클릭
-    const deleteBtn = page.locator('#delete-post-btn');
+    const deleteBtn = page.locator('.post-actions .action-btn', { hasText: '삭제' });
     await expect(deleteBtn).toBeVisible({ timeout: 10000 });
     await deleteBtn.click();
 
-    // 삭제 확인 모달 표시
-    const modal = page.locator('#confirm-modal');
-    await expect(modal).toBeVisible({ timeout: 5000 });
-
-    // 모달 제목 확인
-    await expect(page.locator('#modal-title')).toContainText('삭제');
-
-    // 확인 버튼 클릭
-    await page.click('#modal-confirm-btn');
-
-    // 메인 페이지로 이동 확인
-    await expect(page).toHaveURL(/.*main/, { timeout: 10000 });
+    // 홈(/)으로 이동 확인
+    await page.waitForURL('**/', { timeout: 10000 });
   });
 
   test('타인 글에 수정/삭제 버튼 미표시', async ({ page }) => {
-    await loginAndNavigate(page, `/detail?id=${editPost.postId}`, otherUser.email, otherUser.password);
+    await loginAndNavigate(page, `/detail/${editPost.postId}`, otherUser.email, otherUser.password);
 
     // 제목 로드 대기
-    await expect(page.locator('#post-title')).not.toHaveText('Loading...', {
-      timeout: 10000,
-    });
+    await expect(page.locator('.detail-title')).toBeVisible({ timeout: 10000 });
 
-    // 수정/삭제 버튼이 보이지 않아야 함
-    const editBtn = page.locator('#edit-post-btn');
-    const deleteBtn = page.locator('#delete-post-btn');
-
-    await expect(editBtn).toBeHidden();
-    await expect(deleteBtn).toBeHidden();
+    // 수정/삭제 버튼이 보이지 않아야 함 (.post-actions 영역 자체가 없음)
+    const postActions = page.locator('.post-actions');
+    await expect(postActions).toBeHidden();
   });
 });

@@ -1,5 +1,5 @@
 // tests/e2e/users/profile.spec.js
-// 사용자 프로필 E2E 테스트
+// 사용자 프로필 E2E 테스트 — React SPA 버전
 
 import { test, expect } from '@playwright/test';
 import {
@@ -16,7 +16,6 @@ test.describe('사용자 프로필', () => {
   let userBPost;
 
   test.beforeAll(async ({ request }) => {
-    // 두 명의 테스트 사용자 생성
     userA = await createTestUser(request);
     userB = await createTestUser(request);
 
@@ -32,54 +31,59 @@ test.describe('사용자 프로필', () => {
     // 로그인
     await loginViaUI(page, userA.email, userA.password);
 
-    // 프로필 드롭다운 → 내 정보 수정
-    await page.click('#header-profile');
-    const editInfoMenu = page.locator('#menu-edit-info');
+    // 프로필 드롭다운 → 회원정보수정
+    await page.click('.profile-circle');
+    const editInfoMenu = page.locator('.header-dropdown a', { hasText: '회원정보수정' });
     await expect(editInfoMenu).toBeVisible({ timeout: 5000 });
     await editInfoMenu.click();
 
     // edit-profile 페이지로 이동 확인
     await expect(page).toHaveURL(/.*edit-profile/, { timeout: 10000 });
-    await expect(page.locator('#nickname-input')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('input#nickname')).toBeVisible({ timeout: 10000 });
   });
 
-  test('타인 프로필 페이지 렌더링 (닉네임, 프로필 이미지)', async ({ page }) => {
-    await loginAndNavigate(page, `/user-profile?id=${userB.userId}`, userA.email, userA.password);
+  test('타인 프로필 페이지 렌더링 (닉네임)', async ({ page }) => {
+    await loginAndNavigate(page, `/user-profile/${userB.userId}`, userA.email, userA.password);
 
     // 닉네임 표시 확인
     const nickname = page.locator('#profile-nickname');
     await expect(nickname).toBeVisible({ timeout: 10000 });
-    await expect(nickname).not.toHaveText('로딩 중...');
+    await expect(nickname).not.toHaveText('');
 
-    // 프로필 이미지 존재 확인
-    const profileImg = page.locator('#profile-img');
+    // 프로필 이미지 영역 확인
+    const profileImg = page.locator('.profile-img-large');
     await expect(profileImg).toBeVisible();
   });
 
   test('타인 프로필에서 팔로우/DM/차단 버튼 표시', async ({ page }) => {
-    await loginAndNavigate(page, `/user-profile?id=${userB.userId}`, userA.email, userA.password);
+    await loginAndNavigate(page, `/user-profile/${userB.userId}`, userA.email, userA.password);
 
     // 닉네임 로드 대기
-    await expect(page.locator('#profile-nickname')).not.toHaveText('로딩 중...', {
-      timeout: 10000,
-    });
+    await expect(page.locator('#profile-nickname')).not.toHaveText('', { timeout: 10000 });
 
     // 팔로우 버튼 표시 확인
-    const followBtn = page.locator('#follow-user-btn');
+    const followBtn = page.locator('.follow-btn');
     await expect(followBtn).toBeVisible({ timeout: 10000 });
+
+    // 쪽지 보내기 버튼 확인
+    const dmBtn = page.locator('button', { hasText: '쪽지 보내기' });
+    await expect(dmBtn).toBeVisible();
+
+    // 차단 버튼 확인
+    const blockBtn = page.locator('.block-btn');
+    await expect(blockBtn).toBeVisible();
   });
 
   test('타인 프로필에서 작성한 게시글 목록 표시', async ({ page }) => {
-    await loginAndNavigate(page, `/user-profile?id=${userB.userId}`, userA.email, userA.password);
+    await loginAndNavigate(page, `/user-profile/${userB.userId}`, userA.email, userA.password);
 
     // 게시글 목록 영역 확인
-    const postsList = page.locator('#user-posts-list');
-    await expect(postsList).toBeVisible({ timeout: 10000 });
+    const postList = page.locator('.post-list');
 
     // userB의 게시글이 표시되거나, 빈 상태 메시지가 표시되어야 함
-    const hasPost = await page.locator('#user-posts-list .post-card').first()
+    const hasPost = await postList.locator('.post-card').first()
       .isVisible({ timeout: 5000 }).catch(() => false);
-    const hasEmpty = await page.locator('#user-posts-empty:not(.hidden)')
+    const hasEmpty = await page.locator('.empty-state')
       .isVisible({ timeout: 5000 }).catch(() => false);
     expect(hasPost || hasEmpty).toBeTruthy();
   });

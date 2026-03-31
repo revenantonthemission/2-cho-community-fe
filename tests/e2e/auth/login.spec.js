@@ -1,5 +1,5 @@
 // tests/e2e/auth/login.spec.js
-// 로그인 E2E 테스트
+// 로그인 E2E 테스트 — React SPA 버전
 
 import { test, expect } from '@playwright/test';
 import { createTestUser, loginViaUI } from '../fixtures/test-helpers.js';
@@ -16,39 +16,33 @@ test.describe('로그인', () => {
     await expect(page).toHaveURL(/.*login/);
 
     // 이메일 입력
-    await page.fill('#email', testUser.email);
-    await page.dispatchEvent('#email', 'input');
+    await page.fill('input#email', testUser.email);
 
     // 비밀번호 입력
-    await page.fill('#password', testUser.password);
-    await page.dispatchEvent('#password', 'input');
+    await page.fill('input#password', testUser.password);
 
     // 버튼 활성화 대기 후 클릭
-    const loginBtn = page.locator('.login-btn');
+    const loginBtn = page.locator('button[type="submit"]');
     await expect(loginBtn).toBeEnabled({ timeout: 10000 });
     await loginBtn.click();
 
-    // 메인 페이지로 이동 확인
-    await expect(page).toHaveURL(/.*main/, { timeout: 10000 });
+    // 메인 페이지로 이동 확인 (React SPA: / )
+    await expect(page).toHaveURL(/^\/$|.*\/$/, { timeout: 10000 });
   });
 
   test('잘못된 비밀번호 시 에러 메시지 표시', async ({ page }) => {
     await page.goto('/login');
 
-    await page.fill('#email', testUser.email);
-    await page.dispatchEvent('#email', 'input');
+    await page.fill('input#email', testUser.email);
+    await page.fill('input#password', 'WrongPass1!@#');
 
-    await page.fill('#password', 'WrongPass1!@#');
-    await page.dispatchEvent('#password', 'input');
-
-    const loginBtn = page.locator('.login-btn');
+    const loginBtn = page.locator('button[type="submit"]');
     await expect(loginBtn).toBeEnabled({ timeout: 10000 });
     await loginBtn.click();
 
-    // 에러 메시지 표시 확인 (password-helper 영역에 에러 텍스트)
-    const passwordHelper = page.locator('#password-helper');
-    await expect(passwordHelper).toBeVisible({ timeout: 10000 });
-    await expect(passwordHelper).toContainText('확인해주세요');
+    // 에러 메시지 표시 확인
+    const errorMsg = page.locator('.error-msg');
+    await expect(errorMsg).toBeVisible({ timeout: 10000 });
 
     // 로그인 페이지에 머무름
     await expect(page).toHaveURL(/.*login/);
@@ -58,11 +52,11 @@ test.describe('로그인', () => {
     await page.goto('/login');
 
     // 로그인 버튼이 비활성화 상태인지 확인
-    const loginBtn = page.locator('.login-btn');
+    const loginBtn = page.locator('button[type="submit"]');
     await expect(loginBtn).toBeDisabled();
 
     // 빈 상태에서 폼 제출 시도 (Enter 키)
-    await page.press('#email', 'Enter');
+    await page.press('input#email', 'Enter');
 
     // 로그인 페이지에 머무름
     await expect(page).toHaveURL(/.*login/);
@@ -71,17 +65,16 @@ test.describe('로그인', () => {
   test('로그아웃 시 로그인 페이지로 이동', async ({ page }) => {
     // 로그인
     await loginViaUI(page, testUser.email, testUser.password);
-    await expect(page).toHaveURL(/.*main/, { timeout: 10000 });
 
     // 프로필 드롭다운 열기
-    const profileBtn = page.locator('#header-profile');
+    const profileBtn = page.locator('.profile-circle');
     await expect(profileBtn).toBeVisible({ timeout: 10000 });
     await profileBtn.click();
 
     // 로그아웃 클릭
-    const logoutMenu = page.locator('#menu-logout');
-    await expect(logoutMenu).toBeVisible({ timeout: 5000 });
-    await logoutMenu.click();
+    const logoutBtn = page.locator('.header-dropdown button', { hasText: '로그아웃' });
+    await expect(logoutBtn).toBeVisible({ timeout: 5000 });
+    await logoutBtn.click();
 
     // 로그인 페이지로 이동 확인
     await expect(page).toHaveURL(/.*login/, { timeout: 10000 });

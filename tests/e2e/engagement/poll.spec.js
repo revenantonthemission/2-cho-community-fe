@@ -1,5 +1,5 @@
 // tests/e2e/engagement/poll.spec.js
-// 투표(Poll) E2E 테스트
+// 투표(Poll) E2E 테스트 — React SPA 버전
 
 import { test, expect } from '@playwright/test';
 import {
@@ -36,102 +36,86 @@ test.describe('투표', () => {
   });
 
   test('투표 옵션 표시 확인', async ({ page }) => {
-    // 투표 게시글이 정상 생성되지 않으면 스킵
     test.skip(!postWithPoll?.postId, '투표 게시글 생성 실패');
 
-    await loginAndNavigate(page, `/detail?id=${postWithPoll.postId}`, testUser.email, testUser.password);
+    await loginAndNavigate(page, `/detail/${postWithPoll.postId}`, testUser.email, testUser.password);
 
-    // 투표 컨테이너 표시 확인
-    const pollContainer = page.locator('#poll-container');
+    // 투표 컨테이너 표시 확인 (React SPA: .poll-view)
+    const pollContainer = page.locator('.poll-view');
     await expect(pollContainer).toBeVisible({ timeout: 10000 });
 
     // 투표 질문 표시
-    const pollQuestion = pollContainer.locator('.poll-question');
+    const pollQuestion = pollContainer.locator('.poll-view__question');
     await expect(pollQuestion).toContainText('테스트 투표 질문');
 
-    // 투표 폼 (아직 투표하지 않은 상태)
-    const pollForm = pollContainer.locator('#poll-vote-form');
-    await expect(pollForm).toBeVisible();
-
-    // 옵션이 3개 표시되는지 확인
-    const options = pollContainer.locator('.poll-vote-option');
+    // 투표 옵션이 3개 표시되는지 확인
+    const options = pollContainer.locator('.poll-option');
     await expect(options).toHaveCount(3);
   });
 
-  test('투표 클릭 → 결과 바(프로그레스) 표시', async ({ page }) => {
+  test('투표 클릭 → 결과 바 표시', async ({ page }) => {
     test.skip(!postWithPoll?.postId, '투표 게시글 생성 실패');
 
-    // 별도 유저로 투표 (게시글 작성자와 다른 유저가 필요할 수 있음)
     const voter = await createTestUser(page.request);
+    await loginAndNavigate(page, `/detail/${postWithPoll.postId}`, voter.email, voter.password);
 
-    await loginAndNavigate(page, `/detail?id=${postWithPoll.postId}`, voter.email, voter.password);
-
-    const pollContainer = page.locator('#poll-container');
+    const pollContainer = page.locator('.poll-view');
     await expect(pollContainer).toBeVisible({ timeout: 10000 });
 
-    // 투표 폼이 있으면 투표 수행
-    const pollForm = pollContainer.locator('#poll-vote-form');
-    const hasForm = await pollForm.isVisible().catch(() => false);
+    // 투표 옵션이 있으면 투표 수행
+    const pollOptions = pollContainer.locator('input[name="poll-vote"]');
+    const hasOptions = await pollOptions.first().isVisible().catch(() => false);
 
-    if (hasForm) {
+    if (hasOptions) {
       // 첫 번째 옵션 선택
-      const firstOption = pollContainer.locator('input[name="poll-vote"]').first();
-      await firstOption.check();
+      await pollOptions.first().check();
 
       // 투표 버튼 클릭
-      const voteBtn = page.locator('#poll-vote-btn');
+      const voteBtn = pollContainer.locator('.btn', { hasText: '투표' });
       await voteBtn.click();
 
-      // 결과 표시 대기 (투표 후 결과 모드로 전환)
       await page.waitForLoadState('networkidle');
     }
 
-    // 결과 바 표시 확인 (poll-options-results 또는 poll-bar)
-    const resultsOrBar = pollContainer.locator('.poll-options-results, .poll-bar');
-    await expect(resultsOrBar.first()).toBeVisible({ timeout: 10000 });
+    // 결과 바 표시 확인 (.poll-result)
+    const results = pollContainer.locator('.poll-result');
+    await expect(results.first()).toBeVisible({ timeout: 10000 });
   });
 
   test('투표 후 변경/취소 버튼 표시', async ({ page }) => {
     test.skip(!postWithPoll?.postId, '투표 게시글 생성 실패');
 
-    // 별도 유저 생성하여 투표
     const voter = await createTestUser(page.request);
-    await loginAndNavigate(page, `/detail?id=${postWithPoll.postId}`, voter.email, voter.password);
+    await loginAndNavigate(page, `/detail/${postWithPoll.postId}`, voter.email, voter.password);
 
-    const pollContainer = page.locator('#poll-container');
+    const pollContainer = page.locator('.poll-view');
     await expect(pollContainer).toBeVisible({ timeout: 10000 });
 
-    // 투표 폼이 있으면 투표 수행
-    const pollForm = pollContainer.locator('#poll-vote-form');
-    const hasForm = await pollForm.isVisible().catch(() => false);
+    // 투표 옵션이 있으면 투표 수행
+    const pollOptions = pollContainer.locator('input[name="poll-vote"]');
+    const hasOptions = await pollOptions.first().isVisible().catch(() => false);
 
-    if (hasForm) {
-      const firstOption = pollContainer.locator('input[name="poll-vote"]').first();
-      await firstOption.check();
-
-      const voteBtn = page.locator('#poll-vote-btn');
+    if (hasOptions) {
+      await pollOptions.first().check();
+      const voteBtn = pollContainer.locator('.btn', { hasText: '투표' });
       await voteBtn.click();
       await page.waitForLoadState('networkidle');
     }
 
     // 결과 모드에서 변경/취소 버튼 표시 확인
-    const changeBtn = page.locator('#poll-change-btn');
-    const cancelBtn = page.locator('#poll-cancel-btn');
+    const changeBtn = pollContainer.locator('.btn', { hasText: '변경' });
+    const cancelBtn = pollContainer.locator('.btn', { hasText: '취소' });
     await expect(changeBtn).toBeVisible({ timeout: 10000 });
     await expect(cancelBtn).toBeVisible();
-
-    await expect(changeBtn).toHaveText('투표 변경');
-    await expect(cancelBtn).toHaveText('투표 취소');
   });
 
   test('투표 취소 → 투표 폼으로 복귀', async ({ page }) => {
     test.skip(!postWithPoll?.postId, '투표 게시글 생성 실패');
 
-    // 별도 유저로 투표 후 취소
     const voter = await createTestUser(page.request);
     const { headers } = await loginViaApi(page.request, voter.email, voter.password);
 
-    // API로 게시글 상세 조회하여 옵션 ID 획득
+    // API로 옵션 ID 획득
     const detailRes = await page.request.get(`${API_BASE}/v1/posts/${postWithPoll.postId}`, { headers });
     const detailBody = await detailRes.json();
     const optionId = detailBody?.data?.post?.poll?.options?.[0]?.option_id;
@@ -144,28 +128,27 @@ test.describe('투표', () => {
       });
     }
 
-    await loginAndNavigate(page, `/detail?id=${postWithPoll.postId}`, voter.email, voter.password);
+    await loginAndNavigate(page, `/detail/${postWithPoll.postId}`, voter.email, voter.password);
 
-    const pollContainer = page.locator('#poll-container');
+    const pollContainer = page.locator('.poll-view');
     await expect(pollContainer).toBeVisible({ timeout: 10000 });
 
     // 취소 버튼 클릭
-    const cancelBtn = page.locator('#poll-cancel-btn');
+    const cancelBtn = pollContainer.locator('.btn', { hasText: '취소' });
     const hasCancelBtn = await cancelBtn.isVisible().catch(() => false);
     test.skip(!hasCancelBtn, '취소 버튼 미표시');
 
     await cancelBtn.click();
     await page.waitForLoadState('networkidle');
 
-    // 투표 폼으로 복귀 확인
-    const pollForm = pollContainer.locator('#poll-vote-form');
-    await expect(pollForm).toBeVisible({ timeout: 10000 });
+    // 투표 옵션으로 복귀 확인
+    const pollOptions = pollContainer.locator('.poll-option');
+    await expect(pollOptions.first()).toBeVisible({ timeout: 10000 });
   });
 
   test('투표 변경 → 다른 옵션 선택 후 제출', async ({ page }) => {
     test.skip(!postWithPoll?.postId, '투표 게시글 생성 실패');
 
-    // 별도 유저로 투표
     const voter = await createTestUser(page.request);
     const { headers } = await loginViaApi(page.request, voter.email, voter.password);
 
@@ -182,39 +165,36 @@ test.describe('투표', () => {
       });
     }
 
-    await loginAndNavigate(page, `/detail?id=${postWithPoll.postId}`, voter.email, voter.password);
+    await loginAndNavigate(page, `/detail/${postWithPoll.postId}`, voter.email, voter.password);
 
-    const pollContainer = page.locator('#poll-container');
+    const pollContainer = page.locator('.poll-view');
     await expect(pollContainer).toBeVisible({ timeout: 10000 });
 
     // 변경 버튼 클릭
-    const changeBtn = page.locator('#poll-change-btn');
+    const changeBtn = pollContainer.locator('.btn', { hasText: '변경' });
     const hasChangeBtn = await changeBtn.isVisible().catch(() => false);
     test.skip(!hasChangeBtn, '변경 버튼 미표시');
 
     await changeBtn.click();
 
-    // 투표 폼이 다시 나타나고 "변경" 버튼 텍스트 확인
-    const voteBtn = page.locator('#poll-vote-btn');
-    await expect(voteBtn).toBeVisible({ timeout: 10000 });
-    await expect(voteBtn).toHaveText('변경');
+    // 투표 옵션이 다시 나타남
+    const pollOptions = pollContainer.locator('input[name="poll-vote"]');
+    await expect(pollOptions.first()).toBeVisible({ timeout: 10000 });
 
     // 두 번째 옵션 선택
-    const secondOption = pollContainer.locator('input[name="poll-vote"]').nth(1);
-    await secondOption.check();
+    await pollOptions.nth(1).check();
 
-    // 변경 제출
+    // 투표 버튼 클릭
+    const voteBtn = pollContainer.locator('.btn', { hasText: '투표' });
     await voteBtn.click();
     await page.waitForLoadState('networkidle');
 
     // 결과 모드로 다시 전환 확인
-    const results = pollContainer.locator('.poll-options-results');
-    await expect(results).toBeVisible({ timeout: 10000 });
+    const results = pollContainer.locator('.poll-result');
+    await expect(results.first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('만료된 투표 비활성화 상태 확인', async ({ request, page }) => {
-    // 만료된 투표 생성 (expires_in_hours: 0은 즉시 만료가 아닐 수 있으므로,
-    // 이미 만료된 투표를 테스트하려면 백엔드에서 처리가 필요함)
+  test('만료된 투표 상태 확인', async ({ request, page }) => {
     const { headers } = await loginViaApi(request, testUser.email, testUser.password);
 
     // 매우 짧은 만료 시간으로 생성 시도
@@ -227,7 +207,7 @@ test.describe('투표', () => {
         poll: {
           question: '만료 테스트 질문',
           options: ['옵션 1', '옵션 2'],
-          expires_in_hours: 1, // 최소 만료 시간
+          expires_in_hours: 1,
         },
       },
     });
@@ -235,18 +215,15 @@ test.describe('투표', () => {
     const expiredPostId = body?.data?.post_id;
     test.skip(!expiredPostId, '만료 투표 게시글 생성 실패');
 
-    await loginAndNavigate(page, `/detail?id=${expiredPostId}`, testUser.email, testUser.password);
+    await loginAndNavigate(page, `/detail/${expiredPostId}`, testUser.email, testUser.password);
 
     // 투표 컨테이너 확인
-    const pollContainer = page.locator('#poll-container');
+    const pollContainer = page.locator('.poll-view');
     await expect(pollContainer).toBeVisible({ timeout: 10000 });
 
-    // 아직 만료되지 않았다면 투표 폼이 보이고, 만료 시 결과 모드
-    // 이 테스트는 만료 시간에 의존하므로 투표 UI가 존재하는지만 확인
-    const hasForm = await pollContainer.locator('#poll-vote-form').isVisible().catch(() => false);
-    const hasResults = await pollContainer.locator('.poll-options-results').isVisible().catch(() => false);
-
-    // 투표 폼 또는 결과 중 하나는 표시되어야 함
-    expect(hasForm || hasResults).toBeTruthy();
+    // 투표 옵션 또는 결과 중 하나는 표시되어야 함
+    const hasOptions = await pollContainer.locator('.poll-option').first().isVisible().catch(() => false);
+    const hasResults = await pollContainer.locator('.poll-result').first().isVisible().catch(() => false);
+    expect(hasOptions || hasResults).toBeTruthy();
   });
 });

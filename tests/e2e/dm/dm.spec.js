@@ -1,5 +1,5 @@
 // tests/e2e/dm/dm.spec.js
-// DM(쪽지) E2E 테스트
+// DM(쪽지) E2E 테스트 — React SPA 버전
 
 import { test, expect } from '@playwright/test';
 import {
@@ -10,12 +10,11 @@ import {
 } from '../fixtures/test-helpers.js';
 
 test.describe('DM (쪽지)', () => {
-  let userA; // 메시지를 보내는 사용자
-  let userB; // 메시지를 받는 사용자
+  let userA;
+  let userB;
   let conversationId;
 
   test.beforeAll(async ({ request }) => {
-    // 두 명의 테스트 사용자 생성
     userA = await createTestUser(request);
     userB = await createTestUser(request);
 
@@ -37,107 +36,131 @@ test.describe('DM (쪽지)', () => {
     }
   });
 
-  test('대화 목록 페이지 렌더링 (데스크톱 통합 레이아웃)', async ({ page }) => {
-    // 데스크톱 뷰포트(>=768px)에서는 /messages/inbox로 리다이렉트
-    await loginAndNavigate(page, '/messages/inbox', userB.email, userB.password);
+  test('DM 페이지 렌더링 (사이드바 + 채팅 영역)', async ({ page }) => {
+    // React SPA: /dm 단일 라우트
+    await loginAndNavigate(page, '/dm', userB.email, userB.password);
 
-    // 대화 목록 영역 확인
-    const dmList = page.locator('#dm-list');
-    await expect(dmList).toBeVisible({ timeout: 10000 });
-
-    // 페이지 타이틀 확인
-    await expect(page.locator('.page-title')).toContainText('메시지');
+    // 사이드바 영역 확인
+    const sidebar = page.locator('.dm-sidebar');
+    await expect(sidebar).toBeVisible({ timeout: 10000 });
   });
 
   test('대화 목록에 기존 대화가 표시됨', async ({ page }) => {
-    await loginAndNavigate(page, '/messages/inbox', userB.email, userB.password);
+    await loginAndNavigate(page, '/dm', userB.email, userB.password);
 
     // 대화 카드가 최소 1개 이상 표시
-    const dmList = page.locator('#dm-list');
-    const conversationCards = dmList.locator('[data-id]');
+    const sidebarList = page.locator('.dm-sidebar__list');
+    const conversationCards = sidebarList.locator('.dm-conv-card');
     await expect(conversationCards.first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('대화 상세 페이지에서 메시지 표시', async ({ page }) => {
+  test('대화 선택 시 메시지 표시', async ({ page }) => {
     test.skip(!conversationId, '대화 ID가 없으면 스킵');
 
-    await loginAndNavigate(page, `/messages/detail?id=${conversationId}`, userB.email, userB.password);
+    await loginAndNavigate(page, '/dm', userB.email, userB.password);
 
-    // 메시지 영역 확인
-    const messagesEl = page.locator('#dm-messages');
-    await expect(messagesEl).toBeVisible({ timeout: 10000 });
+    // 대화 카드 클릭
+    const conversationCard = page.locator('.dm-conv-card').first();
+    await expect(conversationCard).toBeVisible({ timeout: 10000 });
+    await conversationCard.click();
+
+    // 채팅 패널 확인
+    const chatPanel = page.locator('.dm-chat-panel');
+    await expect(chatPanel).toBeVisible({ timeout: 10000 });
 
     // 전송된 메시지가 표시되는지 확인
-    await expect(messagesEl).toContainText('안녕하세요', { timeout: 10000 });
+    await expect(chatPanel).toContainText('안녕하세요', { timeout: 10000 });
   });
 
   test('메시지 입력 및 전송', async ({ page }) => {
     test.skip(!conversationId, '대화 ID가 없으면 스킵');
 
-    await loginAndNavigate(page, `/messages/detail?id=${conversationId}`, userB.email, userB.password);
+    await loginAndNavigate(page, '/dm', userB.email, userB.password);
 
-    // 에디터 영역 확인
-    const textarea = page.locator('.dm-editor-textarea');
-    await expect(textarea).toBeVisible({ timeout: 10000 });
+    // 대화 선택
+    const conversationCard = page.locator('.dm-conv-card').first();
+    await expect(conversationCard).toBeVisible({ timeout: 10000 });
+    await conversationCard.click();
+
+    // 채팅 패널 대기
+    const chatPanel = page.locator('.dm-chat-panel');
+    await expect(chatPanel).toBeVisible({ timeout: 10000 });
 
     // 메시지 입력
+    const textarea = chatPanel.locator('textarea');
+    await expect(textarea).toBeVisible({ timeout: 10000 });
+
     const newMessage = `답장 테스트 ${Date.now()}`;
     await textarea.fill(newMessage);
 
     // 전송 버튼 클릭
-    const sendBtn = page.locator('#dm-send-btn');
+    const sendBtn = chatPanel.locator('button', { hasText: '전송' });
     await sendBtn.click();
 
-    // 메시지가 목록에 추가됨
-    const messagesEl = page.locator('#dm-messages');
-    await expect(messagesEl).toContainText('답장 테스트', { timeout: 10000 });
+    // 메시지가 채팅에 추가됨
+    await expect(chatPanel).toContainText('답장 테스트', { timeout: 10000 });
 
     // 입력창 비워짐
     await expect(textarea).toHaveValue('', { timeout: 5000 });
   });
 
-  test('대화 상세의 뒤로가기 버튼 동작', async ({ page }) => {
+  test('뒤로가기 버튼 동작 (모바일)', async ({ page }) => {
     test.skip(!conversationId, '대화 ID가 없으면 스킵');
 
-    await loginAndNavigate(page, `/messages/detail?id=${conversationId}`, userB.email, userB.password);
+    // 모바일 뷰포트 설정
+    await page.setViewportSize({ width: 375, height: 667 });
+
+    await loginAndNavigate(page, '/dm', userB.email, userB.password);
+
+    // 대화 선택
+    const conversationCard = page.locator('.dm-conv-card').first();
+    await expect(conversationCard).toBeVisible({ timeout: 10000 });
+    await conversationCard.click();
+
+    const chatPanel = page.locator('.dm-chat-panel');
+    await expect(chatPanel).toBeVisible({ timeout: 10000 });
 
     // 뒤로가기 버튼 클릭
-    const backBtn = page.locator('#back-btn');
+    const backBtn = chatPanel.locator('.dm-chat-panel__back');
     await expect(backBtn).toBeVisible({ timeout: 10000 });
     await backBtn.click();
 
-    // DM 목록 페이지로 이동 확인
-    await expect(page).toHaveURL(/.*messages/, { timeout: 10000 });
+    // 사이드바가 다시 표시됨
+    const sidebar = page.locator('.dm-sidebar');
+    await expect(sidebar).toBeVisible({ timeout: 10000 });
   });
 
   test('닉네임 검색으로 대화 필터링', async ({ page }) => {
-    await loginAndNavigate(page, '/messages/inbox', userB.email, userB.password);
+    await loginAndNavigate(page, '/dm', userB.email, userB.password);
 
     // 대화 카드가 로드될 때까지 대기
-    const dmList = page.locator('#dm-list');
-    await expect(dmList.locator('[data-id]').first()).toBeVisible({ timeout: 10000 });
+    const sidebarList = page.locator('.dm-sidebar__list');
+    await expect(sidebarList.locator('.dm-conv-card').first()).toBeVisible({ timeout: 10000 });
 
     // 검색 입력
-    const searchInput = page.locator('#dm-search');
+    const searchInput = page.locator('.dm-sidebar__search-input');
     await expect(searchInput).toBeVisible();
 
-    // 존재하지 않는 닉네임 검색 → 카드 숨겨짐
+    // 존재하지 않는 닉네임 검색 → 대화 목록 비어짐
     await searchInput.fill('존재하지않는닉네임999');
-    await searchInput.dispatchEvent('input');
 
-    // 모든 카드가 hidden 클래스를 가지거나 비어있어야 함
-    const visibleCards = dmList.locator('[data-id]:not(.hidden)');
-    await expect(visibleCards).toHaveCount(0, { timeout: 5000 });
+    // 대화 카드가 사라지거나 빈 상태가 표시됨
+    await page.waitForTimeout(500);
+    const visibleCards = sidebarList.locator('.dm-conv-card');
+    const count = await visibleCards.count();
+
+    // 필터링 후 결과 없음 또는 빈 메시지
+    const isEmpty = count === 0 || await sidebarList.locator('.dm-sidebar__empty').isVisible().catch(() => false);
+    expect(isEmpty).toBeTruthy();
   });
 
   test('빈 대화 목록 안내 메시지', async ({ page, request }) => {
     // 대화가 없는 새 사용자 생성
     const newUser = await createTestUser(request);
-    await loginAndNavigate(page, '/messages/inbox', newUser.email, newUser.password);
+    await loginAndNavigate(page, '/dm', newUser.email, newUser.password);
 
     // 빈 상태 메시지 확인
-    const emptyEl = page.locator('#dm-empty');
-    // display:none이 아닌 상태로 전환되어야 함
-    await expect(emptyEl).toContainText('아직 대화가 없습니다', { timeout: 10000 });
+    const emptyEl = page.locator('.dm-sidebar__empty');
+    await expect(emptyEl).toContainText('대화가 없습니다', { timeout: 10000 });
   });
 });

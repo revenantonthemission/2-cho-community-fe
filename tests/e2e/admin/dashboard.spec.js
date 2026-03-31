@@ -1,47 +1,47 @@
 // tests/e2e/admin/dashboard.spec.js
-// 관리자 대시보드 E2E 테스트
+// 관리자 대시보드 E2E 테스트 — React SPA 버전
 
 import { test, expect } from '@playwright/test';
 import { createTestUser, loginAndNavigate, setAdminRole } from '../fixtures/test-helpers.js';
 
 test.describe('관리자 - 대시보드', () => {
-  test('비관리자 접근 시 메인 페이지로 리다이렉트', async ({ page, request }) => {
+  test('비관리자 접근 시 홈으로 리다이렉트', async ({ page, request }) => {
     const normalUser = await createTestUser(request);
-    await loginAndNavigate(page, '/admin/dashboard', normalUser.email, normalUser.password);
+    await loginAndNavigate(page, '/admin', normalUser.email, normalUser.password);
 
-    // 메인 페이지로 리다이렉트 확인
-    await expect(page).toHaveURL(/.*main/, { timeout: 10000 });
+    // 홈(/)으로 리다이렉트 확인
+    await expect(page).toHaveURL(/^\/$|.*\/$/, { timeout: 10000 });
   });
 
   test('대시보드 통계 카드 렌더링 (관리자)', async ({ page, request }) => {
     const admin = await createTestUser(request);
     await setAdminRole(request, admin.userId);
-    await loginAndNavigate(page, '/admin/dashboard', admin.email, admin.password);
+    await loginAndNavigate(page, '/admin', admin.email, admin.password);
 
     // 페이지 타이틀 확인
-    await expect(page.locator('.admin-page-title')).toContainText('관리자 대시보드');
+    await expect(page.locator('h1')).toContainText('관리자 대시보드');
 
     // 통계 카드 영역 확인
-    const statsCards = page.locator('#stats-cards');
-    await expect(statsCards).toBeVisible();
+    const statsCards = page.locator('.admin-stat-card');
+    await expect(statsCards.first()).toBeVisible({ timeout: 10000 });
 
     // 일별 통계 테이블 확인
-    const dailyStatsBody = page.locator('#daily-stats-body');
-    await expect(dailyStatsBody).toBeVisible();
+    const dailyTable = page.locator('.admin-daily-table');
+    await expect(dailyTable).toBeVisible();
   });
 
   test('사용자 목록 검색 (관리자)', async ({ page, request }) => {
     const admin = await createTestUser(request);
     await setAdminRole(request, admin.userId);
-    await loginAndNavigate(page, '/admin/dashboard', admin.email, admin.password);
+    await loginAndNavigate(page, '/admin', admin.email, admin.password);
 
     // 사용자 검색 입력창 확인
-    const searchInput = page.locator('#user-search');
+    const searchInput = page.locator('.admin-users__search');
     await expect(searchInput).toBeVisible();
-    await expect(searchInput).toHaveAttribute('placeholder', '닉네임 또는 이메일로 검색...');
+    await expect(searchInput).toHaveAttribute('placeholder', /닉네임 또는 이메일/);
 
     // 사용자 목록 영역 확인
-    const userList = page.locator('#user-list');
+    const userList = page.locator('.admin-user-list');
     await expect(userList).toBeVisible();
 
     // 검색 입력 (디바운스 300ms)
