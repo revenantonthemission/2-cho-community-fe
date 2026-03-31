@@ -2,6 +2,23 @@
 
 ## 2026-03 (Mar)
 
+- **03-31: React SPA 재구축 — Vanilla JS MPA → React 19 + TypeScript**
+  - feat: React 19 + React Router v7 SPA 전체 재구축 (69커밋 기반)
+  - feat: 코드 감사 수정 — AdminGuard, ApiError 클래스, escapeHtml XSS 방지
+  - feat: 코드 스플리팅 — React.lazy (21페이지) + manualChunks (초기 로드 74% 감소)
+  - feat: highlight.js core + 21개 언어 선택적 로드 (markdown 청크 92% 감소)
+  - feat: 기능 갭 보충 — 검색 자동완성, 신고 모달, GitHub OAuth, 회원 탈퇴
+  - feat: 투표(Poll) 생성/표시, 댓글 정렬, 임시저장(서버+localStorage)
+  - feat: 누락 페이지 — FindAccount, VerifyEmail, Password, SocialSignup, TagDetail
+  - feat: 사이드바 전면 재구축 — 경로 인식 컨텍스트 전환 + 소셜/관리자 섹션
+  - feat: 멘션 자동완성 (@) — useMention 훅 + MentionDropdown 컴포넌트
+  - feat: 알림 WebSocket 실시간 구독, GET 자동 재시도, WS 재연결 제한
+  - fix: 디자인 감사 3단계 — 다크 모드 토큰, 간격 토큰화, 포커스 링, 반응형
+  - fix: 디자인 통일성 — .btn 시스템, error-msg, input-field, empty-state
+  - fix: UX Pro Max — 이모지→SVG, 터미널 빈 상태, 터치타겟 44px, 시맨틱 헤딩
+  - fix: ErrorBoundary 추가, DMContext WS 재연결 루프, 쿠키 파싱 버그
+  - chore: Phase D — Vanilla JS 레거시 파일 삭제 (html/, js/, css/ — 209파일, 31,576줄)
+
 - **03-29: 코드베이스 품질 개선**
   - fix: Docker 헬스체크 이슈 수정
   - fix: Build & CI — 빌드 설정 개선

@@ -1,391 +1,171 @@
 # Camp Linux — Frontend
 
-Vanilla JavaScript MPA로 구축한 커뮤니티 포럼 프론트엔드. 프레임워크 없이 MVC 패턴, 실시간 WebSocket 통신, 마크다운 에디터, 디자인 토큰 시스템을 직접 설계하고 구현했습니다.
+React 19 + TypeScript SPA로 구축한 커뮤니티 포럼 프론트엔드. Terminal Editorial 디자인 시스템, 실시간 WebSocket 통신, 코드 스플리팅, 마크다운 에디터를 구현했습니다.
 
-**Tech Stack**: Vanilla JS (ES Modules) · Vite · marked · DOMPurify · highlight.js · Playwright
+**Tech Stack**: React 19 · TypeScript · Vite 7 · React Router 7 · DOMPurify · marked · highlight.js · lucide-react · Playwright
 
 **주요 기능**:
 
-- 게시글 CRUD, 댓글(대댓글, 정렬 3종, 수정됨 배지), 좋아요, 북마크, 검색/정렬(5종+자동완성), 카테고리, 태그, Q&A 답변 채택(해결됨 배지, solved 필터)
-- 마크다운 에디터 (GFM, 코드 구문 강조, 이미지 DnD, @멘션 자동완성, 미리보기)
-- 실시간 알림 (WebSocket + 폴링 폴백, 유형별 on/off 설정) · DM 쪽지 · @멘션 하이라이트(클릭 시 프로필 이동)
-- 팔로우/팔로잉 피드 · 투표(Poll, 변경/취소) · 연관 게시글 추천 · 읽은 글 표시 · 검색 자동완성 · 구독 벨 (watching/muted)
-- 이용약관 동의 체크박스 · 에러 상태 토스트 메시지
-- 소셜 로그인 (GitHub OAuth) · 소셜 가입 닉네임 설정
+- 게시글 CRUD, 댓글(대댓글, 정렬 3종), 좋아요, 북마크, 검색(자동완성), 카테고리, 태그(자동완성), Q&A 답변 채택
+- 마크다운 에디터 (코드 구문 강조, 이미지 업로드, @멘션 자동완성, 미리보기)
+- 실시간 알림 (WebSocket + ETag 폴링, 유형별 설정) · DM 쪽지 · @멘션
+- 팔로잉/추천 피드 · 투표(Poll, 변경/취소) · 연관 게시글 · 구독(watching) · 임시저장
+- 소셜 로그인 (GitHub OAuth) · 이메일 인증 · 계정 찾기 · 비밀번호 변경
 - 관리자 대시보드, 신고 관리, 계정 정지/해제
-- 다크 모드 · 임시 저장(서버 동기화 + localStorage 폴백) · 무한 스크롤 · 반응형 UI
-- 데스크톱 사이드바 내비게이션 ($ navigate, $ social, $ categories, $ wiki, $ packages 섹션)
-- 모바일 하단 탭 바 (5탭: 피드/위키/패키지/DM/알림, 배지 카운트)
-- 터미널 테마 빈 상태/에러 상태 (미니 터미널 윈도우, 컨텍스트별 명령어)
+- 다크 모드 · ErrorBoundary · 코드 스플리팅 (React.lazy) · 반응형 UI
 
 ---
 
-## 프론트엔드 아키텍처
+## 아키텍처
 
-### MVC 패턴
-
-프레임워크의 상태 관리나 가상 DOM 없이, 클래스 기반 MVC 패턴으로 관심사를 분리합니다. 모든 클래스는 **정적 메서드(static methods)** 로만 구성되어 인스턴스 생성 없이 호출합니다.
+### React SPA + Context 패턴
 
 ```mermaid
 flowchart TD
-    Entry["app/*.js (진입점)<br/>HTML 페이지와 1:1 매핑"]
-    Controller["Controller<br/>비즈니스 로직, 상태 관리<br/>Model과 View 조율"]
-    Model["Model<br/>(API 통신)"]
-    View["View<br/>(DOM 렌더링)"]
+    App["App.tsx<br/>BrowserRouter + Providers"]
+    Providers["ThemeProvider → WebSocketProvider<br/>→ NotificationProvider → DMProvider"]
+    Routes["Routes<br/>AuthGuard / AdminGuard"]
+    Pages["Pages (28개)<br/>lazy 로드"]
+    API["api.ts<br/>fetch + Bearer Token + auto-refresh"]
+    WS["WebSocketContext<br/>pub/sub + reconnect"]
 
-    Entry --> Controller
-    Controller --> Model
-    Controller --> View
+    App --> Providers
+    Providers --> Routes
+    Routes --> Pages
+    Pages --> API
+    Pages --> WS
 ```
 
-- **Model**: API 통신 계층. `ApiService`를 통해 백엔드와 HTTP 통신
-- **View**: DOM 렌더링. 정적 메서드로 요소 생성 및 이벤트 바인딩
-- **Controller**: 비즈니스 로직. 사용자 입력 처리, Model/View 조율, 상태 관리
+- **Context**: Auth, Theme, Notification(WS+폴링), WebSocket(pub/sub), DM
+- **Hooks**: useAuth, useNotification, useDM, useWebSocket, useMention
+- **API 서비스**: in-memory 토큰, 401 자동 갱신, GET 재시도(5xx/429), FormData 지원
 
 ### 디렉토리 구조
 
 ```
 2-cho-community-fe/
-├── html/                      # 31개 HTML 페이지
-├── vite.config.js             # Vite MPA 설정 + 클린 URL 리라이트
+├── index.html                 # SPA 진입점
+├── vite.config.ts             # Vite + React + manualChunks
+├── tsconfig.json              # TypeScript strict 모드
+├── eslint.config.js           # ESLint flat config (typescript-eslint + react-hooks)
 ├── Dockerfile                 # 멀티 스테이지 빌드 (node → nginx)
-├── nginx.conf                 # 프로덕션 서빙 설정
 │
-├── js/
-│   ├── app/                   # 페이지별 진입점 (HTML과 1:1 매핑)
-│   │   ├── main.js            # 게시글 목록
-│   │   ├── detail.js          # 게시글 상세
-│   │   ├── write.js           # 게시글 작성
-│   │   ├── dm_list.js         # DM 대화 목록
-│   │   ├── dm.js              # DM 데스크톱 통합 (좌우 분할)
-│   │   └── ...                # 총 31개
+├── src/
+│   ├── main.tsx               # React 루트 렌더링
+│   ├── App.tsx                # 라우터 + Provider 트리 + ErrorBoundary
 │   │
-│   ├── controllers/           # 비즈니스 로직 (36개)
-│   │   ├── MainController.js
-│   │   ├── DetailController.js
-│   │   ├── HeaderController.js  # 인증 상태, 알림 뱃지, WebSocket 관리
-│   │   ├── DMPageController.js  # DM 데스크톱 좌우 분할 오케스트레이션
+│   ├── pages/                 # 28개 페이지 컴포넌트
+│   │   ├── PostListPage.tsx   # 메인 피드 (검색, 정렬, 추천/팔로잉)
+│   │   ├── PostDetailPage.tsx # 게시글 상세 (투표, 구독, 핀, 차단)
+│   │   ├── wiki/              # 위키 7개 페이지
+│   │   ├── packages/          # 패키지 4개 페이지
+│   │   ├── admin/             # 관리자 2개 페이지
 │   │   └── ...
 │   │
-│   ├── models/                # API 통신 계층 (14개)
-│   │   ├── PostModel.js
-│   │   ├── AuthModel.js
-│   │   ├── DMModel.js
+│   ├── components/            # 재사용 컴포넌트
+│   │   ├── PostCard.tsx       # 게시글 카드 (Link 기반)
+│   │   ├── PostForm.tsx       # 게시글 폼 (투표 생성, 태그 자동완성, 임시저장)
+│   │   ├── CommentList.tsx    # 댓글 트리 (대댓글, 좋아요, 채택, 신고)
+│   │   ├── MarkdownEditor.tsx # 마크다운 에디터 (이미지, 멘션)
+│   │   ├── MarkdownRenderer.tsx # DOMPurify 렌더러
+│   │   ├── MentionDropdown.tsx # @멘션 자동완성 드롭다운
+│   │   ├── PollView.tsx       # 투표 표시/참여/변경/취소
+│   │   ├── ReportModal.tsx    # 신고 모달 (게시글/댓글)
+│   │   ├── Sidebar.tsx        # 경로 인식 사이드바 (5개 섹션)
+│   │   ├── Modal.tsx          # ARIA 모달 (useId)
+│   │   ├── ErrorBoundary.tsx  # 렌더 에러 복구
+│   │   ├── AuthGuard.tsx      # 인증 가드
+│   │   ├── AdminGuard.tsx     # 관리자 가드
 │   │   └── ...
 │   │
-│   ├── views/                 # DOM 렌더링 (35개)
-│   │   ├── PostListView.js
-│   │   ├── PostDetailView.js
-│   │   ├── ModalView.js
-│   │   └── ...
+│   ├── contexts/              # 5개 Context Provider
+│   │   ├── AuthContext.tsx     # 로그인/로그아웃/토큰 관리
+│   │   ├── WebSocketContext.tsx # WS pub/sub + 지수 백오프 (최대 10회)
+│   │   ├── NotificationContext.tsx # ETag 폴링 + WS 실시간
+│   │   ├── DMContext.tsx      # DM 상태 + WS 이벤트 구독
+│   │   └── ThemeContext.tsx   # 다크/라이트 테마
 │   │
-│   ├── components/            # 재사용 UI 컴포넌트
-│   │   ├── MarkdownEditor.js  # 마크다운 에디터 (풀/컴팩트 모드)
-│   │   ├── MentionDropdown.js # @멘션 자동완성 (게시글/댓글 에디터 연결)
-│   │   └── BottomTabComponent.js # 모바일 하단 탭 바 (5탭, 배지 카운트)
+│   ├── hooks/                 # 커스텀 훅
+│   │   ├── useMention.ts      # @멘션 자동완성 로직
+│   │   └── useAuth/useDM/useNotification/useWebSocket.ts
 │   │
-│   ├── services/              # 인프라 서비스
-│   │   ├── ApiService.js      # HTTP 클라이언트, Bearer 토큰, silent refresh
-│   │   ├── WebSocketService.js # 실시간 알림 (싱글턴, 지수 백오프)
-│   │   ├── DraftService.js    # 임시 저장 (localStorage, 디바운스)
-│   │   └── ThemeService.js    # 다크 모드 토글
+│   ├── services/
+│   │   └── api.ts             # HTTP 클라이언트 (ApiError, refresh, retry)
 │   │
-│   ├── utils/                 # 유틸리티
-│   │   ├── dom.js             # createElement() — XSS 방지 DOM 생성
-│   │   ├── icons.js           # SVG 아이콘 팩토리 (createElementNS)
-│   │   ├── markdown.js        # marked + DOMPurify 렌더링 파이프라인
-│   │   ├── mention.js         # @멘션 TreeWalker 하이라이트 (클릭 시 프로필 이동)
-│   │   ├── ErrorBoundary.js   # 지수 백오프 재시도
-│   │   └── ...
+│   ├── constants/             # 엔드포인트, 라우트, 메시지
+│   ├── types/                 # TypeScript 타입 정의
+│   ├── utils/                 # 포매터, 검증, 마크다운, 토스트
 │   │
-│   ├── config.js              # API_BASE_URL, WS_BASE_URL
-│   └── constants.js           # 엔드포인트, 메시지, 라우트 상수
+│   └── styles/                # Terminal Editorial 디자인 시스템
+│       ├── variables.css      # 200+ 디자인 토큰 (라이트/다크)
+│       ├── base.css           # 리셋, 타이포그래피, 유틸리티
+│       ├── layout.css         # 헤더, 컨테이너, 이메일 배너
+│       ├── modules/           # 재사용 컴포넌트 스타일 (22개)
+│       └── pages/             # 페이지별 스타일 (12개)
 │
-└── css/
-    ├── style.css              # @import 진입점
-    ├── variables.css           # 160+ 디자인 토큰
-    ├── base.css               # 리셋, 타이포그래피
-    ├── layout.css             # 헤더, 컨테이너
-    ├── modules/               # 재사용 컴포넌트 스타일 (22개)
-    │   ├── cards.css
-    │   ├── markdown.css
-    │   ├── responsive.css     # 모바일 반응형 미디어 쿼리
-    │   ├── dm.css
-    │   ├── bottom-tabs.css    # 모바일 하단 탭 바 스타일
-    │   └── ...
-    └── pages/                 # 페이지별 스타일 (12개)
+├── public/                    # 정적 에셋
+└── tests/                     # Playwright E2E 테스트
 ```
 
 ---
 
-## 페이지 목록
+## 라우트 목록
 
-| 클린 URL | HTML 파일 | 설명 |
-| -------- | --------- | ---- |
-| `/main` | `post_list.html` | 메인 피드 — 카테고리 탭, 검색(자동완성), 정렬(5종), 팔로잉 필터, 무한 스크롤 |
-| `/detail?id=` | `post_detail.html` | 게시글 상세 — 마크다운 렌더링, 좋아요/북마크/공유, 댓글 트리(정렬 3종, 수정됨 배지), @멘션 하이라이트, 투표(변경/취소), 연관 게시글 |
-| `/write` | `post_write.html` | 게시글 작성 — 마크다운 에디터(14버튼), 카테고리, 태그, 다중 이미지, 투표, 임시 저장 |
-| `/edit?id=` | `post_edit.html` | 게시글 수정 — 기존 데이터 프리필, 이미지 관리 |
-| `/login` | `user_login.html` | 로그인 — 소셜 로그인(GitHub), 정지 사용자 안내, 이메일 인증 유도 |
-| `/signup` | `user_signup.html` | 회원가입 — 실시간 유효성 검사, 프로필 이미지, 이용약관 동의 |
-| `/find-account` | `user_find_account.html` | 계정 찾기 — 탭 UI (이메일 찾기 / 비밀번호 재설정) |
-| `/password` | `user_password.html` | 비밀번호 변경 |
-| `/edit-profile` | `user_edit.html` | 프로필 수정 — 닉네임, 프로필 이미지 |
-| `/user-profile?id=` | `user-profile.html` | 사용자 프로필 — 작성 글, 팔로우/차단/DM, 팔로워·팔로잉 목록 모달, 관리자 정지 |
-| `/notifications` | `notifications.html` | 알림 — 좋아요/댓글/멘션/팔로우, 읽음/삭제, 무한 스크롤, 유형별 설정 |
-| `/my-activity` | `my-activity.html` | 내 활동 — 탭 UI (글/댓글/좋아요/북마크/차단) |
-| `/verify-email` | `verify-email.html` | 이메일 인증 결과 표시 |
-| `/messages` | `dm_list.html` | DM 대화 목록 — 최근 메시지 미리보기, 읽지 않은 수 |
-| `/messages/inbox` | `dm.html` | DM 데스크톱 통합 — 좌우 분할 레이아웃 (768px 이상 자동 전환) |
-| `/messages/detail?id=` | `dm_detail.html` | DM 상세 — 실시간 메시지 수신, 마크다운 컴팩트 에디터 |
-| `/admin/reports` | `admin_reports.html` | 관리자 신고 관리 — 상태 필터, 처리/기각, 정지 연동 |
-| `/admin/dashboard` | `admin_dashboard.html` | 관리자 대시보드 — 통계 카드, 일별 추이, 사용자 관리 |
-| `/social-signup` | `social_signup.html` | 소셜 가입 완료 — 닉네임 설정 (OAuth 콜백 후 리다이렉트) |
-| `/packages` | `package_list.html` | 패키지 목록 — 카테고리 필터, 검색, 정렬(최신/평점/리뷰수/이름), 무한 스크롤 |
-| `/packages/detail?id=` | `package_detail.html` | 패키지 상세 — 패키지 정보 + 리뷰 목록 + 리뷰 작성/수정/삭제 |
-| `/packages/write` | `package_write.html` | 패키지 등록 — 카테고리, 패키지 매니저 선택 |
-| `/wiki` | `wiki_list.html` | 위키 목록 — 검색, 태그 필터, 정렬(최신/인기/이름), 무한 스크롤 |
-| `/wiki/detail?slug=` | `wiki_detail.html` | 위키 상세 — 마크다운 렌더링, 태그, 조회수, 수정/삭제 |
-| `/wiki/write` | `wiki_write.html` | 위키 작성 — 마크다운 에디터, 태그 입력 |
-| `/wiki/edit?id=` | `wiki_edit.html` | 위키 수정 — 기존 데이터 프리필, 태그 관리 |
-| `/wiki/{slug}/history` | `wiki_history.html` | 위키 편집 기록 — 리비전 목록, 작성자, 편집 요약 |
-| `/wiki/{slug}/revisions/{id}` | `wiki_revision.html` | 위키 리비전 보기 — 특정 리비전 내용 조회 |
-| `/wiki/{slug}/diff` | `wiki_diff.html` | 위키 diff 비교 — 두 리비전 간 변경 사항 (unified diff) |
-| `/tags/{name}` | `tag_detail.html` | 태그 상세 — 태그 설명, 본문, 관련 게시글 수 |
-| `/badges` | `badges.html` | 배지 & 평판 — 전체 배지 목록, 보유/미보유 구분, 신뢰 레벨, 평판 포인트 |
-
----
-
-## 핵심 패턴
-
-### ApiService — HTTP 클라이언트
-
-중앙 집중식 HTTP 클라이언트로 모든 API 통신을 관리합니다.
-
-- **Bearer 토큰 관리**: Access Token을 in-memory(JS 변수)에 저장하여 XSS 노출 최소화
-- **Silent Refresh**: 401 응답 시 Refresh Token(HttpOnly 쿠키)으로 자동 갱신 → 원래 요청 재시도
-- **무한 루프 방지**: `_isRetry` 플래그로 재시도 1회 제한
-- **세션 만료 이벤트**: refresh 실패 시 `auth:session-expired` CustomEvent 발생 → 로그인 페이지 리다이렉트
-- **계정 정지 감지**: 403 `account_suspended` 응답 시 `auth:account-suspended` 이벤트 발생
-
-### WebSocketService — 실시간 알림
-
-WebSocket 우선, 폴링 자동 폴백 구조의 실시간 알림 시스템입니다.
-
-- **싱글턴 패턴**: 앱 전체에서 하나의 WebSocket 연결 유지
-- **JWT 핸드셰이크**: 연결 시 Access Token으로 인증
-- **지수 백오프 재연결**: 연결 끊김 시 1초 → 2초 → 4초 → ... → 최대 30초 간격 재시도
-- **30초 Heartbeat**: 연결 유지를 위한 주기적 ping
-- **폴링 폴백**: WebSocket 연결 실패 시 `HeaderController`가 ETag 기반 HTTP 폴링으로 전환 (포커스 10초, 비포커스 60초, 숨김 탭 중단)
-- **Count 재동기화**: WebSocket 모드에서도 60초 주기로 서버 count 재조회 (드리프트 방지)
-
-### 낙관적 UI (Optimistic UI)
-
-좋아요, 북마크 토글은 API 응답을 기다리지 않고 즉시 UI를 업데이트합니다.
-
-- **즉시 반영**: 버튼 클릭 → UI 카운트/상태 즉시 변경 → API 호출
-- **실패 시 롤백**: API 에러 발생 시 이전 상태로 자동 복구
-- **중복 방지**: `isLiking`, `isBookmarking` 플래그로 동시 요청 차단
-
-### 서버 리프레시 (Server Refresh)
-
-댓글 좋아요처럼 중첩 데이터 구조에서는 낙관적 UI 대신 서버 데이터로 전체 갱신합니다.
-
-- 댓글 좋아요 토글 → `_notifyChange()` → `_reloadComments()` → 댓글 트리 전체 재구축
-
-### 비동기 응답 무효화
-
-검색어 변경이나 정렬 전환 시 이전 API 응답이 새 목록에 섞이는 것을 방지합니다.
-
-- `loadGeneration` 카운터: 요청 발송 시점의 세대 번호를 기록하고, 응답 수신 시 현재 세대와 불일치하면 폐기
-
-### IntersectionObserver 무한 스크롤
-
-게시글 목록, 알림, 내 활동 등에서 `IntersectionObserver`로 스크롤 끝 감지 → 다음 페이지 자동 로드.
-
-### Custom Events
-
-DOM CustomEvent로 컴포넌트 간 느슨한 결합을 구현합니다.
-
-- `auth:session-expired` — silent refresh 실패 시 로그인 페이지 이동
-- `auth:account-suspended` — 403 정지 응답 시 로그인 페이지 이동 (관리자 API 제외)
-- `ws:notification` — WebSocket 알림 수신 → 뱃지 업데이트 + 토스트
-- `ws:dm` — WebSocket DM 수신 → 실시간 메시지 렌더링
-
-### DraftService — 임시 저장
-
-- `localStorage`에 `draft:write` / `draft:edit:{postId}` 키로 제목/내용/카테고리 자동 저장
-- 500ms 디바운스 (`_scheduleDraftSave`)로 타이핑 중 과도한 저장 방지
-- 게시 성공 시 `clearDraft()`, 7일 초과 시 자동 정리
-
-### Web Share API
-
-- 모바일: `navigator.share()` 네이티브 공유 시트
-- 데스크톱: `navigator.clipboard.writeText()` 폴백 + 토스트 피드백
+| 경로 | 페이지 | 인증 | 설명 |
+| ---- | ------ | ---- | ---- |
+| `/` | PostListPage | - | 메인 피드 (검색, 정렬, 카테고리, 추천/팔로잉) |
+| `/detail/:id` | PostDetailPage | - | 게시글 상세 (투표, 구독, 핀, 차단, 신고) |
+| `/write` | PostWritePage | 필수 | 게시글 작성 (마크다운, 태그, 투표, 임시저장) |
+| `/edit/:id` | PostEditPage | 필수 | 게시글 수정 |
+| `/login` | LoginPage | - | 로그인 + GitHub OAuth |
+| `/signup` | SignupPage | - | 회원가입 (프로필 이미지, 이용약관) |
+| `/social-signup` | SocialSignupPage | - | 소셜 로그인 후 닉네임 설정 |
+| `/find-account` | FindAccountPage | - | 이메일 찾기 / 비밀번호 재설정 |
+| `/verify-email` | VerifyEmailPage | - | 이메일 인증 처리 |
+| `/edit-profile` | ProfilePage | 필수 | 프로필 수정 + 회원 탈퇴 |
+| `/password` | PasswordPage | 필수 | 비밀번호 변경 |
+| `/user-profile/:id` | UserProfilePage | - | 사용자 프로필 (팔로우/차단/DM/정지) |
+| `/notifications` | NotificationPage | 필수 | 알림 목록 + 설정 |
+| `/dm` | DMPage | 필수 | DM 대화 (WebSocket 실시간) |
+| `/my-activity` | MyActivityPage | 필수 | 내 활동 (글/댓글/좋아요/북마크/차단) |
+| `/wiki` | WikiListPage | - | 위키 목록 (검색, 태그, 정렬) |
+| `/wiki/write` | WikiWritePage | 필수 | 위키 작성 |
+| `/wiki/edit/:slug` | WikiEditPage | 필수 | 위키 수정 |
+| `/wiki/:slug` | WikiDetailPage | - | 위키 상세 (TOC, 태그) |
+| `/wiki/:slug/history` | WikiHistoryPage | - | 편집 기록 |
+| `/wiki/:slug/revisions/:n` | WikiRevisionPage | - | 특정 리비전 |
+| `/wiki/:slug/diff` | WikiDiffPage | - | 리비전 비교 |
+| `/packages` | PackageListPage | - | 패키지 목록 |
+| `/packages/write` | PackageWritePage | 필수 | 패키지 등록 |
+| `/packages/edit/:id` | PackageEditPage | 필수 | 패키지 수정 |
+| `/packages/:id` | PackageDetailPage | - | 패키지 상세 + 리뷰 |
+| `/admin` | AdminDashboardPage | 관리자 | 대시보드 + 사용자 관리 |
+| `/admin/reports` | AdminReportsPage | 관리자 | 신고 관리 |
+| `/tags/:name` | TagDetailPage | - | 태그 상세 (게시글/위키 탭) |
+| `/badges` | BadgesPage | - | 배지 목록 |
+| `*` | NotFoundPage | - | 404 |
 
 ---
 
-## CSS 디자인 시스템
+## 빌드 최적화
 
-### 디자인 토큰
-
-`css/variables.css`에 160개 이상의 CSS Custom Properties를 정의하고, 38개 CSS 파일에서 `var()` 참조로 일관성을 보장합니다.
-
-| 카테고리 | 예시 |
-| -------- | ---- |
-| 색상 (Primary) | `--color-primary`, `--color-primary-hover`, `--color-primary-accent` |
-| 색상 (Semantic) | `--color-error`, `--color-success`, `--color-warning`, `--color-info` |
-| 색상 (Text) | `--color-text-primary`, `--color-text-secondary`, `--color-text-tertiary` |
-| 색상 (Background) | `--color-bg-primary`, `--color-bg-secondary`, `--color-bg-input` |
-| 색상 (Border) | `--color-border`, `--color-border-light`, `--color-border-dark` |
-| 타이포그래피 | `--font-size-xs` ~ `--font-size-3xl`, `--font-weight-normal` ~ `--font-weight-bold` · 스케일: xs(12px) ~ 3xl(38px), 전체 +2px 상향 조정 |
-| 간격 | `--spacing-xs` ~ `--spacing-2xl` |
-| 반경 | `--radius-sm`, `--radius-md`, `--radius-lg`, `--radius-full` |
-| 그림자 | `--shadow-sm`, `--shadow-md`, `--shadow-lg` |
-| z-index | `--z-dropdown`, `--z-modal`, `--z-toast` |
-| 트랜지션 | `--transition-fast`, `--transition-normal` |
-| 색상 (DM) | `--dm-bubble-mine`, `--dm-bubble-other`, `--dm-panel-bg`, `--dm-sidebar-active` 등 13쌍 |
-
-### 다크 모드
-
-`ThemeService`가 `[data-theme="dark"]` 속성을 토글하면, `variables.css`의 다크 테마 토큰이 활성화되어 38개 CSS 파일이 자동 전환됩니다. FOUC(Flash of Unstyled Content) 방지를 위해 31개 HTML에 인라인 스크립트로 초기 테마를 즉시 적용합니다.
-
-### CSS 로딩 순서
-
-```
-style.css (@import 진입점)
-  ├── variables.css      # 반드시 첫 번째
-  ├── base.css           # 리셋, 타이포그래피
-  ├── layout.css         # 헤더, 컨테이너
-  ├── modules/*.css      # 재사용 컴포넌트 (22개)
-  │   └── responsive.css # 반드시 마지막 (미디어 쿼리 오버라이드)
-  └── pages/*.css        # 페이지별 스타일 (12개)
-```
+| 항목 | 값 |
+| ---- | -- |
+| 초기 JS | ~310KB (gzip ~97KB) |
+| React 벤더 | 49KB (분리 청크) |
+| Markdown 청크 | 85KB (hljs core + 21언어) |
+| 페이지 청크 | 1~7KB × 21개 (lazy 로드) |
+| CSS | 170KB (gzip 24KB) |
 
 ---
 
-## 컴포넌트
-
-### MarkdownEditor
-
-`textarea`를 래핑하는 리치 텍스트 에디터 컴포넌트입니다.
-
-- **풀 모드** (게시글): 14개 툴바 버튼 — Bold, Italic, Strikethrough, Heading(1~3), Link, Image, Code, Code Block, Quote, List(UL/OL), Horizontal Rule, Preview
-- **컴팩트 모드** (댓글, DM): 5개 버튼 — Bold, Italic, Code, Link, Preview
-- **미리보기 토글**: 실시간 마크다운 렌더링 (marked + DOMPurify)
-- **키보드 단축키**: `Ctrl+B` (Bold), `Ctrl+I` (Italic)
-- **이미지 DnD**: dragover/drop/paste 이벤트 → 플레이스홀더 삽입 → 업로드 → 마크다운 교체
-- **DI 패턴**: `onImageUpload` 콜백으로 Controller가 업로드 로직 주입
-
-### Icons — SVG 팩토리
-
-`js/utils/icons.js`에서 `createElementNS` 기반으로 SVG 아이콘을 프로그래밍 방식으로 생성합니다. 이모지 대신 SVG를 사용하여 플랫폼별 렌더링 차이를 제거하고, `stroke="currentColor"`로 다크 모드 자동 대응합니다.
-
-### 마크다운 렌더링 파이프라인
-
-```
-마크다운 텍스트
-  → marked (GFM 파싱, breaks: true)
-  → DOMPurify.sanitize() (XSS 필터링)
-  → <template>.innerHTML (안전한 DOM 삽입)
-```
-
-`renderMarkdownTo()` / `renderMarkdown()`이 프로젝트 유일의 innerHTML 진입점입니다. `highlight.js`로 9개 언어의 코드 구문 강조를 지원합니다.
-
----
-
-## 빌드 시스템
-
-### Vite 설정
-
-31개 HTML을 개별 엔트리포인트로 등록하는 MPA(Multi-Page Application) 구성입니다.
-
-- **클린 URL 리라이트 플러그인**: `/main` → `/post_list.html`, `/detail` → `/post_detail.html` 등 31개 경로 매핑. 개발(configureServer)과 프리뷰(configurePreviewServer) 모두 지원
-- **프로덕션 빌드**: `npm run build` → `dist/` (HTML + `assets/` 해시된 JS/CSS 번들)
-- **HMR**: 개발 서버에서 CSS/JS 변경 즉시 반영
-
-### Docker 멀티 스테이지 빌드
-
-```dockerfile
-# Stage 1: Vite 빌드
-FROM node:20-alpine AS builder
-RUN npm ci && npm run build
-
-# Stage 2: Nginx 서빙 (빌드 결과물만 복사)
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-```
-
-### Nginx 캐싱
-
-- `/assets/`: `expires 1y` + `Cache-Control: immutable` — Vite 해시 파일명이므로 안전한 장기 캐싱
-- HTML 파일: 캐시하지 않음 (항상 최신 에셋 참조 보장)
-
-### 배포
-
-- **S3 + CloudFront**: `dist/` 를 S3에 동기화, CloudFront CDN으로 글로벌 배포
-- **CD 파이프라인**: GitHub Actions `deploy-frontend.yml` — Vite build → S3 sync → CloudFront invalidation
-- **OIDC 인증**: GitHub Actions → AWS IAM Role (시크릿 키 불필요)
-
----
-
-## 시작하기
-
-### 사전 요구사항
-
-- Node.js 20+
-- 백엔드 서버가 `localhost:8000`에서 실행 중이어야 합니다 ([백엔드 저장소](../2-cho-community-be/) 참조)
-
-### 설치 및 실행
+## 개발
 
 ```bash
-# 의존성 설치
 npm install
-
-# 개발 서버 (HMR, Port 8080)
-npm run dev
-
-# 프로덕션 빌드
-npm run build
-
-# 빌드 결과물 로컬 서빙
-npm run preview
-
-# E2E 테스트 (서버 실행 상태에서)
-npx playwright install   # 최초 1회
-npx playwright test
+npm run dev          # Vite dev 서버 (127.0.0.1:8080)
+npm run build        # 프로덕션 빌드
+npm run lint         # ESLint + TypeScript 타입 체크
+npm run typecheck    # tsc --noEmit
+npm run test:e2e     # Playwright E2E 테스트
 ```
-
-브라우저에서 `http://localhost:8080` 접속
-
----
-
-## 보안
-
-### XSS 방지 전략
-
-프로젝트 전체에서 `innerHTML` 직접 사용을 금지하고, 안전한 DOM API만 사용합니다.
-
-| 방법 | 적용 대상 |
-| ---- | --------- |
-| `createElement()` + `textContent` | 모든 동적 DOM 생성 (`js/utils/dom.js`) |
-| DOMPurify sanitization | 마크다운 렌더링 (유일한 innerHTML 진입점) |
-| `<template>.innerHTML` | sanitize된 HTML의 안전한 DOM 변환 |
-| `escapeCssUrl()` | CSS `url()` 값의 특수문자 이스케이프 |
-| URL sanitization | 사용자 입력 URL의 `javascript:` 프로토콜 차단 |
-
-### 인증 토큰 보호
-
-- **Access Token**: in-memory 저장 (JS 변수) — localStorage/sessionStorage 미사용으로 XSS 공격 시 토큰 탈취 방지
-- **Refresh Token**: HttpOnly 쿠키 — JavaScript로 접근 불가
-- **Bearer 토큰**: CSRF 공격 방어 역할 (쿠키 자동 전송 대신 명시적 헤더)
-
-### innerHTML 보안 정책
-
-프로젝트에 innerHTML 사용 시 보안 경고 훅이 설정되어 있습니다. DOMPurify sanitize를 거친 HTML만 `renderMarkdownTo()` / `renderMarkdown()` 두 함수를 통해 삽입할 수 있으며, 이 외의 innerHTML 사용은 차단됩니다.
-
----
-
-## 변경 이력
-
-[CHANGELOG.md](./CHANGELOG.md) 참조
