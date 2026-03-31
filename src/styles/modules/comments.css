@@ -8,6 +8,12 @@
     margin-top: var(--spacing-4xl);
 }
 
+.comment-sort-bar {
+    display: flex;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-lg);
+}
+
 /* ============================= */
 /* Comment Input                 */
 /* ============================= */

@@ -115,3 +115,11 @@
     border-color: var(--color-primary);
     color: var(--color-primary);
 }
+
+/* 작성 폼 액션 바 */
+.write-form__actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: flex-end;
+    align-items: center;
+}

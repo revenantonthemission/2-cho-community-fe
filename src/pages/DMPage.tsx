@@ -7,12 +7,12 @@ export default function DMPage() {
 
   return (
     <div className="dm-page">
-      <div className={`dm-page__sidebar ${selectedConversationId != null ? 'dm-page__sidebar--hidden-mobile' : ''}`}>
+      <div className={`dm-page__sidebar ${selectedConversationId !== null ? 'dm-page__sidebar--hidden-mobile' : ''}`}>
         <DMSidebar />
       </div>
 
-      <div className={`dm-page__chat ${selectedConversationId == null ? 'dm-page__chat--hidden-mobile' : ''}`}>
-        {selectedConversationId != null ? (
+      <div className={`dm-page__chat ${selectedConversationId === null ? 'dm-page__chat--hidden-mobile' : ''}`}>
+        {selectedConversationId !== null ? (
           <DMChatPanel onBack={deselectConversation} />
         ) : (
           <div className="dm-empty-state">

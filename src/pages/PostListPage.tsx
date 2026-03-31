@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
@@ -30,6 +30,13 @@ export default function PostListPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [searchInput, setSearchInput] = useState(search);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // URL search 파라미터 변경 시 입력값 동기화
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
 
   useEffect(() => {
     async function fetchPosts() {
@@ -74,8 +81,64 @@ export default function PostListPage() {
     setSearchParams(next);
   }
 
+  function handleSearch(query: string) {
+    const next = new URLSearchParams(searchParams);
+    if (query.trim()) {
+      next.set('search', query.trim());
+    } else {
+      next.delete('search');
+    }
+    next.set('page', '1');
+    setSearchParams(next);
+  }
+
+  function handleSearchKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter') {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+      handleSearch(searchInput);
+    }
+  }
+
+  function handleClearSearch() {
+    setSearchInput('');
+    handleSearch('');
+  }
+
+  // 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    };
+  }, []);
+
   return (
     <div className="post-list-page">
+      {/* 검색 */}
+      <div className="search-bar">
+        <input
+          type="text"
+          className="search-bar__input"
+          placeholder="게시글 검색..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          onKeyDown={handleSearchKeyDown}
+        />
+        {search && (
+          <button className="search-bar__clear" onClick={handleClearSearch} aria-label="검색 초기화">
+            ×
+          </button>
+        )}
+        <button className="search-bar__btn" onClick={() => handleSearch(searchInput)}>
+          검색
+        </button>
+      </div>
+
+      {search && (
+        <p className="search-result-info">
+          &quot;{search}&quot; 검색 결과
+        </p>
+      )}
+
       <div className="search-sort-section">
         <div className="sort-buttons">
           {SORT_OPTIONS.map((option) => (

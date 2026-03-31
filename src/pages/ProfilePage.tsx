@@ -1,18 +1,25 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { api } from '../services/api';
+import { api, ApiError } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
+import { ROUTES } from '../constants/routes';
 import { showToast } from '../utils/toast';
+import Modal from '../components/Modal';
 import type { User } from '../types/auth';
 import type { ApiResponse } from '../types/common';
 
 export default function ProfilePage() {
-  const { user, setUser } = useAuth();
+  const { user, setUser, logout } = useAuth();
+  const navigate = useNavigate();
   const [nickname, setNickname] = useState(user?.nickname ?? '');
   const [bio, setBio] = useState(user?.bio ?? '');
   const [distro, setDistro] = useState(user?.distro ?? '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profileImage, setProfileImage] = useState(user?.profile_image ?? '');
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   if (!user) return null;
 
@@ -35,6 +42,27 @@ export default function ProfilePage() {
       }
     } catch {
       showToast('이미지 업로드에 실패했습니다.', 'error');
+    }
+  }
+
+  async function handleDeleteAccount(e: React.FormEvent) {
+    e.preventDefault();
+    if (!deletePassword) return;
+    setIsDeleting(true);
+    try {
+      await api.delete(API_ENDPOINTS.USERS.ME, { password: deletePassword });
+      await logout();
+      showToast('회원 탈퇴가 완료되었습니다.');
+      navigate(ROUTES.LOGIN);
+    } catch (err: unknown) {
+      const apiErr = err instanceof ApiError ? err : null;
+      if (apiErr?.status === 401 || apiErr?.status === 403) {
+        showToast('비밀번호가 올바르지 않습니다.', 'error');
+      } else {
+        showToast('탈퇴 처리에 실패했습니다.', 'error');
+      }
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -121,6 +149,55 @@ export default function ProfilePage() {
           {isSubmitting ? '저장 중...' : '저장'}
         </button>
       </form>
+
+      <div className="profile-danger-zone">
+        <h3>계정 삭제</h3>
+        <p>계정을 삭제하면 모든 데이터가 영구적으로 제거됩니다.</p>
+        <button
+          type="button"
+          className="btn btn-danger"
+          onClick={() => setDeleteModalOpen(true)}
+        >
+          회원 탈퇴
+        </button>
+      </div>
+
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => { setDeleteModalOpen(false); setDeletePassword(''); }}
+        title="회원 탈퇴"
+      >
+        <p>정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+        <form onSubmit={handleDeleteAccount}>
+          <div className="input-group">
+            <label htmlFor="delete-pw">비밀번호 확인</label>
+            <input
+              id="delete-pw"
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              placeholder="현재 비밀번호를 입력하세요"
+              autoComplete="current-password"
+            />
+          </div>
+          <div className="modal-actions">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => { setDeleteModalOpen(false); setDeletePassword(''); }}
+            >
+              취소
+            </button>
+            <button
+              type="submit"
+              className="btn btn-danger"
+              disabled={!deletePassword || isDeleting}
+            >
+              {isDeleting ? '처리 중...' : '탈퇴'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

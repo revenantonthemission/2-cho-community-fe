@@ -72,9 +72,6 @@ export default function DMMessageList({
     }
   }, [isLoading, hasMore, onLoadOlder]);
 
-  // 날짜 구분선용 추적 변수
-  let lastDate = '';
-
   return (
     <div
       ref={containerRef}
@@ -86,10 +83,10 @@ export default function DMMessageList({
           <LoadingSpinner />
         </div>
       )}
-      {messages.map((m) => {
+      {messages.map((m, i) => {
         const msgDate = formatDateDivider(m.created_at);
-        const showDivider = msgDate !== lastDate;
-        lastDate = msgDate;
+        const prevDate = i > 0 ? formatDateDivider(messages[i - 1].created_at) : '';
+        const showDivider = msgDate !== prevDate;
 
         return (
           <div key={m.id}>

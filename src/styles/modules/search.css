@@ -120,7 +120,46 @@
     box-shadow: var(--input-focus-ring);
 }
 
-/* search-btn은 buttons.css 공통 Primary 규칙에서 처리 */
+.search-bar__btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: var(--color-primary);
+    color: var(--color-text-white);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--btn-radius);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    letter-spacing: var(--tracking-wide);
+    flex-shrink: 0;
+}
+
+.search-bar__btn:hover {
+    opacity: 0.9;
+}
+
+.search-bar__clear {
+    position: absolute;
+    right: calc(var(--spacing-sm) + 52px);
+    background: none;
+    border: none;
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-lg);
+    cursor: pointer;
+    padding: 0 var(--spacing-xs);
+    line-height: 1;
+}
+
+.search-bar__clear:hover {
+    color: var(--color-text-primary);
+}
+
+.search-result-info {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-md);
+}
 
 /* ============================= */
 /* 검색 자동완성 드롭다운          */

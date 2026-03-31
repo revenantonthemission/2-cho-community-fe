@@ -1,9 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import MarkdownEditor from './MarkdownEditor';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
+import { showToast } from '../utils/toast';
 import type { Category, CategoriesResponse } from '../types/post';
 import type { ApiResponse } from '../types/common';
+
+const DRAFT_KEY = 'camp_linux_draft';
+const DRAFT_SAVE_INTERVAL = 30000;
+
+interface DraftData {
+  title: string;
+  content: string;
+  category_id: number;
+  tags: string[];
+  updated_at: string;
+}
 
 interface PostFormProps {
   initialData?: {
@@ -19,9 +31,10 @@ interface PostFormProps {
     tags: string[];
   }) => Promise<void>;
   submitLabel?: string;
+  enableDraft?: boolean;
 }
 
-export default function PostForm({ initialData, onSubmit, submitLabel = '게시' }: PostFormProps) {
+export default function PostForm({ initialData, onSubmit, submitLabel = '게시', enableDraft = false }: PostFormProps) {
   const [title, setTitle] = useState(initialData?.title ?? '');
   const [content, setContent] = useState(initialData?.content ?? '');
   const [categoryId, setCategoryId] = useState(initialData?.category_id ?? 0);
@@ -29,6 +42,8 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
   const [tags, setTags] = useState<string[]>(initialData?.tags ?? []);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [draftLoaded, setDraftLoaded] = useState(!enableDraft);
+  const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -38,6 +53,68 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
       } catch { /* ignore */ }
     })();
   }, []);
+
+  // 임시저장 로드 (새 글 작성 시만)
+  useEffect(() => {
+    if (!enableDraft || initialData) { setDraftLoaded(true); return; }
+    (async () => {
+      let draft: DraftData | null = null;
+      try {
+        const res = await api.get<ApiResponse<{ draft: DraftData | null }>>(API_ENDPOINTS.DRAFTS.ROOT);
+        if (res.data?.draft) draft = res.data.draft;
+      } catch { /* 서버 실패 시 localStorage 폴백 */ }
+
+      if (!draft) {
+        try {
+          const local = localStorage.getItem(DRAFT_KEY);
+          if (local) draft = JSON.parse(local) as DraftData;
+        } catch { /* ignore */ }
+      }
+
+      if (draft && (draft.title || draft.content)) {
+        if (window.confirm('이전에 작성 중이던 내용이 있습니다. 복원하시겠습니까?')) {
+          setTitle(draft.title ?? '');
+          setContent(draft.content ?? '');
+          if (draft.category_id) setCategoryId(draft.category_id);
+          if (draft.tags) setTags(draft.tags);
+        }
+      }
+      setDraftLoaded(true);
+    })();
+  }, [enableDraft, initialData]);
+
+  // 임시저장 자동 저장 (30초마다)
+  const saveDraft = useCallback(async () => {
+    if (!enableDraft) return;
+    const data: DraftData = {
+      title, content, category_id: categoryId, tags,
+      updated_at: new Date().toISOString(),
+    };
+    // localStorage 항상 저장
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch { /* ignore */ }
+    // 서버 저장 시도
+    try {
+      await api.put(API_ENDPOINTS.DRAFTS.ROOT, {
+        title: title || null,
+        content: content || null,
+        category_id: categoryId || null,
+      });
+    } catch { /* 서버 실패 시 무시 — localStorage에 이미 저장됨 */ }
+  }, [enableDraft, title, content, categoryId, tags]);
+
+  useEffect(() => {
+    if (!enableDraft || !draftLoaded) return;
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(saveDraft, DRAFT_SAVE_INTERVAL);
+    return () => { if (draftTimerRef.current) clearTimeout(draftTimerRef.current); };
+  }, [enableDraft, draftLoaded, title, content, categoryId, saveDraft]);
+
+  // 임시저장 삭제
+  const clearDraft = useCallback(async () => {
+    if (!enableDraft) return;
+    try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+    try { await api.delete(API_ENDPOINTS.DRAFTS.ROOT); } catch { /* ignore */ }
+  }, [enableDraft]);
 
   function handleTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {
@@ -60,6 +137,7 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
     setIsSubmitting(true);
     try {
       await onSubmit({ title: title.trim(), content, category_id: categoryId, tags });
+      await clearDraft();
     } catch {
       // 에러 처리는 호출자에서 수행
     } finally {
@@ -126,13 +204,24 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
         <MarkdownEditor value={content} onChange={setContent} />
       </div>
 
-      <button
-        type="submit"
-        className="write-submit-btn"
-        disabled={!isValid || isSubmitting}
-      >
-        {isSubmitting ? '처리 중...' : submitLabel}
-      </button>
+      <div className="write-form__actions">
+        {enableDraft && (
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => { saveDraft(); showToast('임시저장되었습니다.'); }}
+          >
+            임시저장
+          </button>
+        )}
+        <button
+          type="submit"
+          className="write-submit-btn"
+          disabled={!isValid || isSubmitting}
+        >
+          {isSubmitting ? '처리 중...' : submitLabel}
+        </button>
+      </div>
     </form>
   );
 }

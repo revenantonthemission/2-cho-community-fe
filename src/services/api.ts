@@ -1,8 +1,15 @@
+// API 에러 — Error 서브클래스로 스택 트레이스 + instanceof 지원
+export class ApiError extends Error {
+  constructor(public status: number, public data: unknown) {
+    super(`API error ${status}`);
+    this.name = 'ApiError';
+  }
+}
+
 // 환경별 API Base URL
 // Vite dev 모드: import.meta.env.DEV로 감지 (포트 기반 감지 제거)
-const IS_LOCAL =
-  window.location.hostname === 'localhost' ||
-  window.location.hostname === '127.0.0.1';
+// CLAUDE.md: localhost 사용 금지 (쿠키 도메인 불일치)
+const IS_LOCAL = window.location.hostname === '127.0.0.1';
 
 function deriveApiDomain(): string {
   const host = window.location.hostname;
@@ -100,7 +107,7 @@ async function request<T = unknown>(
 
   if (!res.ok) {
     const errorBody = await res.json().catch(() => ({}));
-    throw { status: res.status, data: errorBody };
+    throw new ApiError(res.status, errorBody);
   }
 
   // 204 No Content 등 본문 없는 응답 처리
@@ -133,8 +140,11 @@ export const api = {
       body: data !== undefined ? JSON.stringify(data) : '{}',
     }),
 
-  delete: <T = unknown>(endpoint: string) =>
-    request<T>(endpoint, { method: 'DELETE' }),
+  delete: <T = unknown>(endpoint: string, data?: unknown) =>
+    request<T>(endpoint, {
+      method: 'DELETE',
+      ...(data !== undefined ? { body: JSON.stringify(data) } : {}),
+    }),
 
   // FormData 전송 — Content-Type 미설정 (브라우저가 multipart boundary 자동 추가)
   postFormData: async <T = unknown>(
@@ -168,7 +178,7 @@ export const api = {
     }
     if (!res.ok) {
       const errorBody = await res.json().catch(() => ({}));
-      throw { status: res.status, data: errorBody };
+      throw new ApiError(res.status, errorBody);
     }
     const contentType = res.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {

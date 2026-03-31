@@ -26,6 +26,8 @@ export default function NotificationBell() {
         className="notification-bell__button"
         onClick={() => setOpen(!open)}
         aria-label="알림"
+        aria-expanded={open}
+        aria-haspopup="true"
       >
         <Bell size={20} />
         {unreadCount > 0 && (

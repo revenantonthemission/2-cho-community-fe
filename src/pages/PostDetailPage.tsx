@@ -4,7 +4,7 @@ import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { ROUTES } from '../constants/routes';
 import { UI_MESSAGES } from '../constants/messages';
-import { Post, Comment, PostDetailResponse } from '../types/post';
+import { Post, Poll, Comment, PostDetailResponse } from '../types/post';
 import { ApiResponse } from '../types/common';
 import { useAuth } from '../hooks/useAuth';
 import { showToast } from '../utils/toast';
@@ -14,6 +14,8 @@ import MarkdownRenderer from '../components/MarkdownRenderer';
 import PostActionBar from '../components/PostActionBar';
 import CommentForm from '../components/CommentForm';
 import CommentList from '../components/CommentList';
+import ReportModal from '../components/ReportModal';
+import PollView from '../components/PollView';
 
 export default function PostDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +26,8 @@ export default function PostDetailPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [comments, setComments] = useState<Comment[]>([]);
+  const [commentSort, setCommentSort] = useState<'oldest' | 'latest' | 'popular'>('oldest');
+  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -47,19 +51,17 @@ export default function PostDetailPage() {
     void fetchPost();
   }, [id]);
 
-  const loadComments = useCallback(async () => {
+  const loadComments = useCallback(async (sort?: 'oldest' | 'latest' | 'popular') => {
     if (!id) return;
+    const sortParam = sort ?? commentSort;
     try {
-      const res = await api.get<ApiResponse<Comment[]>>(
-        API_ENDPOINTS.COMMENTS.ROOT(Number(id)),
-      );
+      const url = sortParam === 'oldest'
+        ? API_ENDPOINTS.COMMENTS.ROOT(Number(id))
+        : `${API_ENDPOINTS.COMMENTS.ROOT(Number(id))}?sort=${sortParam}`;
+      const res = await api.get<ApiResponse<Comment[]>>(url);
       setComments(res.data);
     } catch { /* 댓글 로드 실패 시 무시 */ }
-  }, [id]);
-
-  useEffect(() => {
-    void loadComments();
-  }, [loadComments]);
+  }, [id, commentSort]);
 
   async function handleLike() {
     if (!post) return;
@@ -121,8 +123,11 @@ export default function PostDetailPage() {
   }
 
   function handleReport() {
-    // TODO: 신고 모달 구현 (Task 18 이후)
-    showToast(UI_MESSAGES.REPORT_SUCCESS);
+    if (!user) {
+      showToast(UI_MESSAGES.LOGIN_REQUIRED, 'error');
+      return;
+    }
+    setReportOpen(true);
   }
 
   const isOwner = user?.id === post?.author.user_id;
@@ -212,6 +217,15 @@ export default function PostDetailPage() {
           <MarkdownRenderer content={post.content} />
         </div>
 
+        {/* 투표 */}
+        {post.poll && (
+          <PollView
+            postId={post.post_id}
+            poll={post.poll}
+            onUpdate={(updated: Poll) => setPost((prev) => prev ? { ...prev, poll: updated } : prev)}
+          />
+        )}
+
         {/* 통계 (좋아요, 북마크, 조회수, 댓글) */}
         <PostActionBar
           postId={post.post_id}
@@ -238,8 +252,26 @@ export default function PostDetailPage() {
       {/* 댓글 영역 */}
       <section className="comment-section">
         <CommentForm postId={post.post_id} onSubmit={loadComments} />
+        <div className="comment-sort-bar">
+          {(['oldest', 'latest', 'popular'] as const).map((s) => (
+            <button
+              key={s}
+              className={`sort-btn${commentSort === s ? ' active' : ''}`}
+              onClick={() => { setCommentSort(s); loadComments(s); }}
+            >
+              {s === 'oldest' ? '오래된순' : s === 'latest' ? '최신순' : '좋아요순'}
+            </button>
+          ))}
+        </div>
         <CommentList postId={post.post_id} comments={comments} onCommentChange={loadComments} />
       </section>
+
+      <ReportModal
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        targetType="post"
+        targetId={post.post_id}
+      />
     </main>
   );
 }

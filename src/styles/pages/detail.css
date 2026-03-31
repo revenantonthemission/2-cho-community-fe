@@ -497,3 +497,111 @@
     padding: var(--spacing-2xs) var(--spacing-xs);
     border-radius: var(--radius-sm);
 }
+
+/* ============================= */
+/* 투표 (Poll)                    */
+/* ============================= */
+.poll-view {
+    margin: var(--spacing-xl) 0;
+    padding: var(--spacing-lg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--surface-elevated);
+}
+
+.poll-view__question {
+    font-size: var(--font-size-md);
+    margin: 0 0 var(--spacing-md);
+}
+
+.poll-view__expired {
+    display: inline-block;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.poll-view__options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.poll-option {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--btn-radius);
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+    font-size: var(--font-size-base);
+}
+
+.poll-option:hover {
+    border-color: var(--color-primary);
+}
+
+.poll-option input[type="radio"] {
+    accent-color: var(--color-primary);
+}
+
+.poll-result {
+    position: relative;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--btn-radius);
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.poll-result--mine {
+    border-color: var(--color-primary);
+}
+
+.poll-result__bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background: var(--color-primary-subtle);
+    transition: width var(--transition-normal);
+    z-index: 0;
+}
+
+.poll-result__text {
+    position: relative;
+    z-index: 1;
+    font-size: var(--font-size-base);
+}
+
+.poll-result__pct {
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    flex-shrink: 0;
+}
+
+.poll-view__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: var(--spacing-md);
+}
+
+.poll-view__count {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+}
+
+.poll-view__actions {
+    display: flex;
+    gap: var(--spacing-xs);
+}

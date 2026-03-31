@@ -85,6 +85,12 @@ export const API_ENDPOINTS = {
     REPORT_RESOLVE: (id: number) => `/v1/admin/reports/${id}`,
     REPORT_REOPEN: (id: number) => `/v1/admin/reports/${id}/reopen`,
   },
+  POLL: {
+    VOTE: (postId: number) => `/v1/posts/${postId}/poll/vote`,
+  },
+  DRAFTS: {
+    ROOT: '/v1/drafts',
+  },
   ACTIVITY: {
     MY_POSTS: '/v1/users/me/posts',
     MY_COMMENTS: '/v1/users/me/comments',
@@ -100,9 +106,8 @@ export const API_ENDPOINTS = {
   },
 } as const;
 
-const IS_LOCAL =
-  window.location.hostname === 'localhost' ||
-  window.location.hostname === '127.0.0.1';
+// CLAUDE.md: localhost 사용 금지 (쿠키 도메인 불일치)
+const IS_LOCAL = window.location.hostname === '127.0.0.1';
 
 function deriveWsUrl(): string {
   const host = window.location.hostname;

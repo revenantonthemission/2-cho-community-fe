@@ -1,11 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
 import { API_ENDPOINTS } from '../../constants/endpoints';
-import { ROUTES } from '../../constants/routes';
 import { UI_MESSAGES } from '../../constants/messages';
 import { showToast } from '../../utils/toast';
-import { useAuth } from '../../hooks/useAuth';
 import ReportCard from '../../components/admin/ReportCard';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import type { ApiResponse } from '../../types/common';
@@ -18,8 +15,6 @@ const STATUS_TABS: { value: ReportStatus; label: string }[] = [
 ];
 
 export default function AdminReportsPage() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
 
   const [status, setStatus] = useState<ReportStatus>('pending');
   const [reports, setReports] = useState<Report[]>([]);
@@ -28,10 +23,6 @@ export default function AdminReportsPage() {
 
   const offsetRef = useRef(0);
   const observerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (user && user.role !== 'admin') navigate(ROUTES.HOME);
-  }, [user, navigate]);
 
   const fetchReports = useCallback(async (reset = false) => {
     setIsLoading(true);

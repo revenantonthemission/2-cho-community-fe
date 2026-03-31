@@ -46,10 +46,8 @@
 @import url('pages/detail.css');
 @import url('pages/write.css');
 @import url('pages/profile.css');
-@import url('pages/find_account.css');
 @import url('pages/admin.css');
-@import url('pages/tags.css');
 @import url('pages/wiki.css');
 @import url('pages/packages.css');
 @import url('pages/badges.css');
-@import url('pages/social-signup.css');
+/* find_account.css, tags.css, social-signup.css: 해당 React 페이지 미구현 — 구현 시 추가 */

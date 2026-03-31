@@ -35,7 +35,24 @@ export interface Post {
   is_bookmarked?: boolean;
   is_blocked?: boolean;
   image_urls?: string[];
-  poll?: unknown;
+  poll?: Poll | null;
+}
+
+export interface PollOption {
+  option_id: number;
+  option_text: string;
+  sort_order: number;
+  vote_count: number;
+}
+
+export interface Poll {
+  poll_id: number;
+  question: string;
+  expires_at: string | null;
+  is_expired: boolean;
+  options: PollOption[];
+  total_votes: number;
+  my_vote: number | null;
 }
 
 export interface PostDetailResponse {

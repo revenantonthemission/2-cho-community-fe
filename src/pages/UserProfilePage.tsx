@@ -19,6 +19,8 @@ interface UserProfile {
   bio: string | null;
   distro: string | null;
   created_at: string;
+  is_following?: boolean;
+  is_blocked?: boolean;
 }
 
 interface Reputation {
@@ -52,6 +54,9 @@ export default function UserProfilePage() {
         setProfile(profileRes.data);
         setReputation(repRes.data);
         setPosts(postsRes.data?.posts ?? []);
+        // BE가 로그인 사용자 기준 팔로우/차단 상태를 반환
+        setIsFollowing(!!profileRes.data?.is_following);
+        setIsBlocked(!!profileRes.data?.is_blocked);
       } catch {
         /* 조회 실패 시 빈 상태 유지 */
       } finally {

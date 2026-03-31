@@ -1,9 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Eye } from 'lucide-react';
-import { Marked } from 'marked';
 import DOMPurify from 'dompurify';
-import hljs from 'highlight.js';
 import { api } from '../../services/api';
 import { API_ENDPOINTS } from '../../constants/endpoints';
 import { ROUTES } from '../../constants/routes';
@@ -13,25 +11,9 @@ import { useAuth } from '../../hooks/useAuth';
 import WikiTOC from '../../components/wiki/WikiTOC';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { timeAgo } from '../../utils/formatters';
+import { wikiMarkedInstance } from '../../utils/markdown';
 import type { ApiResponse } from '../../types/common';
 import type { WikiDetailResponse } from '../../types/wiki';
-
-// TOC 앵커 링크를 위한 heading ID + 문법 강조 포함 Marked 인스턴스
-const wikiMarked = new Marked({
-  renderer: {
-    heading({ text, depth }: { text: string; depth: number }) {
-      const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
-      return `<h${depth} id="${id}">${text}</h${depth}>`;
-    },
-    code({ text, lang }: { text: string; lang?: string }) {
-      const language = lang && hljs.getLanguage(lang) ? lang : undefined;
-      const highlighted = language
-        ? hljs.highlight(text, { language }).value
-        : hljs.highlightAuto(text).value;
-      return `<pre><code class="hljs${language ? ` language-${language}` : ''}">${highlighted}</code></pre>`;
-    },
-  },
-});
 
 export default function WikiDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -63,7 +45,7 @@ export default function WikiDetailPage() {
   // DOMPurify에 id 속성 허용 — TOC 앵커 링크 동작에 필요
   const htmlWithIds = useMemo(() => {
     if (!page) return '';
-    const raw = wikiMarked.parse(page.content, { async: false }) as string;
+    const raw = wikiMarkedInstance.parse(page.content, { async: false }) as string;
     return DOMPurify.sanitize(raw, { ADD_ATTR: ['id'] });
   }, [page]);
 

@@ -33,6 +33,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mountedRef = useRef(true);
+  const connectRef = useRef<() => void>(() => {});
 
   const clearTimers = useCallback(() => {
     if (reconnectTimerRef.current) {
@@ -103,7 +104,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
             reconnectDelayRef.current * 2,
             RECONNECT_MAX,
           );
-          connect();
+          connectRef.current();
         }, reconnectDelayRef.current);
       }
     };
@@ -111,7 +112,11 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
     ws.onerror = () => {
       // onclose 이벤트가 자동으로 발생하므로 별도 처리 불필요
     };
-  }, [clearTimers]);
+  }, []);
+
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   useEffect(() => {
     mountedRef.current = true;

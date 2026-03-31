@@ -3,6 +3,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useMemo,
   type ReactNode,
 } from 'react';
 import { api, setAccessToken } from '../services/api';
@@ -70,17 +71,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const value = useMemo(
+    () => ({
+      user,
+      isLoading,
+      isAuthenticated: user !== null,
+      login,
+      logout,
+      setUser,
+    }),
+    [user, isLoading, login, logout],
+  );
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoading,
-        isAuthenticated: user !== null,
-        login,
-        logout,
-        setUser,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

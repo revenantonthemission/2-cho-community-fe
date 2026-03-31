@@ -76,6 +76,7 @@ export function DMProvider({ children }: { children: ReactNode }) {
   const msgOffsetRef = useRef(0);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingCooldownRef = useRef(false);
+  const typingCooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectedIdRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -327,7 +328,8 @@ export function DMProvider({ children }: { children: ReactNode }) {
       recipient_id: otherUser.user_id,
     });
     typingCooldownRef.current = true;
-    setTimeout(() => {
+    if (typingCooldownTimerRef.current) clearTimeout(typingCooldownTimerRef.current);
+    typingCooldownTimerRef.current = setTimeout(() => {
       typingCooldownRef.current = false;
     }, TYPING_DEBOUNCE);
   }, [selectedConversationId, otherUser, send]);
@@ -436,6 +438,8 @@ export function DMProvider({ children }: { children: ReactNode }) {
       unsubDeleted();
       unsubTypingStart();
       unsubTypingStop();
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+      if (typingCooldownTimerRef.current) clearTimeout(typingCooldownTimerRef.current);
     };
   }, [isAuthenticated, subscribe]);
 
@@ -444,8 +448,7 @@ export function DMProvider({ children }: { children: ReactNode }) {
     if (isConnected && selectedConversationId) {
       selectConversation(selectedConversationId);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected]);
+  }, [isConnected, selectConversation, selectedConversationId]);
 
   const loadMoreConversations = useCallback(
     () => fetchConversations(false),

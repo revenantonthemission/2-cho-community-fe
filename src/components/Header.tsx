@@ -51,9 +51,13 @@ export default function Header() {
           {isAuthenticated && user && <DMBadge />}
           {isAuthenticated && user ? (
             <div ref={dropdownRef} style={{ position: 'relative' }}>
-              <div
+              <button
+                type="button"
                 className="profile-circle"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
+                aria-expanded={dropdownOpen}
+                aria-haspopup="menu"
+                aria-label="프로필 메뉴"
                 style={
                   user.profile_image
                     ? { backgroundImage: `url(${user.profile_image})`, backgroundSize: 'cover' }
@@ -61,7 +65,7 @@ export default function Header() {
                 }
               >
                 {!user.profile_image && user.nickname?.charAt(0).toUpperCase()}
-              </div>
+              </button>
               {dropdownOpen && (
                 <div className="header-dropdown">
                   <ul role="menu">

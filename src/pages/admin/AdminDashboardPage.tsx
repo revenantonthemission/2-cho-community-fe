@@ -1,19 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
 import { API_ENDPOINTS } from '../../constants/endpoints';
-import { ROUTES } from '../../constants/routes';
 import { UI_MESSAGES } from '../../constants/messages';
 import { showToast } from '../../utils/toast';
-import { useAuth } from '../../hooks/useAuth';
 import SuspendModal from '../../components/admin/SuspendModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import type { ApiResponse } from '../../types/common';
 import type { DashboardResponse, AdminUser, AdminUserListResponse } from '../../types/admin';
 
 export default function AdminDashboardPage() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
 
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -26,11 +21,6 @@ export default function AdminDashboardPage() {
   const userOffsetRef = useRef(0);
   const observerRef = useRef<HTMLDivElement>(null);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // 관리자 권한 확인
-  useEffect(() => {
-    if (user && user.role !== 'admin') navigate(ROUTES.HOME);
-  }, [user, navigate]);
 
   // 대시보드 로드
   useEffect(() => {
