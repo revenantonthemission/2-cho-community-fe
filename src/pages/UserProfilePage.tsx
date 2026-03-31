@@ -59,7 +59,13 @@ export default function UserProfilePage() {
 
   const isSelf = currentUser?.id === Number(id);
 
+  // 자기 프로필 접근 시 편집 페이지로 리다이렉트
   useEffect(() => {
+    if (isSelf) navigate(ROUTES.PROFILE, { replace: true });
+  }, [isSelf, navigate]);
+
+  useEffect(() => {
+    if (isSelf) return;
     (async () => {
       try {
         const [profileRes, repRes, postsRes] = await Promise.all([

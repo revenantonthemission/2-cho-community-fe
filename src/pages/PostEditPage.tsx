@@ -30,7 +30,9 @@ export default function PostEditPage() {
   }, [id, navigate]);
 
   async function handleSubmit(data: PostFormData) {
-    await api.patch<ApiResponse<Post>>(`${API_ENDPOINTS.POSTS.ROOT}/${id}`, data);
+    // 기존 이미지 URL 보존
+    const payload = { ...data, image_urls: post?.image_urls ?? [] };
+    await api.patch<ApiResponse<Post>>(`${API_ENDPOINTS.POSTS.ROOT}/${id}`, payload);
     showToast(UI_MESSAGES.POST_UPDATE_SUCCESS);
     navigate(ROUTES.POST_DETAIL(id!));
   }

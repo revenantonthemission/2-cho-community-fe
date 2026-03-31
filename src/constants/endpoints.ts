@@ -112,6 +112,7 @@ export const API_ENDPOINTS = {
   },
   TAGS: {
     SEARCH: '/v1/tags',
+    DETAIL: (name: string) => `/v1/tags/${name}`,
   },
   BADGES: {
     ALL: '/v1/badges',

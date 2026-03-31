@@ -13,6 +13,7 @@ import { useAuth } from '../hooks/useAuth';
 
 const RECONNECT_BASE = 1000;
 const RECONNECT_MAX = 30000;
+const RECONNECT_MAX_ATTEMPTS = 10;
 const PING_INTERVAL = 30000;
 
 export interface WebSocketContextType {
@@ -30,6 +31,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
   const wsRef = useRef<WebSocket | null>(null);
   const listenersRef = useRef<Map<string, Set<(data: unknown) => void>>>(new Map());
   const reconnectDelayRef = useRef(RECONNECT_BASE);
+  const reconnectAttemptRef = useRef(0);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mountedRef = useRef(true);
@@ -77,6 +79,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
         const data = JSON.parse(event.data as string) as { type: string; [key: string]: unknown };
         if (data.type === 'auth_ok') {
           reconnectDelayRef.current = RECONNECT_BASE;
+          reconnectAttemptRef.current = 0;
           if (mountedRef.current) setIsConnected(true);
           return;
         }
@@ -99,13 +102,16 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
       }
       if (mountedRef.current) {
         setIsConnected(false);
-        reconnectTimerRef.current = setTimeout(() => {
-          reconnectDelayRef.current = Math.min(
-            reconnectDelayRef.current * 2,
-            RECONNECT_MAX,
-          );
-          connectRef.current();
-        }, reconnectDelayRef.current);
+        reconnectAttemptRef.current += 1;
+        if (reconnectAttemptRef.current <= RECONNECT_MAX_ATTEMPTS) {
+          reconnectTimerRef.current = setTimeout(() => {
+            reconnectDelayRef.current = Math.min(
+              reconnectDelayRef.current * 2,
+              RECONNECT_MAX,
+            );
+            connectRef.current();
+          }, reconnectDelayRef.current);
+        }
       }
     };
 

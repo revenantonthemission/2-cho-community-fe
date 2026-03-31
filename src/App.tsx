@@ -38,6 +38,7 @@ const WikiEditPage = lazy(() => import('./pages/wiki/WikiEditPage'));
 const WikiHistoryPage = lazy(() => import('./pages/wiki/WikiHistoryPage'));
 const WikiRevisionPage = lazy(() => import('./pages/wiki/WikiRevisionPage'));
 const WikiDiffPage = lazy(() => import('./pages/wiki/WikiDiffPage'));
+const TagDetailPage = lazy(() => import('./pages/TagDetailPage'));
 const PackageListPage = lazy(() => import('./pages/packages/PackageListPage'));
 const PackageDetailPage = lazy(() => import('./pages/packages/PackageDetailPage'));
 const PackageWritePage = lazy(() => import('./pages/packages/PackageWritePage'));
@@ -108,6 +109,7 @@ export default function App() {
                         <Route path="/my-activity" element={<MyActivityPage />} />
                       </Route>
                       <Route path="/badges" element={<BadgesPage />} />
+                      <Route path="/tags/:name" element={<TagDetailPage />} />
                     </Route>
 
                     <Route path="*" element={<NotFoundPage />} />

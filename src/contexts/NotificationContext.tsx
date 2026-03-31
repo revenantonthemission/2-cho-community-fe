@@ -10,6 +10,7 @@ import {
 import { api, getAccessToken, API_BASE_URL } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { useAuth } from '../hooks/useAuth';
+import { useWebSocket } from '../hooks/useWebSocket';
 import { showToast } from '../utils/toast';
 import { UI_MESSAGES } from '../constants/messages';
 import type {
@@ -146,6 +147,19 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       window.removeEventListener('blur', onBlur);
     };
   }, [isAuthenticated, pollUnreadCount, setPollingRate, clearPolling]);
+
+  // ── WebSocket 실시간 알림 수신 ──
+
+  const { subscribe } = useWebSocket();
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const unsub = subscribe('notification', () => {
+      setUnreadCount((prev) => prev + 1);
+      pollUnreadCount();
+    });
+    return unsub;
+  }, [isAuthenticated, subscribe, pollUnreadCount]);
 
   // ── 알림 목록 조회 ──
 

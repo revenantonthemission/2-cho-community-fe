@@ -52,4 +52,4 @@
 @import url('pages/badges.css');
 @import url('pages/find_account.css');
 @import url('pages/social-signup.css');
-/* tags.css: /tags/:name 페이지 미구현 — 구현 시 추가 */
+@import url('pages/tags.css');

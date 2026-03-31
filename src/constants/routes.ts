@@ -28,4 +28,5 @@ export const ROUTES = {
   ADMIN_REPORTS: '/admin/reports',
   MY_ACTIVITY: '/my-activity',
   BADGES: '/badges',
+  TAG_DETAIL: (name: string) => `/tags/${name}`,
 } as const;

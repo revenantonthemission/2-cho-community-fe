@@ -75,6 +75,9 @@ async function tryRefresh(): Promise<boolean> {
   return refreshPromise;
 }
 
+const MAX_GET_RETRIES = 2;
+const RETRY_STATUSES = new Set([500, 502, 503, 429]);
+
 // 공통 HTTP 요청 함수
 async function request<T = unknown>(
   endpoint: string,
@@ -89,6 +92,9 @@ async function request<T = unknown>(
     headers['Authorization'] = `Bearer ${accessToken}`;
   }
 
+  const method = options.method ?? 'GET';
+  const isGet = method === 'GET';
+
   let res = await fetch(url, {
     ...options,
     headers,
@@ -102,6 +108,15 @@ async function request<T = unknown>(
     if (refreshed) {
       headers['Authorization'] = `Bearer ${accessToken}`;
       res = await fetch(url, { ...options, headers, credentials: 'include' });
+    }
+  }
+
+  // GET 요청 자동 재시도 (5xx, 429)
+  if (isGet && RETRY_STATUSES.has(res.status)) {
+    for (let attempt = 0; attempt < MAX_GET_RETRIES; attempt++) {
+      await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+      res = await fetch(url, { ...options, headers, credentials: 'include' });
+      if (!RETRY_STATUSES.has(res.status)) break;
     }
   }
 

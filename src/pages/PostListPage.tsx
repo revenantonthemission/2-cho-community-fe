@@ -28,6 +28,7 @@ export default function PostListPage() {
   const categoryId = searchParams.get('category_id') ?? '';
   const search = searchParams.get('search') ?? '';
   const following = searchParams.get('following') === 'true';
+  const solved = searchParams.get('solved');
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -88,6 +89,7 @@ export default function PostListPage() {
       if (categoryId) params.set('category_id', categoryId);
       if (search) params.set('search', search);
       if (following) params.set('following', 'true');
+      if (solved !== null) params.set('solved', solved);
 
       const endpoint = `${API_ENDPOINTS.POSTS.ROOT}?${params.toString()}`;
 
@@ -103,7 +105,7 @@ export default function PostListPage() {
     }
 
     void fetchPosts();
-  }, [page, sort, categoryId, search, following]);
+  }, [page, sort, categoryId, search, following, solved]);
 
   function handleSortChange(value: string) {
     const next = new URLSearchParams(searchParams);
@@ -236,6 +238,30 @@ export default function PostListPage() {
           글쓰기
         </Link>
       </div>
+
+      {/* Q&A 해결/미해결 필터 — categoryId가 있을 때만 표시 */}
+      {categoryId && (
+        <div className="sort-buttons" style={{ marginBottom: 'var(--spacing-md)' }}>
+          <button
+            className={`sort-btn${solved === null ? ' active' : ''}`}
+            onClick={() => { const n = new URLSearchParams(searchParams); n.delete('solved'); n.set('page', '1'); setSearchParams(n); }}
+          >
+            전체
+          </button>
+          <button
+            className={`sort-btn${solved === 'true' ? ' active' : ''}`}
+            onClick={() => { const n = new URLSearchParams(searchParams); n.set('solved', 'true'); n.set('page', '1'); setSearchParams(n); }}
+          >
+            해결됨
+          </button>
+          <button
+            className={`sort-btn${solved === 'false' ? ' active' : ''}`}
+            onClick={() => { const n = new URLSearchParams(searchParams); n.set('solved', 'false'); n.set('page', '1'); setSearchParams(n); }}
+          >
+            미해결
+          </button>
+        </div>
+      )}
 
       {isLoading && <LoadingSpinner />}
 
