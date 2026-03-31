@@ -34,5 +34,12 @@ docker-compose*.yml
 .DS_Store
 Thumbs.db
 
+# Build output
+dist/
+
+# Specs / local docs
+specs/
+docs/
+
 # Build artifacts
 *.log
