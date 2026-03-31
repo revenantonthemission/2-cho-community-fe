@@ -11,25 +11,21 @@ on:
   push:
     branches: [main]
     paths:
-      - "js/**"
-      - "css/**"
-      - "html/**"
+      - "src/**"
       - "package.json"
       - "package-lock.json"
       - "tsconfig.json"
       - "eslint.config.js"
-      - "vite.config.js"
+      - "vite.config.ts"
   pull_request:
     branches: [main]
     paths:
-      - "js/**"
-      - "css/**"
-      - "html/**"
+      - "src/**"
       - "package.json"
       - "package-lock.json"
       - "tsconfig.json"
       - "eslint.config.js"
-      - "vite.config.js"
+      - "vite.config.ts"
 
 permissions:
   contents: read
@@ -53,7 +49,7 @@ jobs:
         run: npm ci
 
       - name: ESLint
-        run: npx eslint js/
+        run: npx eslint src/
 
       - name: TypeScript type check
         run: npx tsc --noEmit
