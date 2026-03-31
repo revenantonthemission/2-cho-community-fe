@@ -90,6 +90,7 @@ export default function FindAccountPage() {
               <label htmlFor="find-nickname">닉네임</label>
               <input
                 id="find-nickname"
+                className="input-field"
                 type="text"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
@@ -107,6 +108,7 @@ export default function FindAccountPage() {
               <label htmlFor="find-email">이메일</label>
               <input
                 id="find-email"
+                className="input-field"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

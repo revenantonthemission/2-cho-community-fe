@@ -217,7 +217,7 @@ export default function PostDetailPage() {
   if (error || !post) {
     return (
       <main className="main-container post-detail-container">
-        <p className="error-message">{error || UI_MESSAGES.POST_DETAIL_FAIL}</p>
+        <p className="error-msg">{error || UI_MESSAGES.POST_DETAIL_FAIL}</p>
       </main>
     );
   }

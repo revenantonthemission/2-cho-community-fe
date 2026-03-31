@@ -107,7 +107,7 @@ export default function CommentForm({ postId, parentId, onSubmit, onCancel }: Co
       <div className="comment-submit-wrapper">
         <button
           type="submit"
-          className="comment-submit-btn"
+          className="btn btn-primary btn-sm"
           disabled={!content.trim() || isSubmitting}
         >
           {isSubmitting ? '등록 중...' : '댓글 등록'}

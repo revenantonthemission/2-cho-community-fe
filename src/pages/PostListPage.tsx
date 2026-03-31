@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { ROUTES } from '../constants/routes';
@@ -232,18 +232,15 @@ export default function PostListPage() {
           )}
         </div>
 
-        <button
-          className="btn btn--primary"
-          onClick={() => navigate(ROUTES.POST_WRITE)}
-        >
+        <Link to={ROUTES.POST_WRITE} className="btn btn-primary">
           글쓰기
-        </button>
+        </Link>
       </div>
 
       {isLoading && <LoadingSpinner />}
 
       {!isLoading && error && (
-        <p className="error-message">{error}</p>
+        <p className="error-msg">{error}</p>
       )}
 
       {!isLoading && !error && (

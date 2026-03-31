@@ -375,7 +375,7 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
         )}
         <button
           type="submit"
-          className="write-submit-btn"
+          className="btn btn-primary"
           disabled={!isValid || isSubmitting}
         >
           {isSubmitting ? '처리 중...' : submitLabel}

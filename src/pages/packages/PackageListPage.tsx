@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { api } from '../../services/api';
 import { API_ENDPOINTS } from '../../constants/endpoints';
 import { ROUTES } from '../../constants/routes';
@@ -22,7 +22,7 @@ const PAGE_LIMIT = 10;
 
 export default function PackageListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
+
   const { isAuthenticated } = useAuth();
 
   const sort = searchParams.get('sort') ?? 'latest';
@@ -111,9 +111,9 @@ export default function PackageListPage() {
       <div className="pkg-list-page__header">
         <h1>패키지 리뷰</h1>
         {isAuthenticated && (
-          <button className="btn btn-primary btn-sm" onClick={() => navigate(ROUTES.PACKAGE_WRITE)}>
+          <Link to={ROUTES.PACKAGE_WRITE} className="btn btn-primary btn-sm">
             패키지 등록
-          </button>
+          </Link>
         )}
       </div>
 

@@ -103,6 +103,7 @@ export default function LoginPage() {
               <label htmlFor="email">이메일</label>
               <input
                 id="email"
+                className="input-field"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -114,6 +115,7 @@ export default function LoginPage() {
               <label htmlFor="password">비밀번호</label>
               <input
                 id="password"
+                className="input-field"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -122,7 +124,7 @@ export default function LoginPage() {
               />
             </div>
             {error && <p className="error-msg">{error}</p>}
-            <button type="submit" className="login-btn" disabled={isDisabled}>
+            <button type="submit" className="btn btn-primary btn-full" disabled={isDisabled}>
               {isSubmitting ? '로그인 중...' : '로그인'}
             </button>
           </form>

@@ -57,6 +57,7 @@ export default function SocialSignupPage() {
             <label htmlFor="social-nickname">닉네임</label>
             <input
               id="social-nickname"
+              className="input-field"
               type="text"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}

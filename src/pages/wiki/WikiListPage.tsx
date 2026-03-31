@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { api } from '../../services/api';
 import { API_ENDPOINTS } from '../../constants/endpoints';
 import { ROUTES } from '../../constants/routes';
@@ -21,7 +21,7 @@ const PAGE_LIMIT = 10;
 
 export default function WikiListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
+
   const { isAuthenticated } = useAuth();
 
   const sort = searchParams.get('sort') ?? 'latest';
@@ -126,12 +126,9 @@ export default function WikiListPage() {
       <div className="wiki-list-page__header">
         <h1>위키</h1>
         {isAuthenticated && (
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={() => navigate(ROUTES.WIKI_WRITE)}
-          >
+          <Link to={ROUTES.WIKI_WRITE} className="btn btn-primary btn-sm">
             새 위키 작성
-          </button>
+          </Link>
         )}
       </div>
 

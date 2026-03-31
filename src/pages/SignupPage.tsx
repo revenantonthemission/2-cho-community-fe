@@ -73,7 +73,7 @@ export default function SignupPage() {
         </Link>
       </header>
       <div className="signup-container">
-        <h2 className="signup-title">회원가입</h2>
+        <h2 className="page-title">회원가입</h2>
         <form onSubmit={handleSubmit}>
           {/* 프로필 이미지 */}
           <div className="input-group" style={{ textAlign: 'center' }}>
@@ -167,10 +167,10 @@ export default function SignupPage() {
             />
             이용약관 및 개인정보 처리방침에 동의합니다
           </label>
-          {error && <span className="error-msg">{error}</span>}
+          {error && <p className="error-msg">{error}</p>}
           <button
             type="submit"
-            className="signup-btn"
+            className="btn btn-primary btn-full"
             disabled={isSubmitting}
           >
             {isSubmitting ? '처리 중...' : '회원가입'}
