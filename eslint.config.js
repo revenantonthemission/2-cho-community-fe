@@ -6,24 +6,6 @@ import reactHooks from "eslint-plugin-react-hooks";
 export default tseslint.config(
     js.configs.recommended,
 
-    // Vanilla JS (js/ 디렉토리 — 마이그레이션 완료 후 제거 예정)
-    {
-        files: ["js/**/*.js"],
-        languageOptions: {
-            ecmaVersion: 2022,
-            sourceType: "module",
-            globals: { ...globals.browser },
-        },
-        rules: {
-            "no-unused-vars": ["warn", { argsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" }],
-            "no-console": "off",
-            "eqeqeq": ["error", "always"],
-            "no-var": "error",
-            "prefer-const": "warn",
-            "no-inner-declarations": "off",
-        },
-    },
-
     // React + TypeScript (src/ 디렉토리)
     {
         files: ["src/**/*.{ts,tsx}"],
