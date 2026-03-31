@@ -18,7 +18,13 @@ import PostListPage from './pages/PostListPage';
 import PostDetailPage from './pages/PostDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
 
+// 인증 관련 페이지 — lazy 로드
+const FindAccountPage = lazy(() => import('./pages/FindAccountPage'));
+const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
+const SocialSignupPage = lazy(() => import('./pages/SocialSignupPage'));
+
 // 저빈도 페이지 — lazy 로드 (방문 시 비동기 로드)
+const PasswordPage = lazy(() => import('./pages/PasswordPage'));
 const PostWritePage = lazy(() => import('./pages/PostWritePage'));
 const PostEditPage = lazy(() => import('./pages/PostEditPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
@@ -54,6 +60,9 @@ export default function App() {
                   <Routes>
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/signup" element={<SignupPage />} />
+                    <Route path="/social-signup" element={<SocialSignupPage />} />
+                    <Route path="/find-account" element={<FindAccountPage />} />
+                    <Route path="/verify-email" element={<VerifyEmailPage />} />
 
                     <Route element={<MainLayout />}>
                       <Route path="/" element={<PostListPage />} />
@@ -65,6 +74,7 @@ export default function App() {
                         <Route path="/write" element={<PostWritePage />} />
                         <Route path="/edit/:id" element={<PostEditPage />} />
                         <Route path="/edit-profile" element={<ProfilePage />} />
+                        <Route path="/password" element={<PasswordPage />} />
                         <Route path="/dm" element={<DMPage />} />
                       </Route>
 

@@ -62,6 +62,11 @@
     font-weight: var(--font-weight-medium);
 }
 
+.profile-section-link {
+    margin-top: var(--spacing-xl);
+    text-align: left;
+}
+
 /* ============================= */
 /* 위험 영역 (Danger Zone)       */
 /* ============================= */

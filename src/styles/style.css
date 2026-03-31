@@ -50,4 +50,6 @@
 @import url('pages/wiki.css');
 @import url('pages/packages.css');
 @import url('pages/badges.css');
-/* find_account.css, tags.css, social-signup.css: 해당 React 페이지 미구현 — 구현 시 추가 */
+@import url('pages/find_account.css');
+@import url('pages/social-signup.css');
+/* tags.css: /tags/:name 페이지 미구현 — 구현 시 추가 */

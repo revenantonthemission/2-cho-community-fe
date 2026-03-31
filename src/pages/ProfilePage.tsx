@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api, ApiError } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
@@ -151,6 +151,10 @@ export default function ProfilePage() {
           {isSubmitting ? '저장 중...' : '저장'}
         </button>
       </form>
+
+      <div className="profile-section-link">
+        <Link to={ROUTES.PASSWORD} className="btn btn-secondary">비밀번호 변경</Link>
+      </div>
 
       <div className="profile-danger-zone">
         <h3>계정 삭제</h3>

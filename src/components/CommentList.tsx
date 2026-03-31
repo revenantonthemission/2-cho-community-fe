@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import CommentForm from './CommentForm';
+import ReportModal from './ReportModal';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { ROUTES } from '../constants/routes';
@@ -30,6 +31,7 @@ function CommentItem({
   const { user } = useAuth();
   const [replyOpen, setReplyOpen] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
   const [likeCount, setLikeCount] = useState(comment.like_count);
   const [isLiked, setIsLiked] = useState(comment.is_liked ?? false);
@@ -109,6 +111,9 @@ function CommentItem({
             <button type="button" className="comment-action-btn" onClick={handleDelete}>삭제</button>
           </>
         )}
+        {user && !isOwner && (
+          <button type="button" className="comment-action-btn" onClick={() => setReportOpen(true)}>신고</button>
+        )}
       </div>
 
       {replyOpen && (
@@ -133,6 +138,13 @@ function CommentItem({
           ))}
         </ul>
       )}
+
+      <ReportModal
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        targetType="comment"
+        targetId={comment.id}
+      />
     </li>
   );
 }

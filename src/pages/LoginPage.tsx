@@ -140,6 +140,7 @@ export default function LoginPage() {
 
           <div className="links">
             <Link to={ROUTES.SIGNUP}>회원가입</Link>
+            <Link to={ROUTES.FIND_ACCOUNT}>이메일 / 비밀번호 찾기</Link>
           </div>
         </div>
       </div>

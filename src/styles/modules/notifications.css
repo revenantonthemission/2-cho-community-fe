@@ -441,3 +441,60 @@
 .notification-empty p {
     margin-top: var(--spacing-lg);
 }
+
+/* ============================= */
+/* 알림 설정 패널                  */
+/* ============================= */
+.notification-page__actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.notification-settings {
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--surface-elevated);
+}
+
+.notification-settings h3 {
+    margin: 0 0 var(--spacing-md);
+    font-size: var(--font-size-md);
+}
+
+.notification-settings__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.notification-settings__item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-base);
+    cursor: pointer;
+}
+
+.notification-settings__item input[type="checkbox"] {
+    accent-color: var(--color-primary);
+}
+
+.notification-settings__digest {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.notification-settings__digest select {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--btn-radius);
+    background: var(--surface-elevated);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+}

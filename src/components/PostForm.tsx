@@ -17,6 +17,20 @@ interface DraftData {
   updated_at: string;
 }
 
+interface PollInput {
+  question: string;
+  options: string[];
+  expires_at: string | null;
+}
+
+export interface PostFormData {
+  title: string;
+  content: string;
+  category_id: number;
+  tags: string[];
+  poll?: PollInput;
+}
+
 interface PostFormProps {
   initialData?: {
     title: string;
@@ -24,22 +38,24 @@ interface PostFormProps {
     category_id: number;
     tags: string[];
   };
-  onSubmit: (data: {
-    title: string;
-    content: string;
-    category_id: number;
-    tags: string[];
-  }) => Promise<void>;
+  onSubmit: (data: PostFormData) => Promise<void>;
   submitLabel?: string;
   enableDraft?: boolean;
+  isEdit?: boolean;
 }
 
-export default function PostForm({ initialData, onSubmit, submitLabel = '게시', enableDraft = false }: PostFormProps) {
+export default function PostForm({ initialData, onSubmit, submitLabel = '게시', enableDraft = false, isEdit = false }: PostFormProps) {
   const [title, setTitle] = useState(initialData?.title ?? '');
   const [content, setContent] = useState(initialData?.content ?? '');
   const [categoryId, setCategoryId] = useState(initialData?.category_id ?? 0);
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState<string[]>(initialData?.tags ?? []);
+
+  // 투표 상태
+  const [pollEnabled, setPollEnabled] = useState(false);
+  const [pollQuestion, setPollQuestion] = useState('');
+  const [pollOptions, setPollOptions] = useState(['', '']);
+  const [pollExpiresAt, setPollExpiresAt] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(!enableDraft);
@@ -138,8 +154,19 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
     e.preventDefault();
     if (!title.trim() || !content.trim() || !categoryId) return;
     setIsSubmitting(true);
+    const payload: PostFormData = { title: title.trim(), content, category_id: categoryId, tags };
+    if (pollEnabled && pollQuestion.trim()) {
+      const validOptions = pollOptions.map((o) => o.trim()).filter(Boolean);
+      if (validOptions.length >= 2) {
+        payload.poll = {
+          question: pollQuestion.trim(),
+          options: validOptions,
+          expires_at: pollExpiresAt || null,
+        };
+      }
+    }
     try {
-      await onSubmit({ title: title.trim(), content, category_id: categoryId, tags });
+      await onSubmit(payload);
       await clearDraft();
     } catch {
       // 에러 처리는 호출자에서 수행
@@ -201,6 +228,88 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
           />
         </div>
       </div>
+
+      {/* 투표 섹션 — 새 글 작성 시에만 표시 */}
+      {!isEdit && (
+        <div className="poll-form-section">
+          <label className="poll-toggle">
+            <input
+              type="checkbox"
+              checked={pollEnabled}
+              onChange={(e) => setPollEnabled(e.target.checked)}
+            />
+            투표 추가
+          </label>
+
+          {pollEnabled && (
+            <div className="poll-form-body">
+              <div className="input-group">
+                <label htmlFor="poll-question">투표 질문</label>
+                <input
+                  id="poll-question"
+                  type="text"
+                  className="input-field"
+                  value={pollQuestion}
+                  onChange={(e) => setPollQuestion(e.target.value)}
+                  placeholder="질문을 입력하세요"
+                  maxLength={200}
+                />
+              </div>
+
+              <div className="input-group">
+                <label>선택지 (2~10개)</label>
+                <div className="poll-options-container">
+                  {pollOptions.map((opt, i) => (
+                    <div key={i} className="poll-option-input">
+                      <input
+                        type="text"
+                        className="input-field"
+                        value={opt}
+                        onChange={(e) => {
+                          const next = [...pollOptions];
+                          next[i] = e.target.value;
+                          setPollOptions(next);
+                        }}
+                        placeholder={`선택지 ${i + 1}`}
+                        maxLength={100}
+                      />
+                      {pollOptions.length > 2 && (
+                        <button
+                          type="button"
+                          className="poll-option-remove-btn"
+                          onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))}
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {pollOptions.length < 10 && (
+                  <button
+                    type="button"
+                    className="poll-add-option-btn"
+                    onClick={() => setPollOptions([...pollOptions, ''])}
+                  >
+                    + 선택지 추가
+                  </button>
+                )}
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="poll-expires">만료 시간 (선택)</label>
+                <input
+                  id="poll-expires"
+                  type="datetime-local"
+                  className="input-field"
+                  value={pollExpiresAt}
+                  onChange={(e) => setPollExpiresAt(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="input-group">
         <label>내용</label>

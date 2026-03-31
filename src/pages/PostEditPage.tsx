@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import PostForm from '../components/PostForm';
+import PostForm, { type PostFormData } from '../components/PostForm';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
@@ -29,12 +29,7 @@ export default function PostEditPage() {
     })();
   }, [id, navigate]);
 
-  async function handleSubmit(data: {
-    title: string;
-    content: string;
-    category_id: number;
-    tags: string[];
-  }) {
+  async function handleSubmit(data: PostFormData) {
     await api.patch<ApiResponse<Post>>(`${API_ENDPOINTS.POSTS.ROOT}/${id}`, data);
     showToast(UI_MESSAGES.POST_UPDATE_SUCCESS);
     navigate(ROUTES.POST_DETAIL(id!));
@@ -55,6 +50,7 @@ export default function PostEditPage() {
         }}
         onSubmit={handleSubmit}
         submitLabel="수정"
+        isEdit
       />
     </div>
   );

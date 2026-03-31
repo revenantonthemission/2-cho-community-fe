@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { ROUTES } from '../constants/routes';
+import { useAuth } from '../hooks/useAuth';
 import { Post } from '../types/post';
 import { ApiResponse, PostListResponse } from '../types/common';
 import PostCard from '../components/PostCard';
@@ -20,11 +21,13 @@ const SORT_OPTIONS = [
 export default function PostListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   const page = Number(searchParams.get('page') ?? '1');
   const sort = searchParams.get('sort') ?? 'latest';
   const categoryId = searchParams.get('category_id') ?? '';
   const search = searchParams.get('search') ?? '';
+  const following = searchParams.get('following') === 'true';
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -50,6 +53,7 @@ export default function PostListPage() {
       params.set('sort', sort);
       if (categoryId) params.set('category_id', categoryId);
       if (search) params.set('search', search);
+      if (following) params.set('following', 'true');
 
       const endpoint = `${API_ENDPOINTS.POSTS.ROOT}?${params.toString()}`;
 
@@ -65,7 +69,7 @@ export default function PostListPage() {
     }
 
     void fetchPosts();
-  }, [page, sort, categoryId, search]);
+  }, [page, sort, categoryId, search, following]);
 
   function handleSortChange(value: string) {
     const next = new URLSearchParams(searchParams);
@@ -133,12 +137,50 @@ export default function PostListPage() {
           {SORT_OPTIONS.map((option) => (
             <button
               key={option.value}
-              className={['sort-btn', sort === option.value ? 'active' : ''].filter(Boolean).join(' ')}
-              onClick={() => handleSortChange(option.value)}
+              className={`sort-btn${sort === option.value && !following ? ' active' : ''}`}
+              onClick={() => {
+                const next = new URLSearchParams(searchParams);
+                next.set('sort', option.value);
+                next.set('page', '1');
+                next.delete('following');
+                setSearchParams(next);
+              }}
             >
               {option.label}
             </button>
           ))}
+          {isAuthenticated && (
+            <>
+              <span className="filter-divider" />
+              <button
+                className={`sort-btn${sort === 'for_you' ? ' active' : ''}`}
+                onClick={() => {
+                  const next = new URLSearchParams(searchParams);
+                  next.set('sort', 'for_you');
+                  next.set('page', '1');
+                  next.delete('following');
+                  setSearchParams(next);
+                }}
+              >
+                추천
+              </button>
+              <button
+                className={`sort-btn${following ? ' active' : ''}`}
+                onClick={() => {
+                  const next = new URLSearchParams(searchParams);
+                  if (following) {
+                    next.delete('following');
+                  } else {
+                    next.set('following', 'true');
+                    next.set('page', '1');
+                  }
+                  setSearchParams(next);
+                }}
+              >
+                팔로잉
+              </button>
+            </>
+          )}
         </div>
 
         <button

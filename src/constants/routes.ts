@@ -1,6 +1,10 @@
 export const ROUTES = {
   LOGIN: '/login',
   SIGNUP: '/signup',
+  SOCIAL_SIGNUP: '/social-signup',
+  FIND_ACCOUNT: '/find-account',
+  VERIFY_EMAIL: '/verify-email',
+  PASSWORD: '/password',
   HOME: '/',
   POST_DETAIL: (id: number | string) => `/detail/${id}`,
   POST_WRITE: '/write',

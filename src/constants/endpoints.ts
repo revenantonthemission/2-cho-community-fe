@@ -4,12 +4,17 @@ export const API_ENDPOINTS = {
     LOGOUT: '/v1/auth/session',
     REFRESH: '/v1/auth/token/refresh',
     ME: '/v1/auth/me',
+    VERIFY_EMAIL: '/v1/auth/verify-email',
+    RESEND_VERIFICATION: '/v1/auth/resend-verification',
+    SOCIAL_COMPLETE_SIGNUP: '/v1/auth/social/complete-signup',
   },
   USERS: {
     ROOT: '/v1/users',
     ME: '/v1/users/me',
     PASSWORD: '/v1/users/me/password',
     PROFILE_IMAGE: '/v1/users/profile/image',
+    FIND_EMAIL: '/v1/users/find-email',
+    RESET_PASSWORD: '/v1/users/reset-password',
   },
   POSTS: {
     ROOT: '/v1/posts',
