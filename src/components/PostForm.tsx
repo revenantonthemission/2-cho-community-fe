@@ -83,31 +83,34 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
     })();
   }, [enableDraft, initialData]);
 
-  // 임시저장 자동 저장 (30초마다)
+  // ref로 최신 폼 데이터를 추적 — saveDraft의 의존성을 제거하여 타이머 리셋 방지
+  const draftDataRef = useRef({ title, content, categoryId, tags });
+  useEffect(() => {
+    draftDataRef.current = { title, content, categoryId, tags };
+  }, [title, content, categoryId, tags]);
+
+  // 임시저장 함수 — ref에서 최신 데이터를 읽으므로 의존성이 안정적
   const saveDraft = useCallback(async () => {
     if (!enableDraft) return;
+    const { title: t, content: c, categoryId: cat, tags: tg } = draftDataRef.current;
     const data: DraftData = {
-      title, content, category_id: categoryId, tags,
+      title: t, content: c, category_id: cat, tags: tg,
       updated_at: new Date().toISOString(),
     };
-    // localStorage 항상 저장
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch { /* ignore */ }
-    // 서버 저장 시도
     try {
       await api.put(API_ENDPOINTS.DRAFTS.ROOT, {
-        title: title || null,
-        content: content || null,
-        category_id: categoryId || null,
+        title: t || null, content: c || null, category_id: cat || null,
       });
     } catch { /* 서버 실패 시 무시 — localStorage에 이미 저장됨 */ }
-  }, [enableDraft, title, content, categoryId, tags]);
+  }, [enableDraft]);
 
+  // 30초 간격 자동 저장 — draftLoaded 후 한 번만 설정
   useEffect(() => {
     if (!enableDraft || !draftLoaded) return;
-    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
-    draftTimerRef.current = setTimeout(saveDraft, DRAFT_SAVE_INTERVAL);
-    return () => { if (draftTimerRef.current) clearTimeout(draftTimerRef.current); };
-  }, [enableDraft, draftLoaded, title, content, categoryId, saveDraft]);
+    const interval = setInterval(saveDraft, DRAFT_SAVE_INTERVAL);
+    return () => clearInterval(interval);
+  }, [enableDraft, draftLoaded, saveDraft]);
 
   // 임시저장 삭제
   const clearDraft = useCallback(async () => {

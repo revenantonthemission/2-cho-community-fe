@@ -21,6 +21,7 @@ export default function PollView({ postId, poll, onUpdate }: Props) {
 
   async function handleVote() {
     if (!selectedOption || isSubmitting) return;
+    if (hasVoted && selectedOption === poll.my_vote) return;
     setIsSubmitting(true);
     try {
       if (hasVoted) {

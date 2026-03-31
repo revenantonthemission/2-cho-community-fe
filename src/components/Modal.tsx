@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useId, type ReactNode } from 'react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -8,6 +8,7 @@ interface ModalProps {
 }
 
 export default function Modal({ isOpen, onClose, title, children }: ModalProps) {
+  const titleId = useId();
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -34,12 +35,12 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
         className="modal-content"
         role="dialog"
         aria-modal="true"
-        aria-labelledby={title ? 'modal-title' : undefined}
+        aria-labelledby={title ? titleId : undefined}
         onClick={(e) => e.stopPropagation()}
       >
         {title && (
           <div className="modal-header">
-            <h3 id="modal-title">{title}</h3>
+            <h3 id={titleId}>{title}</h3>
             <button className="modal-close" onClick={onClose} aria-label="닫기">×</button>
           </div>
         )}

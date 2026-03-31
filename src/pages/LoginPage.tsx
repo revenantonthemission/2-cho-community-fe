@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { ROUTES } from '../constants/routes';
-import { API_BASE_URL } from '../services/api';
+import { API_BASE_URL, ApiError } from '../services/api';
 import { showToast } from '../utils/toast';
 
 const GITHUB_AUTH_URL = `${API_BASE_URL}/v1/auth/social/github/authorize/`;
@@ -49,10 +49,11 @@ export default function LoginPage() {
       await login(email, password);
       navigate(ROUTES.HOME);
     } catch (err: unknown) {
-      const apiErr = err as { data?: { message?: string; detail?: string | object } };
-      const detail = apiErr?.data?.detail;
+      const apiErr = err instanceof ApiError ? err : null;
+      const data = apiErr?.data as { message?: string; detail?: string | object } | undefined;
+      const detail = data?.detail;
       const message =
-        apiErr?.data?.message
+        data?.message
         ?? (typeof detail === 'string' ? detail : null)
         ?? '로그인에 실패했습니다.';
       setError(message);

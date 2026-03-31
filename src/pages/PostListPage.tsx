@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
@@ -31,7 +31,6 @@ export default function PostListPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchInput, setSearchInput] = useState(search);
-  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // URL search 파라미터 변경 시 입력값 동기화
   useEffect(() => {
@@ -93,23 +92,13 @@ export default function PostListPage() {
   }
 
   function handleSearchKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter') {
-      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-      handleSearch(searchInput);
-    }
+    if (e.key === 'Enter') handleSearch(searchInput);
   }
 
   function handleClearSearch() {
     setSearchInput('');
     handleSearch('');
   }
-
-  // 언마운트 시 타이머 정리
-  useEffect(() => {
-    return () => {
-      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-    };
-  }, []);
 
   return (
     <div className="post-list-page">

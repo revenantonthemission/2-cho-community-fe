@@ -34,7 +34,7 @@ export default function ProfilePage() {
         API_ENDPOINTS.USERS.PROFILE_IMAGE,
         formData,
       );
-      const url = res?.data?.url ?? (res as any)?.url;
+      const url = res?.data?.url;
       if (url) {
         setProfileImage(url);
         setUser({ ...user, profile_image: url });
@@ -78,8 +78,10 @@ export default function ProfilePage() {
       const updated = res.data;
       if (updated) setUser(updated);
       showToast('프로필이 수정되었습니다.');
-    } catch (err: any) {
-      showToast(err?.data?.message ?? '프로필 수정에 실패했습니다.', 'error');
+    } catch (err: unknown) {
+      const apiErr = err instanceof ApiError ? err : null;
+      const msg = (apiErr?.data as { message?: string })?.message ?? '프로필 수정에 실패했습니다.';
+      showToast(msg, 'error');
     } finally {
       setIsSubmitting(false);
     }

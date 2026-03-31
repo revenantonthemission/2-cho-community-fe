@@ -68,7 +68,7 @@ export const markedInstance = new Marked({
 
 // heading renderer에서 XSS 방지
 export function escapeHtml(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
 }
 
 // Wiki용 Marked 인스턴스 — TOC 앵커 링크 heading ID 포함
