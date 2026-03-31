@@ -106,7 +106,7 @@ export default function ProfilePage() {
               <input
                 type="file"
                 accept="image/*"
-                style={{ display: 'none' }}
+                className="hidden-input"
                 onChange={handleImageUpload}
               />
             </label>

@@ -86,9 +86,10 @@ export default function CommentForm({ postId, parentId, onSubmit, onCancel }: Co
           <button type="button" className="reply-cancel-btn" onClick={onCancel}>취소</button>
         </div>
       )}
-      <div style={{ position: 'relative' }}>
+      <div className="relative">
         <textarea
           ref={textareaRef}
+          className="input-field"
           value={content}
           onChange={(e) => handleChange(e.target.value)}
           onKeyDown={handleKey}

@@ -105,6 +105,10 @@ ol {
     box-shadow: var(--input-focus-ring);
 }
 
+/* 유틸리티 클래스 */
+.relative { position: relative; }
+.hidden-input { display: none; }
+
 /* 인터랙티브 요소 — 포커스 링 통일 */
 button:focus-visible,
 [role="button"]:focus-visible,

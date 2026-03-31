@@ -160,7 +160,7 @@ export default function NotificationPage() {
       )}
 
       {notifications.length === 0 && !isLoading ? (
-        <div className="notification-empty">
+        <div className="empty-state notification-empty">
           <code>$ cat /var/log/notifications</code>
           <br />
           <code>

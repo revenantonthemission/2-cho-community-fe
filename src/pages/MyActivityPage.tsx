@@ -151,7 +151,7 @@ export default function MyActivityPage() {
       </div>
 
       {items.length === 0 && !isLoading ? (
-        <div className="activity-empty">
+        <div className="empty-state activity-empty">
           <code>$ history</code>
           <p>활동 내역이 없습니다</p>
         </div>

@@ -80,6 +80,7 @@ export default function ReportModal({ isOpen, onClose, targetType, targetId }: P
           <label htmlFor="report-desc">상세 설명 (선택)</label>
           <textarea
             id="report-desc"
+            className="input-field"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="추가 설명이 있다면 입력해주세요"

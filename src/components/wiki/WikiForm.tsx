@@ -60,13 +60,13 @@ export default function WikiForm({ initialData, showSlug = false, onSubmit, subm
     <form onSubmit={handleSubmit} className="wiki-form">
       <div className="input-group">
         <label htmlFor="wiki-title">제목</label>
-        <input id="wiki-title" type="text" value={title} onChange={(e) => setTitle(e.target.value)}
+        <input id="wiki-title" className="input-field" type="text" value={title} onChange={(e) => setTitle(e.target.value)}
           placeholder="위키 페이지 제목" minLength={2} maxLength={200} required />
       </div>
       {showSlug && (
         <div className="input-group">
           <label htmlFor="wiki-slug">슬러그 (URL)</label>
-          <input id="wiki-slug" type="text" value={slug}
+          <input id="wiki-slug" className="input-field" type="text" value={slug}
             onChange={(e) => { setSlug(e.target.value.toLowerCase()); setSlugError(''); }}
             placeholder="my-wiki-page" pattern="[a-z0-9]+(-[a-z0-9]+)*" required />
           {slugError && <p className="error-msg">{slugError}</p>}
@@ -75,7 +75,7 @@ export default function WikiForm({ initialData, showSlug = false, onSubmit, subm
       )}
       <div className="input-group">
         <label htmlFor="wiki-tags">태그 (콤마로 구분)</label>
-        <input id="wiki-tags" type="text" value={tags} onChange={(e) => setTags(e.target.value)}
+        <input id="wiki-tags" className="input-field" type="text" value={tags} onChange={(e) => setTags(e.target.value)}
           placeholder="linux, kernel, guide" />
       </div>
       <div className="input-group">
@@ -85,7 +85,7 @@ export default function WikiForm({ initialData, showSlug = false, onSubmit, subm
       </div>
       <div className="input-group">
         <label htmlFor="wiki-summary">편집 요약</label>
-        <input id="wiki-summary" type="text" value={editSummary}
+        <input id="wiki-summary" className="input-field" type="text" value={editSummary}
           onChange={(e) => setEditSummary(e.target.value)}
           placeholder="변경 사항을 간략히 설명하세요" maxLength={500} required />
       </div>

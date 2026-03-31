@@ -59,7 +59,7 @@ export default function PackageForm({ initialData, showName = false, onSubmit, s
       {showName && (
         <div className="input-group">
           <label htmlFor="pkg-name">패키지 이름</label>
-          <input id="pkg-name" type="text" value={name}
+          <input id="pkg-name" className="input-field" type="text" value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="vim" maxLength={100} required />
           <p className="input-hint">고유 식별자 (영문, 숫자, 하이픈)</p>
@@ -67,25 +67,25 @@ export default function PackageForm({ initialData, showName = false, onSubmit, s
       )}
       <div className="input-group">
         <label htmlFor="pkg-display-name">표시 이름</label>
-        <input id="pkg-display-name" type="text" value={displayName}
+        <input id="pkg-display-name" className="input-field" type="text" value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
           placeholder="Vim Text Editor" maxLength={200} required />
       </div>
       <div className="input-group">
         <label htmlFor="pkg-desc">설명</label>
-        <textarea id="pkg-desc" value={description}
+        <textarea id="pkg-desc" className="input-field" value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="패키지에 대한 설명" maxLength={2000} rows={4} />
       </div>
       <div className="input-group">
         <label htmlFor="pkg-url">홈페이지 URL</label>
-        <input id="pkg-url" type="url" value={homepageUrl}
+        <input id="pkg-url" className="input-field" type="url" value={homepageUrl}
           onChange={(e) => setHomepageUrl(e.target.value)}
           placeholder="https://www.vim.org" maxLength={500} />
       </div>
       <div className="input-group">
         <label htmlFor="pkg-category">카테고리</label>
-        <select id="pkg-category" value={category}
+        <select id="pkg-category" className="input-field" value={category}
           onChange={(e) => setCategory(e.target.value as PackageCategory)} required>
           <option value="">선택하세요</option>
           {PACKAGE_CATEGORIES.map((c) => (
@@ -95,7 +95,7 @@ export default function PackageForm({ initialData, showName = false, onSubmit, s
       </div>
       <div className="input-group">
         <label htmlFor="pkg-manager">패키지 매니저</label>
-        <select id="pkg-manager" value={packageManager}
+        <select id="pkg-manager" className="input-field" value={packageManager}
           onChange={(e) => setPackageManager(e.target.value)}>
           <option value="">선택 안 함</option>
           {PACKAGE_MANAGERS.map((pm) => (

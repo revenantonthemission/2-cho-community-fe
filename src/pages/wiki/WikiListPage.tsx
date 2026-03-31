@@ -158,7 +158,7 @@ export default function WikiListPage() {
       )}
 
       {pages.length === 0 && !isLoading ? (
-        <div className="wiki-empty">
+        <div className="empty-state wiki-empty">
           <code>$ man wiki</code>
           <code>No manual entry for wiki</code>
           <p>위키 페이지가 없습니다</p>

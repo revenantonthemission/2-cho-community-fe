@@ -148,7 +148,7 @@ export default function PackageListPage() {
       </div>
 
       {packages.length === 0 && !isLoading ? (
-        <div className="pkg-empty">
+        <div className="empty-state pkg-empty">
           <code>$ apt search ...</code>
           <code>No packages found</code>
           <p>패키지가 없습니다</p>

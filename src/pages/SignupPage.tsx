@@ -90,7 +90,7 @@ export default function SignupPage() {
               <input
                 type="file"
                 accept="image/*"
-                style={{ display: 'none' }}
+                className="hidden-input"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;

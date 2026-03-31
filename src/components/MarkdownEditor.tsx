@@ -90,7 +90,7 @@ export default function MarkdownEditor({ value, onChange, placeholder }: Markdow
           ref={fileInputRef}
           type="file"
           accept="image/*"
-          style={{ display: 'none' }}
+          className="hidden-input"
           onChange={handleImageUpload}
         />
       </div>
@@ -99,7 +99,7 @@ export default function MarkdownEditor({ value, onChange, placeholder }: Markdow
           <MarkdownRenderer content={value} />
         </div>
       ) : (
-        <div style={{ position: 'relative' }}>
+        <div className="relative">
           <textarea
             ref={textareaRef}
             className="content-textarea"
