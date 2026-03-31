@@ -245,11 +245,11 @@
 }
 
 .diff-line-delete {
-    background: var(--color-error-bg, #fdd);
+    background: var(--color-danger-bg);
 }
 
 .diff-line-insert {
-    background: var(--color-success-bg, #dfd);
+    background: var(--color-success-bg);
 }
 
 .diff-header {

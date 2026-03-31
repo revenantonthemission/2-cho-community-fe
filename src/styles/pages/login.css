@@ -79,7 +79,7 @@ body:has(.login-page) {
     display: flex;
     gap: 6px;
     padding: var(--spacing-sm) var(--spacing-md);
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--color-overlay-light);
 }
 
 .terminal-dot {

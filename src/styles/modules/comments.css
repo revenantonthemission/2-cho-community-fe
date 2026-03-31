@@ -15,15 +15,15 @@
 }
 
 .comment-item--accepted {
-    border-left: 3px solid var(--color-success, #38a169);
+    border-left: 3px solid var(--color-success);
     padding-left: var(--spacing-md);
 }
 
 .accepted-badge {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xs);
-    color: var(--color-success, #38a169);
-    border: 1px solid var(--color-success, #38a169);
+    color: var(--color-success);
+    border: 1px solid var(--color-success);
     border-radius: var(--btn-radius);
     padding: var(--spacing-2xs) var(--spacing-sm);
     margin-left: var(--spacing-sm);
@@ -324,11 +324,11 @@
 /* ============================= */
 .accepted-answer-badge {
     display: inline-block;
-    background-color: var(--color-success, #22c55e);
-    color: #fff;
-    padding: 2px 8px;
-    border-radius: var(--radius-sm, 4px);
-    font-size: var(--font-size-xs, 0.75rem);
+    background-color: var(--color-success);
+    color: var(--color-text-white);
+    padding: var(--spacing-2xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold, 600);
     margin-left: 8px;
 }

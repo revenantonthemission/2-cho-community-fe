@@ -108,7 +108,7 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xs);
     margin-top: var(--spacing-xs);
-    color: var(--color-gray-900);
+    color: var(--color-text-primary);
     font-weight: var(--font-weight-medium);
     text-transform: uppercase;
     letter-spacing: var(--tracking-wide);

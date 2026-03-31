@@ -18,6 +18,8 @@
   --color-error-dark: #B91C1C;
   --color-warning: #D97706;
   --color-success: #059669;
+  --color-success-dark: #047857;
+  --color-success-bg: #F0FDF4;
   --color-info: #2563EB;
   --color-info-hover: #1D4ED8;
   --color-bookmark: #D97706;
@@ -299,6 +301,8 @@
   --color-error-dark: #EF4444;
   --color-warning: #FBBF24;
   --color-success: #34D399;
+  --color-success-dark: #10B981;
+  --color-success-bg: #064E3B;
   --color-info: #60A5FA;
   --color-info-hover: #3B82F6;
   --color-bookmark: #FBBF24;
