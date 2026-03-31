@@ -94,7 +94,7 @@
     cursor: pointer;
     transition: all var(--transition-fast);
     letter-spacing: var(--tracking-wide);
-    line-height: 1.4;
+    line-height: var(--line-height-snug);
 }
 
 .comment-sort-btn.active {
@@ -142,8 +142,8 @@
 
 /* 프로필 이미지 — 카드 아바타와 동일한 스퀘어 스타일 */
 .comment-author-img {
-    width: 32px;
-    height: 32px;
+    width: var(--size-avatar-md);
+    height: var(--size-avatar-md);
     border-radius: var(--radius-sm);
     background-color: var(--color-border);
     flex-shrink: 0;
@@ -258,8 +258,8 @@
 }
 
 .comment-reply .comment-author-img {
-    width: 28px;
-    height: 28px;
+    width: var(--size-avatar-sm);
+    height: var(--size-avatar-sm);
 }
 
 /* ============================= */

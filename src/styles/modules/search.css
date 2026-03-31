@@ -53,7 +53,7 @@
     color: var(--color-text-secondary);
     white-space: nowrap;
     letter-spacing: var(--tracking-wide);
-    line-height: 1.4;
+    line-height: var(--line-height-snug);
     flex-shrink: 0;
 }
 
@@ -112,7 +112,7 @@
     outline: none;
     transition: border-color var(--transition-fast);
     letter-spacing: var(--tracking-wide);
-    line-height: 1.4;
+    line-height: var(--line-height-snug);
 }
 
 .search-bar input:focus {

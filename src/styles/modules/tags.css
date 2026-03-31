@@ -15,7 +15,7 @@
     font-size: var(--font-size-xs);
     letter-spacing: var(--tracking-wide);
     border-radius: var(--badge-radius);
-    line-height: 1.4;
+    line-height: var(--line-height-snug);
     white-space: nowrap;
 }
 

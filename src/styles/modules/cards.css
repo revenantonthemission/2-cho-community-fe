@@ -50,8 +50,8 @@
 }
 
 .post-card__avatar {
-    width: 28px;
-    height: 28px;
+    width: var(--size-avatar-sm);
+    height: var(--size-avatar-sm);
     border-radius: var(--radius-sm);
     background-color: var(--color-border);
     background-size: cover;
@@ -217,8 +217,8 @@
 }
 
 .author-profile-img {
-    width: 28px;
-    height: 28px;
+    width: var(--size-avatar-sm);
+    height: var(--size-avatar-sm);
     border-radius: var(--radius-sm);
     background-color: var(--color-border);
     object-fit: cover;

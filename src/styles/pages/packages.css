@@ -48,7 +48,7 @@
     letter-spacing: var(--tracking-wide);
     background: var(--color-badge-category-bg);
     color: var(--color-badge-category-text);
-    line-height: 1.4;
+    line-height: var(--line-height-snug);
     text-decoration: none;
     cursor: pointer;
     transition: background-color var(--transition-fast), color var(--transition-fast);
@@ -71,7 +71,7 @@
     background: transparent;
     color: var(--text-caption);
     border: 1px solid var(--border-subtle);
-    line-height: 1.4;
+    line-height: var(--line-height-snug);
 }
 
 /* 제목 — 세리프 디스플레이 */
@@ -724,7 +724,7 @@
 .pkg-detail__desc {
     font-size: var(--font-size-base);
     color: var(--color-text-secondary);
-    line-height: 1.7;
+    line-height: var(--line-height-relaxed);
     margin: 0 0 var(--spacing-lg);
 }
 

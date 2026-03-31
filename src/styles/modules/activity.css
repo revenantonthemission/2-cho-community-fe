@@ -303,7 +303,7 @@
 .activity-card__content {
     font-size: var(--font-size-base);
     color: var(--color-text-secondary);
-    line-height: 1.5;
+    line-height: var(--line-height-normal);
     margin-bottom: var(--spacing-sm);
     word-break: break-word;
 }

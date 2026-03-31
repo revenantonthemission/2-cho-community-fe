@@ -15,7 +15,7 @@ export default function DMPage() {
         {selectedConversationId !== null ? (
           <DMChatPanel onBack={deselectConversation} />
         ) : (
-          <div className="dm-empty-state">
+          <div className="empty-state dm-empty-state">
             <code>$ mail</code>
             <code>No mail for user</code>
             <p>대화를 선택하세요</p>

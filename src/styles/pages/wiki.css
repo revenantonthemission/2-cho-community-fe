@@ -48,7 +48,7 @@
     letter-spacing: var(--tracking-wide);
     background: var(--color-badge-category-bg);
     color: var(--color-badge-category-text);
-    line-height: 1.4;
+    line-height: var(--line-height-snug);
     text-decoration: none;
     cursor: pointer;
     transition: background-color var(--transition-fast), color var(--transition-fast);
@@ -312,7 +312,7 @@
     font-weight: var(--font-weight-bold);
     color: var(--color-text-primary);
     margin: 0 0 var(--spacing-sm);
-    line-height: 1.3;
+    line-height: var(--line-height-tight);
 }
 
 .wiki-card__meta {
@@ -467,7 +467,7 @@
 }
 
 .wiki-toc__item {
-    line-height: 1.4;
+    line-height: var(--line-height-snug);
 }
 
 .wiki-toc__link {
@@ -572,7 +572,7 @@
     align-items: stretch;
     white-space: pre-wrap;
     word-break: break-all;
-    line-height: 1.5;
+    line-height: var(--line-height-normal);
 }
 
 .wiki-diff__line--equal {

@@ -105,6 +105,15 @@ ol {
     box-shadow: var(--input-focus-ring);
 }
 
+/* 인터랙티브 요소 — 포커스 링 통일 */
+button:focus-visible,
+[role="button"]:focus-visible,
+a:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
 /* ============================= */
 /* 본문 건너뛰기 링크 (Skip Navigation) */
 /* ============================= */

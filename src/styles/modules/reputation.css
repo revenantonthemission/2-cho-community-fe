@@ -113,8 +113,8 @@
 }
 
 .badge-showcase .badge-mini {
-    width: 28px;
-    height: 28px;
+    width: var(--size-avatar-sm);
+    height: var(--size-avatar-sm);
     border-radius: 50%;
     display: flex;
     align-items: center;
