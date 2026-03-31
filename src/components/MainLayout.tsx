@@ -5,6 +5,7 @@ import Sidebar from './Sidebar';
 import BottomTab from './BottomTab';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
+import { API_ENDPOINTS } from '../constants/endpoints';
 import { showToast } from '../utils/toast';
 
 export default function MainLayout() {
@@ -27,7 +28,7 @@ export default function MainLayout() {
   const handleResend = useCallback(async () => {
     if (resendCooldown > 0) return;
     try {
-      await api.post('/v1/auth/resend-verification');
+      await api.post(API_ENDPOINTS.AUTH.RESEND_VERIFICATION);
       showToast('인증 메일이 재발송되었습니다.');
       setResendCooldown(60);
     } catch {

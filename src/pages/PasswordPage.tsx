@@ -5,6 +5,7 @@ import { API_ENDPOINTS } from '../constants/endpoints';
 import { ROUTES } from '../constants/routes';
 import { showToast } from '../utils/toast';
 import { useAuth } from '../hooks/useAuth';
+import { isValidPassword } from '../utils/validators';
 
 export default function PasswordPage() {
   const { logout } = useAuth();
@@ -23,8 +24,8 @@ export default function PasswordPage() {
       setError('새 비밀번호가 일치하지 않습니다.');
       return;
     }
-    if (newPassword.length < 8) {
-      setError('비밀번호는 8자 이상이어야 합니다.');
+    if (!isValidPassword(newPassword)) {
+      setError('비밀번호는 영문·숫자·특수문자(!@#$%^&*) 포함 8자 이상이어야 합니다.');
       return;
     }
 

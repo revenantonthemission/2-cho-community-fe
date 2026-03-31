@@ -9,6 +9,7 @@ import MainLayout from './components/MainLayout';
 import AuthGuard from './components/AuthGuard';
 import AdminGuard from './components/AdminGuard';
 import Toast from './components/Toast';
+import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
 
 // 핵심 페이지 — 즉시 로드 (초기 네비게이션에 필요)
@@ -57,6 +58,7 @@ export default function App() {
             <NotificationProvider>
               <DMProvider>
                 <Toast />
+                <ErrorBoundary>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Routes>
                     <Route path="/login" element={<LoginPage />} />
@@ -115,6 +117,7 @@ export default function App() {
                     <Route path="*" element={<NotFoundPage />} />
                   </Routes>
                 </Suspense>
+                </ErrorBoundary>
               </DMProvider>
             </NotificationProvider>
           </WebSocketProvider>

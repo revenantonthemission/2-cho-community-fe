@@ -443,12 +443,14 @@ export function DMProvider({ children }: { children: ReactNode }) {
     };
   }, [isAuthenticated, subscribe]);
 
-  // WS 재연결 시 현재 대화 re-fetch
+  // WS 재연결 시 현재 대화 re-fetch — false→true 전환만 감지
+  const prevConnectedRef = useRef(false);
   useEffect(() => {
-    if (isConnected && selectedConversationId) {
-      selectConversation(selectedConversationId);
+    if (isConnected && !prevConnectedRef.current && selectedIdRef.current) {
+      selectConversation(selectedIdRef.current);
     }
-  }, [isConnected, selectConversation, selectedConversationId]);
+    prevConnectedRef.current = isConnected;
+  }, [isConnected, selectConversation]);
 
   const loadMoreConversations = useCallback(
     () => fetchConversations(false),

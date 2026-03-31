@@ -8,17 +8,7 @@ import { useNotification } from '../hooks/useNotification';
 import { useDM } from '../hooks/useDM';
 import type { Category, CategoriesResponse } from '../types/post';
 import type { ApiResponse } from '../types/common';
-
-const PACKAGE_CATEGORIES = [
-  { key: 'editor', label: '에디터' },
-  { key: 'terminal', label: '터미널' },
-  { key: 'devtool', label: '개발 도구' },
-  { key: 'system', label: '시스템' },
-  { key: 'desktop', label: '데스크톱' },
-  { key: 'utility', label: '유틸리티' },
-  { key: 'multimedia', label: '멀티미디어' },
-  { key: 'security', label: '보안' },
-];
+import { PACKAGE_CATEGORIES } from '../types/package';
 
 export default function Sidebar() {
   const { user, isAuthenticated } = useAuth();
@@ -124,11 +114,11 @@ export default function Sidebar() {
       {/* packages — 패키지 페이지에서만 */}
       {isPackages && (
         <SidebarSection title="packages" titleLink={ROUTES.PACKAGES}>
-          {PACKAGE_CATEGORIES.map(({ key, label }) => (
-            <li key={key} className="sidebar__item">
+          {PACKAGE_CATEGORIES.map(({ value, label }) => (
+            <li key={value} className="sidebar__item">
               <Link
-                className={`sidebar__link sidebar__link--category${currentPkgCategory === key ? ' active' : ''}`}
-                to={`${ROUTES.PACKAGES}?category=${key}`}
+                className={`sidebar__link sidebar__link--category${currentPkgCategory === value ? ' active' : ''}`}
+                to={`${ROUTES.PACKAGES}?category=${value}`}
               >
                 {label}
               </Link>

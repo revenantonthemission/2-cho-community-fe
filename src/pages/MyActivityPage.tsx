@@ -96,11 +96,11 @@ export default function MyActivityPage() {
     return () => observer.disconnect();
   }, [handleObserver]);
 
-  function renderItem(item: unknown, index: number) {
+  function renderItem(item: unknown, _index: number) {
     if (tab === 'comments') {
       const c = item as MyComment;
       return (
-        <div key={c.comment_id} className="activity-card">
+        <div key={`comments-${c.comment_id}`} className="activity-card">
           <Link to={ROUTES.POST_DETAIL(c.post_id)} className="activity-card__link">
             <span className="activity-card__post-title">{c.post_title}</span>
           </Link>
@@ -112,7 +112,7 @@ export default function MyActivityPage() {
     if (tab === 'blocks') {
       const b = item as BlockedUser;
       return (
-        <div key={b.user_id} className="activity-card">
+        <div key={`blocks-${b.user_id}`} className="activity-card">
           <span className="activity-card__nickname">{b.nickname}</span>
           <span className="activity-card__date">{timeAgo(b.blocked_at)}</span>
         </div>
@@ -121,7 +121,7 @@ export default function MyActivityPage() {
     // posts, likes, bookmarks
     const p = item as MyPost;
     return (
-      <Link key={p.post_id} to={ROUTES.POST_DETAIL(p.post_id)} className="activity-post-card">
+      <Link key={`${tab}-${p.post_id}`} to={ROUTES.POST_DETAIL(p.post_id)} className="activity-post-card">
         <h4 className="activity-post-card__title">{p.title}</h4>
         <div className="activity-post-card__meta">
           <span><Heart size={14} /> {p.likes_count}</span>

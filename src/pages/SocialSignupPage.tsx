@@ -15,10 +15,13 @@ export default function SocialSignupPage() {
   useEffect(() => {
     const cookies = document.cookie.split(';');
     for (const cookie of cookies) {
-      const [key, value] = cookie.trim().split('=');
+      const trimmed = cookie.trim();
+      const eqIdx = trimmed.indexOf('=');
+      if (eqIdx === -1) continue;
+      const key = trimmed.slice(0, eqIdx);
+      const value = trimmed.slice(eqIdx + 1);
       if (key === 'access_token_temp' && value) {
         setAccessToken(value);
-        // 쿠키 삭제
         document.cookie = 'access_token_temp=; path=/; max-age=0';
         return;
       }

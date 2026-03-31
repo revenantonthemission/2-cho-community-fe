@@ -145,15 +145,3 @@ export function useMention(): UseMentionReturn {
     closeMention,
   };
 }
-
-// 마우스 클릭으로 항목 선택 시 텍스트 삽입 헬퍼
-export function insertMentionAtCursor(
-  value: string,
-  selectionStart: number,
-  mentionStart: number,
-  nickname: string,
-): string {
-  const before = value.slice(0, mentionStart);
-  const after = value.slice(selectionStart);
-  return before + `@${nickname} ` + after;
-}
