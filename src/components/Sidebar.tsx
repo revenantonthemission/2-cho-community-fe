@@ -27,7 +27,7 @@ export default function Sidebar() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [wikiTags, setWikiTags] = useState<string[]>([]);
+  const [wikiTags, setWikiTags] = useState<{ id: number; name: string }[]>([]);
 
   const path = location.pathname;
   const isFeed = path === '/';
@@ -51,7 +51,7 @@ export default function Sidebar() {
     if (!isWiki) return;
     (async () => {
       try {
-        const res = await api.get<ApiResponse<{ tags: string[] }>>(API_ENDPOINTS.WIKI.TAGS_POPULAR);
+        const res = await api.get<ApiResponse<{ tags: { id: number; name: string }[] }>>(API_ENDPOINTS.WIKI.TAGS_POPULAR);
         setWikiTags(res.data?.tags ?? []);
       } catch { /* ignore */ }
     })();
@@ -109,12 +109,12 @@ export default function Sidebar() {
       {isWiki && wikiTags.length > 0 && (
         <SidebarSection title="wiki" titleLink={ROUTES.WIKI}>
           {wikiTags.map((tag) => (
-            <li key={tag} className="sidebar__item">
+            <li key={tag.id} className="sidebar__item">
               <Link
-                className={`sidebar__link sidebar__link--category${currentTag === tag ? ' active' : ''}`}
-                to={`${ROUTES.WIKI}?tag=${encodeURIComponent(tag)}`}
+                className={`sidebar__link sidebar__link--category${currentTag === tag.name ? ' active' : ''}`}
+                to={`${ROUTES.WIKI}?tag=${encodeURIComponent(tag.name)}`}
               >
-                {tag}
+                {tag.name}
               </Link>
             </li>
           ))}
