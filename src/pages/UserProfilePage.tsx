@@ -246,7 +246,10 @@ export default function UserProfilePage() {
 
       <div>
         {posts.length === 0 ? (
-          <p>작성한 게시글이 없습니다.</p>
+          <div className="empty-state">
+            <code>$ ls ~/posts</code>
+            <p>작성한 게시글이 없습니다.</p>
+          </div>
         ) : (
           <ul className="post-list">
             {posts.map((post) => (
@@ -265,7 +268,10 @@ export default function UserProfilePage() {
         {followListLoading ? (
           <LoadingSpinner />
         ) : followList.length === 0 ? (
-          <p>{followModalType === 'followers' ? '팔로워가 없습니다.' : '팔로잉이 없습니다.'}</p>
+          <div className="empty-state">
+            <code>$ who {followModalType === 'followers' ? '--followers' : '--following'}</code>
+            <p>{followModalType === 'followers' ? '팔로워가 없습니다.' : '팔로잉이 없습니다.'}</p>
+          </div>
         ) : (
           <ul className="follow-modal-list">
             {followList.map((u) => (

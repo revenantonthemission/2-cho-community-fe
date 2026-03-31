@@ -948,9 +948,12 @@
     position: relative;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     color: var(--color-text-primary);
     text-decoration: none;
-    padding: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    min-width: 44px;
+    min-height: 44px;
 }
 
 .dm-badge__count {

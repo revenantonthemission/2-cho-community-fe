@@ -278,7 +278,10 @@ export default function PostListPage() {
           </ul>
 
           {posts.length === 0 && (
-            <p className="empty-message">게시글이 없습니다.</p>
+            <div className="empty-state">
+              <code>$ cat /var/log/posts</code>
+              <p>게시글이 없습니다.</p>
+            </div>
           )}
 
           <Pagination

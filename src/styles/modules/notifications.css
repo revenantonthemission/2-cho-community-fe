@@ -309,7 +309,12 @@
     opacity: 0.3;
     cursor: pointer;
     font-size: var(--font-size-lg);
-    padding: 0 var(--spacing-xs);
+    padding: var(--spacing-sm);
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
     transition: all var(--transition-fast);
 }
@@ -326,9 +331,12 @@
     color: var(--color-text-primary);
     cursor: pointer;
     position: relative;
-    padding: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    min-width: 44px;
+    min-height: 44px;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .notification-bell__badge {

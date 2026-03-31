@@ -37,11 +37,11 @@ export default function Header() {
     <header>
       <div className="header-title-wrapper">
         <Link to={ROUTES.HOME} className="header-home-link">
-          <h2>Camp Linux</h2>
+          <span className="header-brand">Camp Linux</span>
         </Link>
         <div className="header-auth">
           <button
-            className="theme-toggle"
+            className="theme-toggle-btn"
             onClick={toggleTheme}
             aria-label="테마 전환"
           >

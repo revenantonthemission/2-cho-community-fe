@@ -89,7 +89,7 @@ export default function ProfilePage() {
 
   return (
     <div className="profile-edit-section">
-      <h2 className="page-title">프로필 편집</h2>
+      <h1 className="page-title">프로필 편집</h1>
       <form onSubmit={handleSubmit}>
         <div className="profile-section">
           <label className="input-label">프로필 사진</label>

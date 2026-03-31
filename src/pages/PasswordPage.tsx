@@ -54,7 +54,7 @@ export default function PasswordPage() {
 
   return (
     <div className="password-container">
-      <h2 className="page-title">비밀번호 변경</h2>
+      <h1 className="page-title">비밀번호 변경</h1>
       <form onSubmit={handleSubmit}>
         <div className="input-group">
           <label htmlFor="current-pw">현재 비밀번호</label>

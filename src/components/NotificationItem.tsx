@@ -7,13 +7,13 @@ const TYPE_CONFIG: Record<
   { label: string; color: string }
 > = {
   comment: { label: '댓글', color: 'var(--color-primary)' },
-  like: { label: '좋아요', color: '#DC2626' },
-  mention: { label: '멘션', color: '#D97706' },
-  follow: { label: '팔로우', color: '#059669' },
-  bookmark: { label: '북마크', color: '#2563EB' },
-  reply: { label: '답글', color: '#7C3AED' },
-  badge_earned: { label: '뱃지', color: '#CA8A04' },
-  level_up: { label: '레벨업', color: '#CA8A04' },
+  like: { label: '좋아요', color: 'var(--color-error)' },
+  mention: { label: '멘션', color: 'var(--color-warning)' },
+  follow: { label: '팔로우', color: 'var(--color-success)' },
+  bookmark: { label: '북마크', color: 'var(--color-info)' },
+  reply: { label: '답글', color: 'var(--color-primary-accent)' },
+  badge_earned: { label: '뱃지', color: 'var(--color-warning)' },
+  level_up: { label: '레벨업', color: 'var(--color-warning)' },
 };
 
 const MESSAGE_MAP: Record<NotificationType, string> = {

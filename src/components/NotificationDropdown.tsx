@@ -42,7 +42,7 @@ export default function NotificationDropdown({ onClose }: Props) {
 
       <div className="notification-dropdown__list">
         {recentNotifications.length === 0 ? (
-          <div className="notification-dropdown__empty">알림이 없습니다</div>
+          <div className="notification-dropdown__empty"><code>$ notify --list</code><br />알림이 없습니다</div>
         ) : (
           recentNotifications.map((n) => (
             <NotificationItem

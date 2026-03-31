@@ -39,7 +39,7 @@ export default function DMSidebar() {
         onScroll={handleScroll}
       >
         {filteredConversations.length === 0 && !isLoadingConversations ? (
-          <div className="dm-sidebar__empty">대화가 없습니다</div>
+          <div className="dm-sidebar__empty"><code>$ mail</code><br />대화가 없습니다</div>
         ) : (
           filteredConversations.map((c) => (
             <DMConversationCard

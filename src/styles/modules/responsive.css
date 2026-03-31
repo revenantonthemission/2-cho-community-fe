@@ -26,7 +26,7 @@ html {
         padding: 0 var(--spacing-lg);
     }
 
-    .header-home-link h2 {
+    .header-home-link .header-brand {
         font-size: var(--font-size-lg);
     }
 
@@ -417,7 +417,7 @@ html {
 /* 태블릿 (481px ~ 768px)        */
 /* ============================= */
 @media (min-width: 481px) and (max-width: 768px) {
-    .header-home-link h2 {
+    .header-home-link .header-brand {
         font-size: var(--font-size-xl);
     }
 
@@ -597,7 +597,7 @@ html {
         --sidebar-width: 160px;
     }
 
-    .header-home-link h2 {
+    .header-home-link .header-brand {
         font-size: var(--font-size-lg);
     }
 

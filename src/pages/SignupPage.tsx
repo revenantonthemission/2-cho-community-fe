@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Camera } from 'lucide-react';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { ROUTES } from '../constants/routes';
@@ -73,7 +74,7 @@ export default function SignupPage() {
         </Link>
       </header>
       <div className="signup-container">
-        <h2 className="page-title">회원가입</h2>
+        <h1 className="page-title">회원가입</h1>
         <form onSubmit={handleSubmit}>
           {/* 프로필 이미지 */}
           <div className="input-group" style={{ textAlign: 'center' }}>
@@ -86,7 +87,7 @@ export default function SignupPage() {
                   : { cursor: 'pointer' }
               }
             >
-              {!profilePreview && '📷'}
+              {!profilePreview && <Camera size={24} />}
               <input
                 type="file"
                 accept="image/*"

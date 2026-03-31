@@ -113,7 +113,10 @@ export default function AdminReportsPage() {
       </div>
 
       {reports.length === 0 && !isLoading ? (
-        <p className="admin-reports__empty">신고가 없습니다.</p>
+        <div className="empty-state">
+          <code>$ cat /var/log/reports</code>
+          <p>신고가 없습니다.</p>
+        </div>
       ) : (
         reports.map((r) => (
           <ReportCard key={r.report_id} report={r}

@@ -42,7 +42,7 @@ export default function PostEditPage() {
 
   return (
     <div className="write-container">
-      <h2 className="page-title">게시글 수정</h2>
+      <h1 className="page-title">게시글 수정</h1>
       <PostForm
         initialData={{
           title: post.title,
