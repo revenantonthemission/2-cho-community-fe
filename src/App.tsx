@@ -53,8 +53,8 @@ export default function App() {
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          <NotificationProvider>
-            <WebSocketProvider>
+          <WebSocketProvider>
+            <NotificationProvider>
               <DMProvider>
                 <Toast />
                 <Suspense fallback={<LoadingSpinner />}>
@@ -116,8 +116,8 @@ export default function App() {
                   </Routes>
                 </Suspense>
               </DMProvider>
-            </WebSocketProvider>
-          </NotificationProvider>
+            </NotificationProvider>
+          </WebSocketProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
