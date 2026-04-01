@@ -2,6 +2,35 @@
 /* 레이아웃 — Terminal Editorial 헤더 + 메인 컨테이너 */
 
 /* ============================= */
+/* Skip Link — 키보드 접근성        */
+/* ============================= */
+.skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.skip-link:focus {
+  position: fixed;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  top: 10px;
+  left: 10px;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 2px solid var(--accent-primary);
+  border-radius: 4px;
+}
+
+/* ============================= */
 /* Header — 미니멀 터미널 바        */
 /* ============================= */
 header {

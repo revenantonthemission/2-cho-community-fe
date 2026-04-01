@@ -40,6 +40,7 @@ export default function MainLayout() {
 
   return (
     <>
+      <a href="#main-content" className="skip-link">본문 바로가기</a>
       <Header />
       {showVerifyBanner && (
         <div className="email-verify-banner">
@@ -53,7 +54,7 @@ export default function MainLayout() {
           </button>
         </div>
       )}
-      <main className="main-container">
+      <main id="main-content" className="main-container">
         <Sidebar />
         <div className="content">
           <Outlet />
