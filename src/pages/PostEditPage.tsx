@@ -22,6 +22,7 @@ export default function PostEditPage() {
         const res = await api.get<ApiResponse<Post>>(`${API_ENDPOINTS.POSTS.ROOT}/${id}`);
         setPost(res.data);
       } catch {
+        showToast('게시글을 불러오지 못했습니다.', 'error');
         navigate(ROUTES.HOME);
       } finally {
         setIsLoading(false);

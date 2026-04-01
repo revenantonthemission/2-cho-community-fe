@@ -55,7 +55,7 @@ export default function PostDetailPage() {
     // 연관 게시글 로드
     api.get<ApiResponse<{ posts: Post[] }>>(API_ENDPOINTS.POSTS.RELATED(Number(id)))
       .then((res) => setRelatedPosts(res.data?.posts ?? []))
-      .catch(() => {});
+      .catch(() => {}); /* 연관 게시글 로드 실패 무시 — 보조 UI */
   }, [id]);
 
   const loadComments = useCallback(async (sort?: 'oldest' | 'latest' | 'popular') => {

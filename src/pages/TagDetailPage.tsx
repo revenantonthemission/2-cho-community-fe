@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { ROUTES } from '../constants/routes';
+import { showToast } from '../utils/toast';
 import PostCard from '../components/PostCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import type { Post } from '../types/post';
@@ -34,7 +35,7 @@ export default function TagDetailPage() {
       try {
         const res = await api.get<ApiResponse<TagInfo>>(API_ENDPOINTS.TAGS.DETAIL(name));
         setTag(res.data);
-      } catch { /* ignore */ }
+      } catch { /* 태그 정보 로드 실패 무시 — 헤더 보조 데이터 */ }
     })();
   }, [name]);
 
@@ -61,8 +62,9 @@ export default function TagDetailPage() {
         offsetRef.current += fetched.length;
         setHasMore(fetched.length >= 10);
       }
-    } catch { /* ignore */ }
-    finally { setIsLoading(false); }
+    } catch {
+      showToast('목록을 불러오는 중 오류가 발생했습니다.', 'error');
+    } finally { setIsLoading(false); }
   }, [name, tab]);
 
   useEffect(() => { fetchList(true); }, [fetchList]);

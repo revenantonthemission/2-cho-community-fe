@@ -32,7 +32,7 @@ export default function Sidebar() {
       try {
         const res = await api.get<ApiResponse<CategoriesResponse>>(API_ENDPOINTS.CATEGORIES.ROOT);
         setCategories(res.data?.categories ?? []);
-      } catch { /* ignore */ }
+      } catch { /* 사이드바 카테고리 로드 실패 무시 — 보조 UI */ }
     })();
   }, [isFeed]);
 
@@ -43,7 +43,7 @@ export default function Sidebar() {
       try {
         const res = await api.get<ApiResponse<{ tags: { id: number; name: string }[] }>>(API_ENDPOINTS.WIKI.TAGS_POPULAR);
         setWikiTags(res.data?.tags ?? []);
-      } catch { /* ignore */ }
+      } catch { /* 사이드바 인기 태그 로드 실패 무시 — 보조 UI */ }
     })();
   }, [isWiki]);
 

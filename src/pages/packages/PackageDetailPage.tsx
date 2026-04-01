@@ -64,7 +64,9 @@ export default function PackageDetailPage() {
         `${API_ENDPOINTS.PACKAGES.REVIEWS(pkgId)}?offset=0&limit=50&sort=${reviewSort}`,
       );
       setReviews(res.data.reviews);
-    } catch { /* 무시 */ }
+    } catch {
+      showToast('리뷰를 불러오지 못했습니다.', 'error');
+    }
   }, [id, pkgId, reviewSort]);
 
   useEffect(() => { loadReviews(); }, [loadReviews]);

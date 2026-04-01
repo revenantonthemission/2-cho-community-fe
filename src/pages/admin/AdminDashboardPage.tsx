@@ -52,7 +52,9 @@ export default function AdminDashboardPage() {
       if (reset) setUsers(fetched); else setUsers((prev) => [...prev, ...fetched]);
       userOffsetRef.current += fetched.length;
       setHasMoreUsers(pagination.has_more);
-    } catch { /* ignore */ }
+    } catch {
+      showToast('사용자 목록을 불러오지 못했습니다.', 'error');
+    }
   }, [search]);
 
   useEffect(() => { fetchUsers(true); }, [fetchUsers]);

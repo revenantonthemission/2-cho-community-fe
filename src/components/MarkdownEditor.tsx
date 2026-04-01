@@ -3,6 +3,7 @@ import MarkdownRenderer from './MarkdownRenderer';
 import MentionDropdown from './MentionDropdown';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
+import { showToast } from '../utils/toast';
 import { useMention } from '../hooks/useMention';
 
 interface MarkdownEditorProps {
@@ -72,7 +73,7 @@ export default function MarkdownEditor({ value, onChange, placeholder }: Markdow
         onChange(value + imageMarkdown);
       }
     } catch {
-      // 이미지 업로드 실패 — 무시
+      showToast('이미지 업로드에 실패했습니다.', 'error');
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
   }

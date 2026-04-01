@@ -70,7 +70,7 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
       try {
         const res = await api.get<ApiResponse<CategoriesResponse>>(API_ENDPOINTS.CATEGORIES.ROOT);
         setCategories(res.data?.categories ?? []);
-      } catch { /* ignore */ }
+      } catch { /* 카테고리 로드 실패 무시 — 폼 보조 데이터 */ }
     })();
   }, []);
 
@@ -82,13 +82,13 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
       try {
         const res = await api.get<ApiResponse<{ draft: DraftData | null }>>(API_ENDPOINTS.DRAFTS.ROOT);
         if (res.data?.draft) draft = res.data.draft;
-      } catch { /* 서버 실패 시 localStorage 폴백 */ }
+      } catch { /* 서버 임시저장 로드 실패 — localStorage 폴백 */ }
 
       if (!draft) {
         try {
           const local = localStorage.getItem(DRAFT_KEY);
           if (local) draft = JSON.parse(local) as DraftData;
-        } catch { /* ignore */ }
+        } catch { /* localStorage 파싱 실패 무시 — 브라우저 제한 또는 손상된 데이터 */ }
       }
 
       if (draft && (draft.title || draft.content)) {
@@ -117,7 +117,7 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
       title: t, content: c, category_id: cat, tags: tg,
       updated_at: new Date().toISOString(),
     };
-    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch { /* ignore */ }
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch { /* localStorage 저장 실패 무시 — 용량 초과 또는 브라우저 제한 */ }
     try {
       await api.put(API_ENDPOINTS.DRAFTS.ROOT, {
         title: t || null, content: c || null, category_id: cat || null,
@@ -135,8 +135,8 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
   // 임시저장 삭제
   const clearDraft = useCallback(async () => {
     if (!enableDraft) return;
-    try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
-    try { await api.delete(API_ENDPOINTS.DRAFTS.ROOT); } catch { /* ignore */ }
+    try { localStorage.removeItem(DRAFT_KEY); } catch { /* localStorage 삭제 실패 무시 — 브라우저 제한 */ }
+    try { await api.delete(API_ENDPOINTS.DRAFTS.ROOT); } catch { /* 서버 임시저장 삭제 실패 무시 — 비핵심 정리 작업 */ }
   }, [enableDraft]);
 
   function fetchTagSuggestions(query: string) {
@@ -150,7 +150,7 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
         const names = (res.data?.tags ?? []).map((t) => t.name).filter((n) => !tags.includes(n));
         setTagSuggestions(names.slice(0, 5));
         setShowTagSuggestions(names.length > 0);
-      } catch { setTagSuggestions([]); }
+      } catch { setTagSuggestions([]); /* 태그 자동완성 실패 무시 — 보조 기능 */ }
     }, 200);
   }
 
@@ -203,7 +203,7 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
       await onSubmit(payload);
       await clearDraft();
     } catch {
-      // 에러 처리는 호출자에서 수행
+      showToast('게시글 저장에 실패했습니다.', 'error');
     } finally {
       setIsSubmitting(false);
     }

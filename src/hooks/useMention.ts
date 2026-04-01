@@ -63,6 +63,7 @@ export function useMention(): UseMentionReturn {
         setShowMention(true);
       }
     } catch {
+      /* 멘션 검색 실패 무시 — 드롭다운 닫기 */
       closeMention();
     }
   }, [closeMention]);
