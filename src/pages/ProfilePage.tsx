@@ -121,6 +121,7 @@ export default function ProfilePage() {
             type="text"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
+            aria-required="true"
           />
         </div>
 
@@ -184,6 +185,7 @@ export default function ProfilePage() {
               onChange={(e) => setDeletePassword(e.target.value)}
               placeholder="현재 비밀번호를 입력하세요"
               autoComplete="current-password"
+              aria-required="true"
             />
           </div>
           <div className="modal-actions">

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Sun, Moon } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -14,7 +14,9 @@ export default function Header() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [activeMenuIndex, setActiveMenuIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     if (!dropdownOpen) return;
@@ -26,6 +28,56 @@ export default function Header() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [dropdownOpen]);
+
+  // 드롭다운 열릴 때 첫 항목에 포커스
+  useEffect(() => {
+    if (dropdownOpen) {
+      setActiveMenuIndex(0);
+    } else {
+      setActiveMenuIndex(-1);
+    }
+  }, [dropdownOpen]);
+
+  // activeMenuIndex 변경 시 해당 요소에 포커스
+  useEffect(() => {
+    if (activeMenuIndex >= 0 && menuRef.current) {
+      const items = menuRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]');
+      // menuitem 내부의 링크 또는 버튼에 포커스
+      const target = items[activeMenuIndex]?.querySelector<HTMLElement>('a, button') ?? items[activeMenuIndex];
+      target?.focus();
+    }
+  }, [activeMenuIndex]);
+
+  const MENU_ITEM_COUNT = 2; // 회원정보수정, 로그아웃
+
+  const handleMenuKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          setActiveMenuIndex((prev) => (prev + 1) % MENU_ITEM_COUNT);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          setActiveMenuIndex((prev) => (prev - 1 + MENU_ITEM_COUNT) % MENU_ITEM_COUNT);
+          break;
+        case 'Enter': {
+          e.preventDefault();
+          if (activeMenuIndex >= 0 && menuRef.current) {
+            const items = menuRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]');
+            const target = items[activeMenuIndex]?.querySelector<HTMLElement>('a, button');
+            target?.click();
+          }
+          break;
+        }
+        case 'Escape':
+          e.preventDefault();
+          setDropdownOpen(false);
+          break;
+      }
+    },
+    [activeMenuIndex],
+  );
 
   async function handleLogout() {
     await logout();
@@ -68,13 +120,13 @@ export default function Header() {
               </button>
               {dropdownOpen && (
                 <div className="header-dropdown">
-                  <ul role="menu">
-                    <li role="menuitem">
+                  <ul role="menu" ref={menuRef} onKeyDown={handleMenuKeyDown}>
+                    <li role="menuitem" tabIndex={activeMenuIndex === 0 ? 0 : -1}>
                       <Link to={ROUTES.PROFILE} onClick={() => setDropdownOpen(false)}>
                         회원정보수정
                       </Link>
                     </li>
-                    <li role="menuitem">
+                    <li role="menuitem" tabIndex={activeMenuIndex === 1 ? 0 : -1}>
                       <button onClick={handleLogout}>로그아웃</button>
                     </li>
                   </ul>

@@ -37,7 +37,7 @@ export default function DMChatPanel({ onBack }: Props) {
       <div className="dm-chat-panel__header">
         <div className="dm-chat-panel__header-left">
           {onBack && (
-            <button className="dm-chat-panel__back" onClick={onBack}>
+            <button className="dm-chat-panel__back" onClick={onBack} aria-label="뒤로 가기">
               ←
             </button>
           )}

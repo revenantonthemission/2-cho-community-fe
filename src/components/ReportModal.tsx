@@ -71,6 +71,7 @@ export default function ReportModal({ isOpen, onClose, targetType, targetId }: P
                 value={r.value}
                 checked={reason === r.value}
                 onChange={() => setReason(r.value)}
+                aria-required="true"
               />
               {r.label}
             </label>
