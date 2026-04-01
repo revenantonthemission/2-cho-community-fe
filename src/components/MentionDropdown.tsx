@@ -14,10 +14,13 @@ export default function MentionDropdown({ users, selectedIndex, onSelect }: Prop
   if (users.length === 0) return null;
 
   return (
-    <ul className="mention-dropdown">
+    <ul className="mention-dropdown" id="mention-listbox" role="listbox" aria-label="멘션 사용자 목록">
       {users.map((user, i) => (
         <li
           key={user.user_id}
+          id={`mention-option-${user.user_id}`}
+          role="option"
+          aria-selected={i === selectedIndex}
           className={`mention-dropdown-item${i === selectedIndex ? ' selected' : ''}`}
           onMouseDown={(e) => { e.preventDefault(); onSelect(user); }}
         >

@@ -109,6 +109,15 @@ export default function MarkdownEditor({ value, onChange, placeholder }: Markdow
             onBlur={handleBlur}
             placeholder={placeholder ?? '내용을 입력해주세요. (@로 멘션)'}
             rows={15}
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={showMention}
+            aria-controls={showMention ? 'mention-listbox' : undefined}
+            aria-activedescendant={
+              showMention && selectedIndex >= 0 && mentionUsers[selectedIndex]
+                ? `mention-option-${mentionUsers[selectedIndex].user_id}`
+                : undefined
+            }
           />
           {showMention && (
             <MentionDropdown
