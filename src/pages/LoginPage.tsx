@@ -109,6 +109,9 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="이메일을 입력하세요"
                 autoComplete="email"
+                aria-required="true"
+                aria-invalid={!!error}
+                aria-describedby={error ? 'login-error' : undefined}
               />
             </div>
             <div className="input-group">
@@ -121,9 +124,12 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="비밀번호를 입력하세요"
                 autoComplete="current-password"
+                aria-required="true"
+                aria-invalid={!!error}
+                aria-describedby={error ? 'login-error' : undefined}
               />
             </div>
-            {error && <p className="error-msg">{error}</p>}
+            {error && <p className="error-msg" id="login-error">{error}</p>}
             <button type="submit" className="btn btn-primary btn-full" disabled={isDisabled}>
               {isSubmitting ? '로그인 중...' : '로그인'}
             </button>

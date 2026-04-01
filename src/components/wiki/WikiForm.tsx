@@ -61,15 +61,16 @@ export default function WikiForm({ initialData, showSlug = false, onSubmit, subm
       <div className="input-group">
         <label htmlFor="wiki-title">제목</label>
         <input id="wiki-title" className="input-field" type="text" value={title} onChange={(e) => setTitle(e.target.value)}
-          placeholder="위키 페이지 제목" minLength={2} maxLength={200} required />
+          placeholder="위키 페이지 제목" minLength={2} maxLength={200} required aria-required="true" />
       </div>
       {showSlug && (
         <div className="input-group">
           <label htmlFor="wiki-slug">슬러그 (URL)</label>
           <input id="wiki-slug" className="input-field" type="text" value={slug}
             onChange={(e) => { setSlug(e.target.value.toLowerCase()); setSlugError(''); }}
-            placeholder="my-wiki-page" pattern="[a-z0-9]+(-[a-z0-9]+)*" required />
-          {slugError && <p className="error-msg">{slugError}</p>}
+            placeholder="my-wiki-page" pattern="[a-z0-9]+(-[a-z0-9]+)*" required aria-required="true"
+            aria-invalid={!!slugError} aria-describedby={slugError ? 'wiki-slug-error' : undefined} />
+          {slugError && <p className="error-msg" id="wiki-slug-error">{slugError}</p>}
           <p className="input-hint">소문자, 숫자, 하이픈만 사용 가능</p>
         </div>
       )}
@@ -87,7 +88,7 @@ export default function WikiForm({ initialData, showSlug = false, onSubmit, subm
         <label htmlFor="wiki-summary">편집 요약</label>
         <input id="wiki-summary" className="input-field" type="text" value={editSummary}
           onChange={(e) => setEditSummary(e.target.value)}
-          placeholder="변경 사항을 간략히 설명하세요" maxLength={500} required />
+          placeholder="변경 사항을 간략히 설명하세요" maxLength={500} required aria-required="true" />
       </div>
       <button type="submit" className="btn btn-primary"
         disabled={isSubmitting || title.trim().length < 2 || content.trim().length < 10}>

@@ -249,7 +249,7 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
             {tags.map((tag) => (
               <span key={tag} className="tag-badge">
                 #{tag}
-                <button type="button" onClick={() => removeTag(tag)}>×</button>
+                <button type="button" onClick={() => removeTag(tag)} aria-label="태그 삭제">×</button>
               </span>
             ))}
           </div>
@@ -325,6 +325,7 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
                           type="button"
                           className="poll-option-remove-btn"
                           onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))}
+                          aria-label="선택지 삭제"
                         >
                           ×
                         </button>

@@ -2,9 +2,21 @@ import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import reactHooks from "eslint-plugin-react-hooks";
+import jsxA11y from "eslint-plugin-jsx-a11y";
 
 export default tseslint.config(
     js.configs.recommended,
+
+    // jsx-a11y 접근성 린트 (warning 레벨로 도입)
+    {
+        ...jsxA11y.flatConfigs.recommended,
+        files: ["src/**/*.{ts,tsx}"],
+        rules: Object.fromEntries(
+            Object.keys(jsxA11y.flatConfigs.recommended.rules)
+                .filter((k) => k.startsWith("jsx-a11y/"))
+                .map((k) => [k, "warn"]),
+        ),
+    },
 
     // React + TypeScript (src/ 디렉토리)
     {

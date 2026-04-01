@@ -1,31 +1,21 @@
 import {
   createContext,
-  useState,
   useEffect,
   useCallback,
-  useRef,
   useMemo,
   type ReactNode,
 } from 'react';
-import { api } from '../services/api';
-import { API_ENDPOINTS } from '../constants/endpoints';
 import { useAuth } from '../hooks/useAuth';
 import { useWebSocket } from '../hooks/useWebSocket';
-import { showToast } from '../utils/toast';
-import { UI_MESSAGES } from '../constants/messages';
-import type {
-  Conversation,
-  DMMessage,
-  DMUser,
-  ConversationListResponse,
-  MessageListResponse,
-  SentMessageResponse,
-  CreateConversationResponse,
-} from '../types/dm';
-import type { ApiResponse } from '../types/common';
+import { api } from '../services/api';
+import { API_ENDPOINTS } from '../constants/endpoints';
+import { useConversationList } from '../hooks/dm/useConversationList';
+import { useMessageList } from '../hooks/dm/useMessageList';
+import { useMessageActions } from '../hooks/dm/useMessageActions';
+import { useDMWebSocket } from '../hooks/dm/useDMWebSocket';
+import { useTypingIndicator } from '../hooks/dm/useTypingIndicator';
+import type { Conversation, DMMessage } from '../types/dm';
 
-const CONV_LIMIT = 20;
-const MSG_LIMIT = 50;
 const TYPING_DEBOUNCE = 3000;
 
 export interface DMContextType {
@@ -37,7 +27,7 @@ export interface DMContextType {
   messages: DMMessage[];
   hasMoreMessages: boolean;
   isLoadingMessages: boolean;
-  otherUser: DMUser | null;
+  otherUser: import('../types/dm').DMUser | null;
   unreadCount: number;
   typingUser: string | null;
   selectConversation: (id: number) => Promise<void>;
@@ -56,455 +46,182 @@ export const DMContext = createContext<DMContextType | null>(null);
 
 export function DMProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, user } = useAuth();
-  const { subscribe, send, isConnected } = useWebSocket();
+  const { send } = useWebSocket();
 
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [hasMoreConversations, setHasMoreConversations] = useState(false);
-  const [isLoadingConversations, setIsLoadingConversations] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  // ── 훅 조합 ──
+  const convList = useConversationList();
+  const msgList = useMessageList();
+  const msgActions = useMessageActions({
+    selectedConversationId: msgList.selectedConversationId,
+    userId: user?.id ?? null,
+    userNickname: user?.nickname ?? null,
+    userProfileImage: user?.profile_image ?? null,
+    onMessagesUpdate: msgList.setMessages,
+    onConversationsUpdate: convList.update,
+  });
+  const typing = useTypingIndicator({
+    selectedConversationId: msgList.selectedConversationId,
+    otherUserId: msgList.otherUser?.user_id ?? null,
+    wsSend: send,
+  });
 
-  const [selectedConversationId, setSelectedConversationId] = useState<number | null>(null);
-  const [messages, setMessages] = useState<DMMessage[]>([]);
-  const [hasMoreMessages, setHasMoreMessages] = useState(false);
-  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
-  const [otherUser, setOtherUser] = useState<DMUser | null>(null);
-
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [typingUser, setTypingUser] = useState<string | null>(null);
-
-  const convOffsetRef = useRef(0);
-  const msgOffsetRef = useRef(0);
-  const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const typingCooldownRef = useRef(false);
-  const typingCooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const selectedIdRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    selectedIdRef.current = selectedConversationId;
-  }, [selectedConversationId]);
-
-  // ── 초기 로딩 ──
-
-  const fetchConversations = useCallback(async (reset = false) => {
-    setIsLoadingConversations(true);
-    try {
-      if (reset) convOffsetRef.current = 0;
-      const res = await api.get<ApiResponse<ConversationListResponse>>(
-        `${API_ENDPOINTS.DM.ROOT}?offset=${convOffsetRef.current}&limit=${CONV_LIMIT}`,
-      );
-      const { conversations: fetched, pagination } = res.data;
-      if (reset) {
-        setConversations(fetched);
-      } else {
-        setConversations((prev) => [...prev, ...fetched]);
-      }
-      convOffsetRef.current += fetched.length;
-      setHasMoreConversations(pagination.has_more);
-    } catch {
-      showToast(UI_MESSAGES.DM_LOAD_FAIL, 'error');
-    } finally {
-      setIsLoadingConversations(false);
-    }
-  }, []);
-
-  const fetchUnreadCount = useCallback(async () => {
-    try {
-      const res = await api.get<ApiResponse<{ unread_count: number }>>(
-        API_ENDPOINTS.DM.UNREAD_COUNT,
-      );
-      setUnreadCount(res.data.unread_count);
-    } catch {
-      // 무시
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setConversations([]);
-      setMessages([]);
-      setSelectedConversationId(null);
-      setOtherUser(null);
-      setUnreadCount(0);
-      setSearchQuery('');
-      return;
-    }
-    fetchConversations(true);
-    fetchUnreadCount();
-  }, [isAuthenticated, fetchConversations, fetchUnreadCount]);
-
-  // ── 대화 선택 ──
-
+  // ── 대화 선택 래핑 (unreadCount 감소 연결) ──
   const selectConversation = useCallback(async (id: number) => {
-    setSelectedConversationId(id);
-    setMessages([]);
-    setIsLoadingMessages(true);
-    msgOffsetRef.current = 0;
-    setTypingUser(null);
-
-    try {
-      const res = await api.get<ApiResponse<MessageListResponse>>(
-        `${API_ENDPOINTS.DM.MESSAGES(id)}?offset=0&limit=${MSG_LIMIT}`,
-      );
-      setMessages(res.data.messages);
-      setOtherUser(res.data.other_user);
-      setHasMoreMessages(res.data.pagination.has_more);
-      msgOffsetRef.current = res.data.messages.length;
-
-      setConversations((prev) =>
-        prev.map((c) => {
-          if (c.id === id && c.unread_count > 0) {
-            setUnreadCount((u) => Math.max(0, u - 1));
-            return { ...c, unread_count: 0 };
-          }
-          return c;
-        }),
-      );
-    } catch {
-      showToast(UI_MESSAGES.DM_MESSAGES_FAIL, 'error');
-    } finally {
-      setIsLoadingMessages(false);
-    }
-  }, []);
+    await msgList.select(id);
+    typing.clearTyping();
+    convList.update((prev) =>
+      prev.map((c) => {
+        if (c.id === id && c.unread_count > 0) {
+          convList.setUnreadCount((u) => Math.max(0, u - 1));
+          return { ...c, unread_count: 0 };
+        }
+        return c;
+      }),
+    );
+  }, [msgList, typing, convList]);
 
   const deselectConversation = useCallback(() => {
-    setSelectedConversationId(null);
-    setMessages([]);
-    setOtherUser(null);
-    setTypingUser(null);
-  }, []);
+    msgList.deselect();
+    typing.clearTyping();
+  }, [msgList, typing]);
 
-  // ── 이전 메시지 로딩 ──
-
-  const loadOlderMessages = useCallback(async () => {
-    if (!selectedConversationId || isLoadingMessages) return;
-    setIsLoadingMessages(true);
-    try {
-      const res = await api.get<ApiResponse<MessageListResponse>>(
-        `${API_ENDPOINTS.DM.MESSAGES(selectedConversationId)}?offset=${msgOffsetRef.current}&limit=${MSG_LIMIT}`,
-      );
-      const older = res.data.messages;
-      setMessages((prev) => [...older, ...prev]);
-      msgOffsetRef.current += older.length;
-      setHasMoreMessages(res.data.pagination.has_more);
-    } catch {
-      showToast(UI_MESSAGES.DM_MESSAGES_FAIL, 'error');
-    } finally {
-      setIsLoadingMessages(false);
+  // ── 대화 삭제 래핑 (deselect 연결) ──
+  const deleteConversation = useCallback(async (id: number) => {
+    await convList.remove(id);
+    if (msgList.selectedConversationId === id) {
+      deselectConversation();
     }
-  }, [selectedConversationId, isLoadingMessages]);
+  }, [convList, msgList.selectedConversationId, deselectConversation]);
 
-  // ── 메시지 전송 ──
-
-  const sendMessage = useCallback(async (content: string) => {
-    if (!selectedConversationId || !user) return;
-    const trimmed = content.trim();
-    if (!trimmed) return;
-
-    const tempId = Date.now();
-    const optimistic: DMMessage = {
-      id: tempId,
-      sender_id: user.id,
-      sender_nickname: user.nickname,
-      sender_profile_image: user.profile_image || '',
-      content: trimmed,
-      is_read: false,
-      created_at: new Date().toISOString(),
-      is_deleted: false,
-    };
-    setMessages((prev) => [...prev, optimistic]);
-
-    try {
-      const res = await api.post<ApiResponse<SentMessageResponse>>(
-        API_ENDPOINTS.DM.SEND(selectedConversationId),
-        { content: trimmed },
-      );
-      const sent = res.data.message;
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === tempId
-            ? { ...optimistic, id: sent.id, created_at: sent.created_at }
-            : m,
-        ),
-      );
-      setConversations((prev) =>
-        prev.map((c) =>
-          c.id === selectedConversationId
+  // ── WS 콜백 연결 ──
+  const handleNewMessage = useCallback((data: {
+    conversation_id: number;
+    sender_id: number;
+    sender_nickname: string;
+    content: string;
+    created_at: string;
+  }) => {
+    if (msgList.selectedIdRef.current === data.conversation_id) {
+      msgList.setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          sender_id: data.sender_id,
+          sender_nickname: data.sender_nickname,
+          sender_profile_image: '',
+          content: data.content,
+          is_read: true,
+          created_at: data.created_at,
+          is_deleted: false,
+        },
+      ]);
+      api.patch(API_ENDPOINTS.DM.READ(data.conversation_id)).catch(() => {});
+      typing.clearTyping();
+    } else {
+      convList.setUnreadCount((prev) => prev + 1);
+      convList.update((prev) => {
+        const updated = prev.map((c) =>
+          c.id === data.conversation_id
             ? {
                 ...c,
-                last_message: { content: trimmed, is_mine: true, is_deleted: false },
-                last_message_at: sent.created_at,
+                unread_count: c.unread_count + 1,
+                last_message: { content: data.content, is_mine: false, is_deleted: false },
+                last_message_at: data.created_at,
               }
             : c,
-        ),
-      );
-    } catch (err: unknown) {
-      setMessages((prev) => prev.filter((m) => m.id !== tempId));
-      const apiErr = err as { status?: number };
-      if (apiErr.status === 403) {
-        showToast(UI_MESSAGES.DM_BLOCKED, 'error');
-      } else {
-        showToast(UI_MESSAGES.DM_SEND_FAIL, 'error');
-      }
-    }
-  }, [selectedConversationId, user]);
-
-  // ── 삭제 ──
-
-  const deleteMessage = useCallback(async (messageId: number) => {
-    if (!selectedConversationId) return;
-    try {
-      await api.delete(
-        API_ENDPOINTS.DM.DELETE_MESSAGE(selectedConversationId, messageId),
-      );
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === messageId ? { ...m, is_deleted: true, content: null } : m,
-        ),
-      );
-    } catch {
-      showToast(UI_MESSAGES.DM_DELETE_FAIL, 'error');
-    }
-  }, [selectedConversationId]);
-
-  const deleteConversation = useCallback(async (id: number) => {
-    try {
-      await api.delete(API_ENDPOINTS.DM.DELETE_CONVERSATION(id));
-      setConversations((prev) => prev.filter((c) => c.id !== id));
-      if (selectedConversationId === id) {
-        deselectConversation();
-      }
-      showToast(UI_MESSAGES.DM_DELETED);
-    } catch {
-      showToast(UI_MESSAGES.DM_DELETE_FAIL, 'error');
-    }
-  }, [selectedConversationId, deselectConversation]);
-
-  // ── 대화 생성 ──
-
-  const createConversation = useCallback(async (recipientId: number): Promise<number> => {
-    const res = await api.post<ApiResponse<CreateConversationResponse>>(
-      API_ENDPOINTS.DM.ROOT,
-      { recipient_id: recipientId },
-    );
-    const conv = res.data.conversation;
-    setConversations((prev) => {
-      if (prev.some((c) => c.id === conv.id)) return prev;
-      return [
-        {
-          id: conv.id,
-          other_user: conv.other_user,
-          created_at: conv.created_at,
-          last_message_at: null,
-          last_message: null,
-          unread_count: 0,
-        },
-        ...prev,
-      ];
-    });
-    return conv.id;
-  }, []);
-
-  // ── 검색 ──
-
-  const searchConversations = useCallback((query: string) => {
-    setSearchQuery(query);
-  }, []);
-
-  const filteredConversations = useMemo(() => {
-    if (!searchQuery.trim()) return conversations;
-    const q = searchQuery.trim().toLowerCase();
-    return conversations.filter((c) =>
-      c.other_user.nickname.toLowerCase().includes(q),
-    );
-  }, [conversations, searchQuery]);
-
-  // ── 타이핑 전송 ──
-
-  const sendTyping = useCallback(() => {
-    if (!selectedConversationId || !otherUser || typingCooldownRef.current) return;
-    send({
-      type: 'typing_start',
-      conversation_id: selectedConversationId,
-      recipient_id: otherUser.user_id,
-    });
-    typingCooldownRef.current = true;
-    if (typingCooldownTimerRef.current) clearTimeout(typingCooldownTimerRef.current);
-    typingCooldownTimerRef.current = setTimeout(() => {
-      typingCooldownRef.current = false;
-    }, TYPING_DEBOUNCE);
-  }, [selectedConversationId, otherUser, send]);
-
-  // ── WS 이벤트 구독 ──
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    const unsubDm = subscribe('dm', (raw) => {
-      const data = raw as {
-        conversation_id: number;
-        sender_id: number;
-        sender_nickname: string;
-        content: string;
-        created_at: string;
-      };
-
-      if (selectedIdRef.current === data.conversation_id) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: Date.now(),
-            sender_id: data.sender_id,
-            sender_nickname: data.sender_nickname,
-            sender_profile_image: '',
-            content: data.content,
-            is_read: true,
-            created_at: data.created_at,
-            is_deleted: false,
-          },
-        ]);
-        /* 읽음 표시 실패 무시 — fire-and-forget */
-        api.patch(API_ENDPOINTS.DM.READ(data.conversation_id)).catch(() => {});
-        setTypingUser(null);
-      } else {
-        setUnreadCount((prev) => prev + 1);
-        setConversations((prev) => {
-          const updated = prev.map((c) =>
-            c.id === data.conversation_id
-              ? {
-                  ...c,
-                  unread_count: c.unread_count + 1,
-                  last_message: {
-                    content: data.content,
-                    is_mine: false,
-                    is_deleted: false,
-                  },
-                  last_message_at: data.created_at,
-                }
-              : c,
-          );
-          const target = updated.find((c) => c.id === data.conversation_id);
-          if (target) {
-            return [target, ...updated.filter((c) => c.id !== data.conversation_id)];
-          }
-          return updated;
-        });
-      }
-    });
-
-    const unsubRead = subscribe('message_read', (raw) => {
-      const data = raw as { conversation_id: number };
-      if (selectedIdRef.current === data.conversation_id) {
-        setMessages((prev) =>
-          prev.map((m) => ({ ...m, is_read: true })),
         );
-      }
-    });
-
-    const unsubDeleted = subscribe('message_deleted', (raw) => {
-      const data = raw as { conversation_id: number; message_id: number };
-      if (selectedIdRef.current === data.conversation_id) {
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === data.message_id
-              ? { ...m, is_deleted: true, content: null }
-              : m,
-          ),
-        );
-      }
-    });
-
-    const unsubTypingStart = subscribe('typing_start', (raw) => {
-      const data = raw as { conversation_id: number; sender_id: number };
-      if (selectedIdRef.current === data.conversation_id) {
-        setTypingUser((prev) => prev ?? '...');
-        if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
-        typingTimerRef.current = setTimeout(() => setTypingUser(null), TYPING_DEBOUNCE);
-      }
-    });
-
-    const unsubTypingStop = subscribe('typing_stop', (raw) => {
-      const data = raw as { conversation_id: number };
-      if (selectedIdRef.current === data.conversation_id) {
-        setTypingUser(null);
-        if (typingTimerRef.current) {
-          clearTimeout(typingTimerRef.current);
-          typingTimerRef.current = null;
+        const target = updated.find((c) => c.id === data.conversation_id);
+        if (target) {
+          return [target, ...updated.filter((c) => c.id !== data.conversation_id)];
         }
-      }
-    });
-
-    return () => {
-      unsubDm();
-      unsubRead();
-      unsubDeleted();
-      unsubTypingStart();
-      unsubTypingStop();
-      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
-      if (typingCooldownTimerRef.current) clearTimeout(typingCooldownTimerRef.current);
-    };
-  }, [isAuthenticated, subscribe]);
-
-  // WS 재연결 시 현재 대화 re-fetch — false→true 전환만 감지
-  const prevConnectedRef = useRef(false);
-  useEffect(() => {
-    if (isConnected && !prevConnectedRef.current && selectedIdRef.current) {
-      selectConversation(selectedIdRef.current);
+        return updated;
+      });
     }
-    prevConnectedRef.current = isConnected;
-  }, [isConnected, selectConversation]);
+  }, [msgList, convList, typing]);
 
-  const loadMoreConversations = useCallback(
-    () => fetchConversations(false),
-    [fetchConversations],
-  );
+  const handleMessageRead = useCallback((conversationId: number) => {
+    if (msgList.selectedIdRef.current === conversationId) {
+      msgList.setMessages((prev) => prev.map((m) => ({ ...m, is_read: true })));
+    }
+  }, [msgList]);
 
+  const handleMessageDeleted = useCallback((conversationId: number, messageId: number) => {
+    if (msgList.selectedIdRef.current === conversationId) {
+      msgList.setMessages((prev) =>
+        prev.map((m) => (m.id === messageId ? { ...m, is_deleted: true, content: null } : m)),
+      );
+    }
+  }, [msgList]);
+
+  const handleTypingStart = useCallback((conversationId: number) => {
+    if (msgList.selectedIdRef.current === conversationId) {
+      typing.setTypingUser((prev) => prev ?? '...');
+      if (typing.typingTimerRef.current) clearTimeout(typing.typingTimerRef.current);
+      typing.typingTimerRef.current = setTimeout(() => typing.setTypingUser(null), TYPING_DEBOUNCE);
+    }
+  }, [msgList, typing]);
+
+  const handleTypingStop = useCallback((conversationId: number) => {
+    if (msgList.selectedIdRef.current === conversationId) {
+      typing.clearTyping();
+    }
+  }, [msgList, typing]);
+
+  const handleReconnect = useCallback(() => {
+    if (msgList.selectedIdRef.current) {
+      selectConversation(msgList.selectedIdRef.current);
+    }
+  }, [msgList, selectConversation]);
+
+  useDMWebSocket({
+    isAuthenticated,
+    selectedIdRef: msgList.selectedIdRef,
+    onNewMessage: handleNewMessage,
+    onMessageRead: handleMessageRead,
+    onMessageDeleted: handleMessageDeleted,
+    onTypingStart: handleTypingStart,
+    onTypingStop: handleTypingStop,
+    onReconnect: handleReconnect,
+  });
+
+  // ── 인증 게이트 ──
+  useEffect(() => {
+    if (!isAuthenticated) {
+      convList.reset();
+      msgList.reset();
+      typing.clearTyping();
+      return;
+    }
+    convList.fetchConversations(true);
+    convList.fetchUnreadCount();
+  }, [isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── context value ──
   const value = useMemo(
     () => ({
-      conversations,
-      filteredConversations,
-      hasMoreConversations,
-      isLoadingConversations,
-      selectedConversationId,
-      messages,
-      hasMoreMessages,
-      isLoadingMessages,
-      otherUser,
-      unreadCount,
-      typingUser,
+      conversations: convList.conversations,
+      filteredConversations: convList.filteredConversations,
+      hasMoreConversations: convList.hasMoreConversations,
+      isLoadingConversations: convList.isLoadingConversations,
+      selectedConversationId: msgList.selectedConversationId,
+      messages: msgList.messages,
+      hasMoreMessages: msgList.hasMoreMessages,
+      isLoadingMessages: msgList.isLoadingMessages,
+      otherUser: msgList.otherUser,
+      unreadCount: convList.unreadCount,
+      typingUser: typing.typingUser,
       selectConversation,
       deselectConversation,
-      sendMessage,
-      deleteMessage,
+      sendMessage: msgActions.sendMessage,
+      deleteMessage: msgActions.deleteMessage,
       deleteConversation,
-      createConversation,
-      loadMoreConversations,
-      loadOlderMessages,
-      sendTyping,
-      searchConversations,
+      createConversation: convList.create,
+      loadMoreConversations: convList.loadMore,
+      loadOlderMessages: msgList.loadOlder,
+      sendTyping: typing.sendTyping,
+      searchConversations: convList.search,
     }),
-    [
-      conversations,
-      filteredConversations,
-      hasMoreConversations,
-      isLoadingConversations,
-      selectedConversationId,
-      messages,
-      hasMoreMessages,
-      isLoadingMessages,
-      otherUser,
-      unreadCount,
-      typingUser,
-      selectConversation,
-      deselectConversation,
-      sendMessage,
-      deleteMessage,
-      deleteConversation,
-      createConversation,
-      loadMoreConversations,
-      loadOlderMessages,
-      sendTyping,
-      searchConversations,
-    ],
+    [convList, msgList, msgActions, typing, selectConversation, deselectConversation, deleteConversation],
   );
 
   return <DMContext.Provider value={value}>{children}</DMContext.Provider>;

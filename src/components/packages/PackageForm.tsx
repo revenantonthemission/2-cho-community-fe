@@ -61,7 +61,7 @@ export default function PackageForm({ initialData, showName = false, onSubmit, s
           <label htmlFor="pkg-name">패키지 이름</label>
           <input id="pkg-name" className="input-field" type="text" value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="vim" maxLength={100} required />
+            placeholder="vim" maxLength={100} required aria-required="true" />
           <p className="input-hint">고유 식별자 (영문, 숫자, 하이픈)</p>
         </div>
       )}
@@ -69,7 +69,7 @@ export default function PackageForm({ initialData, showName = false, onSubmit, s
         <label htmlFor="pkg-display-name">표시 이름</label>
         <input id="pkg-display-name" className="input-field" type="text" value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
-          placeholder="Vim Text Editor" maxLength={200} required />
+          placeholder="Vim Text Editor" maxLength={200} required aria-required="true" />
       </div>
       <div className="input-group">
         <label htmlFor="pkg-desc">설명</label>
@@ -86,7 +86,7 @@ export default function PackageForm({ initialData, showName = false, onSubmit, s
       <div className="input-group">
         <label htmlFor="pkg-category">카테고리</label>
         <select id="pkg-category" className="input-field" value={category}
-          onChange={(e) => setCategory(e.target.value as PackageCategory)} required>
+          onChange={(e) => setCategory(e.target.value as PackageCategory)} required aria-required="true">
           <option value="">선택하세요</option>
           {PACKAGE_CATEGORIES.map((c) => (
             <option key={c.value} value={c.value}>{c.label}</option>

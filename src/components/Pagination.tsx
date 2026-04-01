@@ -13,8 +13,13 @@ export default function Pagination({ page, totalPages, onPageChange }: Paginatio
   for (let i = start; i <= end; i++) pages.push(i);
 
   return (
-    <div className="pagination">
-      <button type="button" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
+    <nav aria-label="페이지네이션" className="pagination">
+      <button
+        type="button"
+        disabled={page <= 1}
+        onClick={() => onPageChange(page - 1)}
+        aria-label="이전 페이지"
+      >
         이전
       </button>
       {pages.map((p) => (
@@ -23,13 +28,20 @@ export default function Pagination({ page, totalPages, onPageChange }: Paginatio
           key={p}
           className={p === page ? 'active' : ''}
           onClick={() => onPageChange(p)}
+          aria-label={`${p} 페이지`}
+          aria-current={p === page ? 'page' : undefined}
         >
           {p}
         </button>
       ))}
-      <button type="button" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>
+      <button
+        type="button"
+        disabled={page >= totalPages}
+        onClick={() => onPageChange(page + 1)}
+        aria-label="다음 페이지"
+      >
         다음
       </button>
-    </div>
+    </nav>
   );
 }

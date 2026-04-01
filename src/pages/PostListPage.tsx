@@ -152,6 +152,7 @@ export default function PostListPage() {
           onChange={(e) => { setSearchInput(e.target.value); fetchSuggestions(e.target.value); }}
           onKeyDown={handleSearchKeyDown}
           onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
+          aria-label="게시글 검색"
         />
         {search && (
           <button className="search-bar__clear" onClick={handleClearSearch} aria-label="검색 초기화">
