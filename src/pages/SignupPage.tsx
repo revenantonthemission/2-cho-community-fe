@@ -116,6 +116,9 @@ export default function SignupPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="이메일을 입력하세요"
               autoComplete="email"
+              aria-required="true"
+              aria-invalid={!!error}
+              aria-describedby={error ? 'signup-error' : undefined}
             />
           </div>
           <div className="input-group">
@@ -130,6 +133,9 @@ export default function SignupPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="영문·숫자·특수문자 포함 8자 이상"
               autoComplete="new-password"
+              aria-required="true"
+              aria-invalid={!!error}
+              aria-describedby={error ? 'signup-error' : undefined}
             />
           </div>
           <div className="input-group">
@@ -144,6 +150,9 @@ export default function SignupPage() {
               onChange={(e) => setPasswordConfirm(e.target.value)}
               placeholder="비밀번호를 다시 입력하세요"
               autoComplete="new-password"
+              aria-required="true"
+              aria-invalid={!!error}
+              aria-describedby={error ? 'signup-error' : undefined}
             />
           </div>
           <div className="input-group">
@@ -158,6 +167,9 @@ export default function SignupPage() {
               onChange={(e) => setNickname(e.target.value)}
               placeholder="2~20자 닉네임을 입력하세요"
               autoComplete="username"
+              aria-required="true"
+              aria-invalid={!!error}
+              aria-describedby={error ? 'signup-error' : undefined}
             />
           </div>
           <label className="terms-checkbox">
@@ -168,7 +180,7 @@ export default function SignupPage() {
             />
             이용약관 및 개인정보 처리방침에 동의합니다
           </label>
-          {error && <p className="error-msg">{error}</p>}
+          {error && <p className="error-msg" id="signup-error">{error}</p>}
           <button
             type="submit"
             className="btn btn-primary btn-full"

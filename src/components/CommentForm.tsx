@@ -96,6 +96,7 @@ export default function CommentForm({ postId, parentId, onSubmit, onCancel }: Co
           onBlur={handleBlur}
           placeholder="댓글을 입력하세요 (@로 멘션)"
           rows={3}
+          aria-required="true"
           role="combobox"
           aria-autocomplete="list"
           aria-expanded={showMention}
