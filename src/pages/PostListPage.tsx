@@ -60,7 +60,7 @@ export default function PostListPage() {
           author_nickname: p.author.nickname,
         })));
         setShowSuggestions(true);
-      } catch { setSuggestions([]); }
+      } catch { setSuggestions([]); /* 검색 자동완성 실패 무시 — 보조 기능 */ }
     }, 300);
   }, []);
 

@@ -80,7 +80,7 @@ export default function UserProfilePage() {
         setIsFollowing(!!profileRes.data?.is_following);
         setIsBlocked(!!profileRes.data?.is_blocked);
       } catch {
-        /* 조회 실패 시 빈 상태 유지 */
+        showToast('프로필을 불러오는 중 오류가 발생했습니다.', 'error');
       } finally {
         setIsLoading(false);
       }
@@ -125,7 +125,7 @@ export default function UserProfilePage() {
         : `${API_ENDPOINTS.USERS.ROOT}/${id}/following`;
       const res = await api.get<ApiResponse<{ users: FollowUser[] }>>(endpoint);
       setFollowList(res.data?.users ?? []);
-    } catch { /* ignore */ }
+    } catch { /* 팔로우 목록 로드 실패 무시 — 모달 보조 데이터 */ }
     finally { setFollowListLoading(false); }
   }
 

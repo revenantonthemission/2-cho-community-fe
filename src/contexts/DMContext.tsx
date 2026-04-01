@@ -362,6 +362,7 @@ export function DMProvider({ children }: { children: ReactNode }) {
             is_deleted: false,
           },
         ]);
+        /* 읽음 표시 실패 무시 — fire-and-forget */
         api.patch(API_ENDPOINTS.DM.READ(data.conversation_id)).catch(() => {});
         setTypingUser(null);
       } else {

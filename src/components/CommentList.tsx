@@ -56,7 +56,9 @@ function CommentItem({
       }
       setIsLiked(!isLiked);
       setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
-    } catch { /* 좋아요 실패 시 무시 */ }
+    } catch {
+      showToast('좋아요 처리에 실패했습니다.', 'error');
+    }
   }
 
   async function handleEdit() {
@@ -77,7 +79,9 @@ function CommentItem({
       await api.delete(API_ENDPOINTS.COMMENTS.DETAIL(postId, comment.id));
       showToast(UI_MESSAGES.DELETE_SUCCESS);
       onCommentChange();
-    } catch { /* 삭제 실패 시 무시 */ }
+    } catch {
+      showToast('댓글 삭제에 실패했습니다.', 'error');
+    }
   }
 
   return (
