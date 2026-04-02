@@ -11,6 +11,33 @@ import { API_ENDPOINTS } from '../constants/endpoints';
 import type { User, LoginResponse } from '../types/auth';
 import type { ApiResponse } from '../types/common';
 
+// BE serialize_user() → FE User 필드 매핑
+interface MeResponse {
+  user: {
+    user_id: number;
+    email: string;
+    email_verified: boolean;
+    nickname: string;
+    profileImageUrl: string | null;
+    role: 'user' | 'admin';
+    distro: string | null;
+  };
+}
+
+function mapToUser(raw: MeResponse['user']): User {
+  return {
+    id: raw.user_id,
+    email: raw.email,
+    nickname: raw.nickname,
+    profile_image: raw.profileImageUrl,
+    bio: null,
+    distro: raw.distro,
+    role: raw.role,
+    email_verified: raw.email_verified,
+    created_at: '',
+  };
+}
+
 export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
@@ -18,6 +45,7 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User) => void;
+  fetchUser: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -36,8 +64,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const token = refreshRes?.data?.access_token;
         if (token) {
           setAccessToken(token);
-          const meRes = await api.get<ApiResponse<User>>(API_ENDPOINTS.AUTH.ME);
-          setUser(meRes.data);
+          const meRes = await api.get<ApiResponse<MeResponse>>(API_ENDPOINTS.AUTH.ME);
+          setUser(mapToUser(meRes.data.user));
         }
       } catch {
         // refresh 실패 — 비로그인 상태
@@ -56,9 +84,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = res?.data?.access_token;
     if (token) {
       setAccessToken(token);
-      const meRes = await api.get<ApiResponse<User>>(API_ENDPOINTS.AUTH.ME);
-      setUser(meRes.data);
+      const meRes = await api.get<ApiResponse<MeResponse>>(API_ENDPOINTS.AUTH.ME);
+      setUser(mapToUser(meRes.data.user));
     }
+  }, []);
+
+  // /me 재조회 — 소셜 가입 닉네임 설정 후 user 상태 갱신용
+  const fetchUser = useCallback(async () => {
+    const meRes = await api.get<ApiResponse<MeResponse>>(API_ENDPOINTS.AUTH.ME);
+    setUser(mapToUser(meRes.data.user));
   }, []);
 
   const logout = useCallback(async () => {
@@ -79,8 +113,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       logout,
       setUser,
+      fetchUser,
     }),
-    [user, isLoading, login, logout],
+    [user, isLoading, login, logout, fetchUser],
   );
 
   return (

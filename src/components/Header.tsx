@@ -102,7 +102,7 @@ export default function Header() {
           {isAuthenticated && user && <NotificationBell />}
           {isAuthenticated && user && <DMBadge />}
           {isAuthenticated && user ? (
-            <div ref={dropdownRef} style={{ position: 'relative' }}>
+            <div ref={dropdownRef} className="relative">
               <button
                 type="button"
                 className="profile-circle"

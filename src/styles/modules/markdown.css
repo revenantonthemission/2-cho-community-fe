@@ -200,8 +200,8 @@
 .hljs-symbol,
 .hljs-bullet { color: var(--color-code-operator); }
 .hljs-meta { color: var(--color-code-comment); }
-.hljs-addition { color: var(--color-code-type); background-color: rgba(46, 160, 67, 0.15); }
-.hljs-deletion { color: var(--color-code-keyword); background-color: rgba(248, 81, 73, 0.15); }
+.hljs-addition { color: var(--color-code-type); background-color: var(--color-code-addition-bg); }
+.hljs-deletion { color: var(--color-code-keyword); background-color: var(--color-code-deletion-bg); }
 
 /* ============================= */
 /* 4. Editor                     */

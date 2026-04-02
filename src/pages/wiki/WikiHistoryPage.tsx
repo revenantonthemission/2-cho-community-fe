@@ -61,7 +61,7 @@ export default function WikiHistoryPage() {
           className="btn btn-primary btn-sm"
           onClick={handleCompare}
           disabled={fromRev === null || toRev === null || fromRev === toRev}
-          style={{ marginBottom: '16px' }}
+          style={{ marginBottom: 'var(--spacing-lg)' }}
         >
           선택한 리비전 비교
         </button>

@@ -96,7 +96,7 @@
   --color-toast-bg: #1A1D24;
   --color-toast-text: #F6F5F1;
 
-  /* Code Highlighting — One Light 기반 */
+  /* Code Highlighting — 라이트 테마 (에디토리얼 톤) */
   --color-code-bg: #1E2430;
   --color-code-text: #D4D8E4;
   --color-code-keyword: #C678DD;
@@ -107,6 +107,11 @@
   --color-code-variable: #E06C75;
   --color-code-type: #E5C07B;
   --color-code-operator: #56B6C2;
+  --color-code-builtin: #D19A66;
+  --color-code-meta: #5C6370;
+  --color-code-border: #353B50;
+  --color-code-addition-bg: rgba(46, 160, 67, 0.15);
+  --color-code-deletion-bg: rgba(248, 81, 73, 0.15);
   --color-code-inline-bg: rgba(15, 118, 110, 0.08);
   --color-blockquote-border: #0F766E;
   --color-blockquote-text: #4A4F5C;
@@ -127,6 +132,11 @@
   --dm-divider-color: var(--color-border-light);
   --dm-typing-dot: var(--color-text-placeholder);
   --dm-read-check: var(--color-primary-lightest);
+
+  /* Social Login */
+  --social-github-bg: #24292e;
+  --social-github-text: #FFFFFF;
+  --social-github-border: transparent;
 
   /* ============================= */
   /* Semantic Tokens               */
@@ -404,6 +414,11 @@
   --color-code-variable: #E06C75;
   --color-code-type: #E5C07B;
   --color-code-operator: #56B6C2;
+  --color-code-builtin: #FFA657;
+  --color-code-meta: #5C6370;
+  --color-code-border: #30363D;
+  --color-code-addition-bg: rgba(46, 160, 67, 0.2);
+  --color-code-deletion-bg: rgba(248, 81, 73, 0.2);
   --color-code-inline-bg: rgba(52, 211, 153, 0.1);
   --color-blockquote-border: #34D399;
   --color-blockquote-text: #8B91A5;
@@ -424,6 +439,11 @@
   --dm-divider-color: var(--color-border-light);
   --dm-typing-dot: var(--color-text-placeholder);
   --dm-read-check: var(--color-primary-lightest);
+
+  /* Social Login */
+  --social-github-bg: #30363d;
+  --social-github-text: #D4D8E4;
+  --social-github-border: var(--color-border-dark);
 
   /* Shadow */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);

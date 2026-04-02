@@ -4,9 +4,14 @@ import { api, setAccessToken } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { ROUTES } from '../constants/routes';
 import { showToast } from '../utils/toast';
+import { useAuth } from '../hooks/useAuth';
+import type { ApiResponse } from '../types/common';
+
+const NICKNAME_REGEX = /^[a-zA-Z0-9_]{3,10}$/;
 
 export default function SocialSignupPage() {
   const navigate = useNavigate();
+  const { fetchUser } = useAuth();
   const [nickname, setNickname] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,7 +26,7 @@ export default function SocialSignupPage() {
       const key = trimmed.slice(0, eqIdx);
       const value = trimmed.slice(eqIdx + 1);
       if (key === 'access_token_temp' && value) {
-        setAccessToken(value);
+        setAccessToken(decodeURIComponent(value));
         document.cookie = 'access_token_temp=; path=/; max-age=0';
         return;
       }
@@ -32,13 +37,29 @@ export default function SocialSignupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!nickname.trim()) return;
+    const trimmed = nickname.trim();
+    if (!trimmed) return;
+
+    // FE 사전 검증 — BE 스키마와 동일: 3~10자, 영문/숫자/언더바
+    if (!NICKNAME_REGEX.test(trimmed)) {
+      setError('닉네임은 3~10자의 영문, 숫자, 언더바(_)만 사용할 수 있습니다.');
+      return;
+    }
+
     setIsSubmitting(true);
     setError('');
     try {
-      await api.post(API_ENDPOINTS.AUTH.SOCIAL_COMPLETE_SIGNUP, {
-        nickname: nickname.trim(),
-      });
+      const res = await api.post<ApiResponse<{ nickname?: string }>>(
+        API_ENDPOINTS.AUTH.SOCIAL_COMPLETE_SIGNUP,
+        { nickname: trimmed },
+      );
+      // BE가 200 + NICKNAME_DUPLICATED 코드로 반환하는 경우 처리
+      if (res.code === 'NICKNAME_DUPLICATED') {
+        setError('이미 사용 중인 닉네임입니다.');
+        return;
+      }
+      // 닉네임 설정 완료 → AuthContext 갱신 후 홈으로
+      await fetchUser();
       showToast('회원가입이 완료되었습니다!');
       navigate(ROUTES.HOME);
     } catch (err: unknown) {
@@ -48,6 +69,8 @@ export default function SocialSignupPage() {
       setIsSubmitting(false);
     }
   }
+
+  const isValid = nickname.trim().length >= 3 && nickname.trim().length <= 10;
 
   return (
     <div className="login-page">
@@ -65,14 +88,15 @@ export default function SocialSignupPage() {
               type="text"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              placeholder="2~20자 닉네임"
-              minLength={2}
-              maxLength={20}
+              placeholder="3~10자 영문/숫자/언더바"
+              minLength={3}
+              maxLength={10}
+              pattern="[a-zA-Z0-9_]{3,10}"
               autoFocus
             />
           </div>
           {error && <p className="error-msg">{error}</p>}
-          <button type="submit" className="btn btn-primary" disabled={!nickname.trim() || isSubmitting}>
+          <button type="submit" className="btn btn-primary" disabled={!isValid || isSubmitting}>
             {isSubmitting ? '설정 중...' : '시작하기'}
           </button>
           </form>

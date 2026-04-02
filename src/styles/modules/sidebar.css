@@ -43,7 +43,7 @@
 
 .sidebar::-webkit-scrollbar-thumb {
     background: var(--color-border);
-    border-radius: 2px;
+    border-radius: var(--spacing-2xs);
 }
 
 /* 닫기 버튼 (모바일 전용) */
@@ -144,8 +144,8 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xs);
     letter-spacing: var(--tracking-wide);
-    padding-top: 6px;
-    padding-bottom: 6px;
+    padding-top: var(--spacing-xs);
+    padding-bottom: var(--spacing-xs);
 }
 
 .sidebar__item-label {
@@ -165,7 +165,7 @@
     font-weight: var(--font-weight-semibold);
     background: var(--color-primary);
     color: var(--color-text-white);
-    padding: 1px 6px;
+    padding: var(--spacing-2xs) var(--spacing-xs);
     border-radius: var(--radius-sm);
     min-width: 18px;
     text-align: center;
@@ -183,10 +183,10 @@
     display: none;
     flex-direction: column;
     justify-content: center;
-    gap: 4px;
-    width: 32px;
-    height: 32px;
-    padding: 6px;
+    gap: var(--spacing-xs);
+    width: var(--size-icon-lg);
+    height: var(--size-icon-lg);
+    padding: var(--spacing-xs);
     background: none;
     border: none;
     cursor: pointer;
@@ -205,9 +205,9 @@
 .sidebar-toggle__line {
     display: block;
     width: 100%;
-    height: 2px;
+    height: var(--spacing-2xs);
     background: var(--color-text-secondary);
-    border-radius: 1px;
+    border-radius: var(--spacing-2xs);
     transition: background-color var(--transition-fast);
 }
 

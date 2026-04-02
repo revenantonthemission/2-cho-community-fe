@@ -50,12 +50,13 @@
 }
 
 .social-login-btn--github {
-    background-color: #24292e;
-    color: #FFFFFF;
+    background-color: var(--social-github-bg);
+    color: var(--social-github-text);
+    border: 1px solid var(--social-github-border);
 }
 
 .social-login-btn svg {
-    width: 20px;
-    height: 20px;
+    width: var(--size-icon-sm);
+    height: var(--size-icon-sm);
     flex-shrink: 0;
 }

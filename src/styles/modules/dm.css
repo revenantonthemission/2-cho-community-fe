@@ -61,8 +61,8 @@
 
 /* 아바타 — 스퀘어 스타일 (카드 시스템 통일) */
 .dm-card__avatar {
-    width: 36px;
-    height: 36px;
+    width: var(--size-avatar-md);
+    height: var(--size-avatar-md);
     border-radius: var(--radius-sm);
     object-fit: cover;
     flex-shrink: 0;
@@ -276,7 +276,7 @@
     align-items: center;
     gap: var(--spacing-md);
     padding: var(--spacing-sm) var(--spacing-lg);
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--color-overlay-light);
     border-bottom: 1px solid var(--color-border);
 }
 
@@ -536,12 +536,12 @@
 
 .dm-typing-dots {
     display: inline-flex;
-    gap: 3px;
+    gap: var(--spacing-xs);
 }
 
 .dm-typing-dot {
-    width: 5px;
-    height: 5px;
+    width: var(--spacing-xs);
+    height: var(--spacing-xs);
     border-radius: var(--radius-sm);
     background: var(--color-primary);
     animation: dm-typing-bounce 1.4s infinite ease-in-out;

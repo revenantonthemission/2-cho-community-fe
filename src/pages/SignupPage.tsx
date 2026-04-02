@@ -77,7 +77,7 @@ export default function SignupPage() {
         <h1 className="page-title">회원가입</h1>
         <form onSubmit={handleSubmit}>
           {/* 프로필 이미지 */}
-          <div className="input-group" style={{ textAlign: 'center' }}>
+          <div className="input-group text-center">
             <label className="input-label">프로필 사진 (선택)</label>
             <label
               className="profile-circle signup-profile-upload"
