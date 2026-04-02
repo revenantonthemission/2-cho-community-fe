@@ -8,15 +8,16 @@ interface Props {
 
 interface State {
   hasError: boolean;
+  resetKey: number;
 }
 
 export default class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, resetKey: 0 };
   }
 
-  static getDerivedStateFromError(): State {
+  static getDerivedStateFromError(_error: Error): Partial<State> {
     return { hasError: true };
   }
 
@@ -30,7 +31,7 @@ export default class ErrorBoundary extends Component<Props, State> {
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() => this.setState({ hasError: false })}
+              onClick={() => this.setState((s) => ({ hasError: false, resetKey: s.resetKey + 1 }))}
             >
               다시 시도
             </button>
@@ -41,6 +42,6 @@ export default class ErrorBoundary extends Component<Props, State> {
         </div>
       );
     }
-    return this.props.children;
+    return <div key={this.state.resetKey}>{this.props.children}</div>;
   }
 }

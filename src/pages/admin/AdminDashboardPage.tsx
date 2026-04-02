@@ -60,9 +60,13 @@ export default function AdminDashboardPage() {
   useEffect(() => { fetchUsers(true); }, [fetchUsers]);
 
   // 무한 스크롤
+  const loadingRef = useRef(false);
   const handleObserver = useCallback(
     (entries: IntersectionObserverEntry[]) => {
-      if (entries[0].isIntersecting && hasMoreUsers) fetchUsers(false);
+      if (entries[0].isIntersecting && hasMoreUsers && !loadingRef.current) {
+        loadingRef.current = true;
+        fetchUsers(false).finally(() => { loadingRef.current = false; });
+      }
     },
     [hasMoreUsers, fetchUsers],
   );

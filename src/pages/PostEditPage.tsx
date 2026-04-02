@@ -8,7 +8,7 @@ import { ROUTES } from '../constants/routes';
 import { showToast } from '../utils/toast';
 import { UI_MESSAGES } from '../constants/messages';
 import type { ApiResponse } from '../types/common';
-import type { Post } from '../types/post';
+import type { Post, PostDetailResponse } from '../types/post';
 
 export default function PostEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -19,8 +19,8 @@ export default function PostEditPage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await api.get<ApiResponse<Post>>(`${API_ENDPOINTS.POSTS.ROOT}/${id}`);
-        setPost(res.data);
+        const res = await api.get<ApiResponse<PostDetailResponse>>(`${API_ENDPOINTS.POSTS.ROOT}/${id}`);
+        setPost(res.data.post);
       } catch {
         showToast('게시글을 불러오지 못했습니다.', 'error');
         navigate(ROUTES.HOME);

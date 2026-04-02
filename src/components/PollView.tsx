@@ -20,7 +20,7 @@ export default function PollView({ postId, poll, onUpdate }: Props) {
   const showResults = hasVoted || poll.is_expired;
 
   async function handleVote() {
-    if (!selectedOption || isSubmitting) return;
+    if (selectedOption === null || isSubmitting) return;
     if (hasVoted && selectedOption === poll.my_vote) return;
     setIsSubmitting(true);
     try {
@@ -126,7 +126,7 @@ export default function PollView({ postId, poll, onUpdate }: Props) {
               <button
                 className="btn btn-primary btn-sm"
                 onClick={handleVote}
-                disabled={!selectedOption || isSubmitting}
+                disabled={selectedOption === null || isSubmitting}
               >
                 투표
               </button>

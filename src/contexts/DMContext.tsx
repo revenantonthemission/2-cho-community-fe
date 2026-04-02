@@ -69,14 +69,13 @@ export function DMProvider({ children }: { children: ReactNode }) {
   const selectConversation = useCallback(async (id: number) => {
     await msgList.select(id);
     typing.clearTyping();
+    // unread_count 감소는 updater 외부에서 수행 (updater 내 side effect 방지)
+    const conv = convList.conversations.find((c) => c.id === id);
+    if (conv && conv.unread_count > 0) {
+      convList.setUnreadCount((u) => Math.max(0, u - 1));
+    }
     convList.update((prev) =>
-      prev.map((c) => {
-        if (c.id === id && c.unread_count > 0) {
-          convList.setUnreadCount((u) => Math.max(0, u - 1));
-          return { ...c, unread_count: 0 };
-        }
-        return c;
-      }),
+      prev.map((c) => (c.id === id ? { ...c, unread_count: 0 } : c)),
     );
   }, [msgList, typing, convList]);
 

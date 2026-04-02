@@ -6,13 +6,12 @@ import { ROUTES } from '../constants/routes';
 import { showToast } from '../utils/toast';
 import { UI_MESSAGES } from '../constants/messages';
 import type { ApiResponse } from '../types/common';
-import type { Post } from '../types/post';
 
 export default function PostWritePage() {
   const navigate = useNavigate();
 
   async function handleSubmit(data: PostFormData) {
-    const res = await api.post<ApiResponse<Post>>(API_ENDPOINTS.POSTS.ROOT, data);
+    const res = await api.post<ApiResponse<{ post_id: number }>>(API_ENDPOINTS.POSTS.ROOT, data);
     showToast(UI_MESSAGES.POST_CREATE_SUCCESS);
     const postId = res?.data?.post_id;
     navigate(postId ? ROUTES.POST_DETAIL(postId) : ROUTES.HOME);

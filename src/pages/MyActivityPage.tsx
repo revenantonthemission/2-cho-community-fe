@@ -41,6 +41,7 @@ export default function MyActivityPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const offsetRef = useRef(0);
+  const loadingRef = useRef(false);
   const observerRef = useRef<HTMLDivElement>(null);
 
   const fetchItems = useCallback(async (reset = false) => {
@@ -83,7 +84,10 @@ export default function MyActivityPage() {
 
   const handleObserver = useCallback(
     (entries: IntersectionObserverEntry[]) => {
-      if (entries[0].isIntersecting && hasMore && !isLoading) fetchItems(false);
+      if (entries[0].isIntersecting && hasMore && !isLoading && !loadingRef.current) {
+        loadingRef.current = true;
+        fetchItems(false).finally(() => { loadingRef.current = false; });
+      }
     },
     [hasMore, isLoading, fetchItems],
   );

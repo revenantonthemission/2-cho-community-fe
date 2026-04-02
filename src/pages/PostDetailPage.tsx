@@ -63,10 +63,10 @@ export default function PostDetailPage() {
     const sortParam = sort ?? commentSort;
     try {
       const url = sortParam === 'oldest'
-        ? API_ENDPOINTS.COMMENTS.ROOT(Number(id))
-        : `${API_ENDPOINTS.COMMENTS.ROOT(Number(id))}?sort=${sortParam}`;
-      const res = await api.get<ApiResponse<Comment[]>>(url);
-      setComments(res.data);
+        ? `${API_ENDPOINTS.POSTS.ROOT}/${id}`
+        : `${API_ENDPOINTS.POSTS.ROOT}/${id}?comment_sort=${sortParam}`;
+      const res = await api.get<ApiResponse<PostDetailResponse>>(url);
+      setComments(res.data.comments);
     } catch { /* 댓글 로드 실패 시 무시 */ }
   }, [id, commentSort]);
 

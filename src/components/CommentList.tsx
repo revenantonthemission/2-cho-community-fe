@@ -103,7 +103,7 @@ function CommentItem({
           />
           <div>
             <button type="button" className="comment-action-btn" onClick={handleEdit}>저장</button>
-            <button type="button" className="comment-action-btn" onClick={() => setEditing(false)}>취소</button>
+            <button type="button" className="comment-action-btn" onClick={() => { setEditContent(comment.content); setEditing(false); }}>취소</button>
           </div>
         </div>
       ) : (

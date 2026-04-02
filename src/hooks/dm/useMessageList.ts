@@ -24,6 +24,7 @@ export function useMessageList() {
 
   const select = useCallback(async (id: number) => {
     setSelectedConversationId(id);
+    selectedIdRef.current = id; // WS 메시지가 즉시 올바른 대화를 참조하도록 동기 갱신
     setMessages([]);
     setIsLoadingMessages(true);
     msgOffsetRef.current = 0;
@@ -45,6 +46,7 @@ export function useMessageList() {
 
   const deselect = useCallback(() => {
     setSelectedConversationId(null);
+    selectedIdRef.current = null;
     setMessages([]);
     setOtherUser(null);
   }, []);
@@ -69,6 +71,7 @@ export function useMessageList() {
 
   const reset = useCallback(() => {
     setSelectedConversationId(null);
+    selectedIdRef.current = null;
     setMessages([]);
     setOtherUser(null);
     msgOffsetRef.current = 0;

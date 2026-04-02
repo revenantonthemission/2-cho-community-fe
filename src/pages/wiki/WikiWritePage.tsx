@@ -37,10 +37,10 @@ export default function WikiWritePage() {
       navigate(ROUTES.WIKI_DETAIL(res.data.slug));
     } catch (err: unknown) {
       const apiErr = err as { status?: number; data?: { code?: string } };
-      if (apiErr.status === 400 && apiErr.data?.code === 'SLUG_DUPLICATE' || apiErr.status === 409) {
+      if ((apiErr.status === 400 && apiErr.data?.code === 'SLUG_DUPLICATE') || apiErr.status === 409) {
         showToast(UI_MESSAGES.WIKI_SLUG_DUPLICATE, 'error');
       } else {
-        showToast(UI_MESSAGES.WIKI_LOAD_FAIL, 'error');
+        showToast(UI_MESSAGES.WIKI_CREATE_FAIL, 'error');
       }
       throw err; // re-throw so WikiForm can reset isSubmitting
     }

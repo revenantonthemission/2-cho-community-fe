@@ -63,7 +63,6 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
   const [categories, setCategories] = useState<Category[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(!enableDraft);
-  const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -369,7 +368,7 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
           <button
             type="button"
             className="btn btn-secondary"
-            onClick={() => { saveDraft(); showToast('임시저장되었습니다.'); }}
+            onClick={async () => { await saveDraft(); showToast('임시저장되었습니다.'); }}
           >
             임시저장
           </button>

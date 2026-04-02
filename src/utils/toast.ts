@@ -7,8 +7,8 @@ export function onToast(fn: ToastListener) {
   listener = fn;
 }
 
-export function offToast() {
-  listener = null;
+export function offToast(fn?: ToastListener) {
+  if (!fn || listener === fn) listener = null;
 }
 
 export function showToast(message: string, type: ToastType = 'success') {

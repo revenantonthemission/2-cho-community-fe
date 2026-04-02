@@ -22,7 +22,7 @@ export default function Toast() {
 
   useEffect(() => {
     onToast(addToast);
-    return () => offToast();
+    return () => offToast(addToast);
   }, [addToast]);
 
   if (toasts.length === 0) return null;

@@ -194,6 +194,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   // ── 읽음 처리 (optimistic) ──
 
   const markAsRead = useCallback(async (id: number) => {
+    // 이미 읽은 알림은 unreadCount 감소 대상에서 제외
+    const target = notifications.find((n) => n.notification_id === id);
+    const wasUnread = target && !target.is_read;
+
     setNotifications((prev) =>
       prev.map((n) =>
         n.notification_id === id ? { ...n, is_read: true } : n,
@@ -204,7 +208,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         n.notification_id === id ? { ...n, is_read: true } : n,
       ),
     );
-    setUnreadCount((prev) => Math.max(0, prev - 1));
+    if (wasUnread) {
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    }
 
     try {
       await api.patch(API_ENDPOINTS.NOTIFICATIONS.READ(id));
@@ -219,10 +225,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           n.notification_id === id ? { ...n, is_read: false } : n,
         ),
       );
-      setUnreadCount((prev) => prev + 1);
+      if (wasUnread) {
+        setUnreadCount((prev) => prev + 1);
+      }
       showToast(UI_MESSAGES.NOTIFICATION_READ_FAIL, 'error');
     }
-  }, []);
+  }, [notifications]);
 
   const markAllAsRead = useCallback(async () => {
     const prevNotifications = [...notifications];

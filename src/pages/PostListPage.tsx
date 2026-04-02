@@ -107,13 +107,6 @@ export default function PostListPage() {
     void fetchPosts();
   }, [page, sort, categoryId, search, following, solved]);
 
-  function handleSortChange(value: string) {
-    const next = new URLSearchParams(searchParams);
-    next.set('sort', value);
-    next.set('page', '1');
-    setSearchParams(next);
-  }
-
   function handlePageChange(newPage: number) {
     const next = new URLSearchParams(searchParams);
     next.set('page', String(newPage));
