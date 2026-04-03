@@ -276,7 +276,13 @@
     overflow-y: auto;
 }
 
-/* 컴팩트 에디터 */
+/* 미리보기 버튼 활성 상태 */
+.md-toolbar-btn.active {
+    background: var(--color-primary);
+    color: white;
+}
+
+/* 컴팩트 에디터 (레거시 클래스) */
 .md-editor-compact .md-toolbar {
     padding: var(--spacing-2xs) var(--spacing-xs);
 }
@@ -287,6 +293,15 @@
 .md-editor-compact .md-preview {
     padding: var(--spacing-sm) var(--spacing-md);
     min-height: 60px;
+}
+
+/* 컴팩트 에디터 (BEM 클래스) */
+.markdown-editor--compact .markdown-editor__toolbar {
+    gap: var(--spacing-xs);
+}
+.markdown-editor--compact .md-toolbar-btn {
+    width: 28px;
+    height: 28px;
 }
 
 /* 드래그 앤 드롭 시각적 피드백 */
