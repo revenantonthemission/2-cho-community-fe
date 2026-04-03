@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '../../services/api';
 import { API_ENDPOINTS } from '../../constants/endpoints';
 import { ROUTES } from '../../constants/routes';
@@ -8,6 +8,7 @@ import { showToast } from '../../utils/toast';
 import { useAuth } from '../../hooks/useAuth';
 import PackageCard from '../../components/packages/PackageCard';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import HeroSection from '../../components/HeroSection';
 import { PACKAGE_CATEGORIES } from '../../types/package';
 import type { ApiResponse } from '../../types/common';
 import type { PackageListResponse } from '../../types/package';
@@ -108,14 +109,12 @@ export default function PackageListPage() {
 
   return (
     <div className="pkg-list-page">
-      <div className="pkg-list-page__header">
-        <h1>패키지 리뷰</h1>
-        {isAuthenticated && (
-          <Link to={ROUTES.PACKAGE_WRITE} className="btn btn-primary btn-sm">
-            패키지 등록
-          </Link>
-        )}
-      </div>
+      <HeroSection
+        title="패키지 리뷰"
+        subtitle="리눅스 패키지를 평가하고 추천하는 공간"
+        actionText="패키지 등록"
+        actionLink={ROUTES.PACKAGE_WRITE}
+      />
 
       <div className="pkg-list-page__categories">
         <button

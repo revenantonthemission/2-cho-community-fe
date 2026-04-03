@@ -1,0 +1,9 @@
+.skeleton-card { padding: var(--spacing-lg); border-bottom: 1px solid var(--color-border-light); }
+.skeleton-line {
+  height: 14px; background: var(--color-bg-tertiary); border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-sm); animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+.skeleton-line--short { width: 30%; }
+.skeleton-line--long { width: 90%; }
+.skeleton-line--medium { width: 60%; }
+@keyframes skeleton-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }

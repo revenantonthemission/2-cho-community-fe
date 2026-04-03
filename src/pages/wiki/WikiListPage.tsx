@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '../../services/api';
 import { API_ENDPOINTS } from '../../constants/endpoints';
 import { ROUTES } from '../../constants/routes';
@@ -8,6 +8,7 @@ import { showToast } from '../../utils/toast';
 import WikiCard from '../../components/wiki/WikiCard';
 import WikiTagFilter from '../../components/wiki/WikiTagFilter';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import HeroSection from '../../components/HeroSection';
 import type { ApiResponse } from '../../types/common';
 import type { WikiListResponse, WikiTag } from '../../types/wiki';
 import { useAuth } from '../../hooks/useAuth';
@@ -123,14 +124,12 @@ export default function WikiListPage() {
 
   return (
     <div className="wiki-list-page">
-      <div className="wiki-list-page__header">
-        <h1>위키</h1>
-        {isAuthenticated && (
-          <Link to={ROUTES.WIKI_WRITE} className="btn btn-primary btn-sm">
-            새 위키 작성
-          </Link>
-        )}
-      </div>
+      <HeroSection
+        title="위키"
+        subtitle="리눅스 지식을 공유하고 함께 만들어가는 백과사전"
+        actionText="페이지 작성"
+        actionLink={ROUTES.WIKI_WRITE}
+      />
 
       <div className="wiki-list-page__controls">
         <input

@@ -288,3 +288,12 @@
 .post-card .post-divider {
     background-color: var(--card-divider);
 }
+
+/* ============================= */
+/* 읽음 상태 / 워치 / Q&A 배지    */
+/* ============================= */
+.post-card--read { opacity: 0.7; }
+.post-card__watching { color: var(--color-primary); margin-left: var(--spacing-xs); }
+.qa-badge { font-size: var(--font-size-xs); padding: 2px var(--spacing-xs); border-radius: var(--radius-sm); }
+.qa-badge--solved { background: var(--color-success-bg); color: var(--color-success); }
+.qa-badge--unsolved { background: #FEF3C7; color: var(--color-warning); }

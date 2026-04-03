@@ -8,7 +8,8 @@ import { Post } from '../types/post';
 import { ApiResponse, PostListResponse } from '../types/common';
 import PostCard from '../components/PostCard';
 import Pagination from '../components/Pagination';
-import LoadingSpinner from '../components/LoadingSpinner';
+import HeroSection from '../components/HeroSection';
+import SkeletonCard from '../components/SkeletonCard';
 
 const SORT_OPTIONS = [
   { value: 'latest', label: '최신순' },
@@ -135,6 +136,12 @@ export default function PostListPage() {
 
   return (
     <div className="post-list-page">
+      <HeroSection
+        title="Camp Linux에 오신 것을 환영합니다"
+        subtitle="리눅스 유저를 위한 커뮤니티 베이스캠프"
+        actionText="게시글 작성"
+        actionLink={ROUTES.POST_WRITE}
+      />
       {/* 검색 */}
       <div className="search-bar" ref={searchBarRef}>
         <input
@@ -257,7 +264,11 @@ export default function PostListPage() {
         </div>
       )}
 
-      {isLoading && <LoadingSpinner />}
+      {isLoading && (
+        <ul className="post-list">
+          {Array.from({ length: 5 }, (_, i) => <SkeletonCard key={i} />)}
+        </ul>
+      )}
 
       {!isLoading && error && (
         <p className="error-msg">{error}</p>

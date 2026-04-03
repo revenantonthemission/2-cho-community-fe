@@ -6,6 +6,7 @@ import { showToast } from '../utils/toast';
 import { useAuth } from '../hooks/useAuth';
 import BadgeCard from '../components/BadgeCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import HeroSection from '../components/HeroSection';
 import type { ApiResponse } from '../types/common';
 import type {
   BadgeDefinition, UserBadge, ReputationResponse,
@@ -54,7 +55,7 @@ export default function BadgesPage() {
 
   return (
     <div className="badges-page">
-      <h1 className="page-title">배지</h1>
+      <HeroSection title="배지" subtitle="커뮤니티 활동으로 획득하는 배지 컬렉션" />
 
       {reputation && (
         <div className="badges-page__reputation">
