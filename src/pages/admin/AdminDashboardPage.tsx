@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { formatDate } from '../../utils/formatters';
 import { api } from '../../services/api';
 import { API_ENDPOINTS } from '../../constants/endpoints';
 import { UI_MESSAGES } from '../../constants/messages';
@@ -174,7 +175,7 @@ export default function AdminDashboardPage() {
                 {u.role === 'admin' && <span className="admin-badge admin-badge--admin">관리자</span>}
                 {u.suspended_until && (
                   <span className="admin-badge admin-badge--suspended">
-                    정지 (~{new Date(u.suspended_until).toLocaleDateString()})
+                    정지 (~{formatDate(u.suspended_until)})
                   </span>
                 )}
               </div>

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
+import { timeAgo } from '../utils/formatters';
 import type { Notification, NotificationType } from '../types/notification';
 
 const TYPE_CONFIG: Record<
@@ -34,14 +35,6 @@ interface Props {
   compact?: boolean; // 드롭다운에서는 true (삭제 버튼 숨김)
 }
 
-function formatNotificationTime(dateStr: string): string {
-  const date = new Date(dateStr);
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const dd = String(date.getDate()).padStart(2, '0');
-  const hh = String(date.getHours()).padStart(2, '0');
-  const min = String(date.getMinutes()).padStart(2, '0');
-  return `${mm}/${dd} ${hh}:${min}`;
-}
 
 export default function NotificationItem({
   notification: n,
@@ -79,7 +72,7 @@ export default function NotificationItem({
       <div className="notification-item__body">
         <div className="notification-item__meta">
           <span className="notification-item__time">
-            [{formatNotificationTime(n.created_at)}]
+            [{timeAgo(n.created_at)}]
           </span>
           <span
             className="notification-item__tag"

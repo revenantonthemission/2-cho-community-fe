@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { formatDate } from '../utils/formatters';
 import { useAuth } from '../hooks/useAuth';
 import { useDM } from '../hooks/useDM';
 import PostCard from '../components/PostCard';
@@ -230,7 +231,7 @@ export default function UserProfilePage() {
         <div className="admin-profile-actions">
           {profile.suspended_until ? (
             <button type="button" className="btn btn-secondary btn-sm" onClick={handleUnsuspend}>
-              정지 해제 (~{new Date(profile.suspended_until).toLocaleDateString()})
+              정지 해제 (~{formatDate(profile.suspended_until)})
             </button>
           ) : (
             <button type="button" className="btn btn-danger btn-sm" onClick={() => setSuspendModalOpen(true)}>

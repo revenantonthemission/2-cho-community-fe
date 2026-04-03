@@ -1,3 +1,4 @@
+import { timeAgo } from '../../utils/formatters';
 import type { Conversation } from '../../types/dm';
 
 interface Props {
@@ -6,23 +7,6 @@ interface Props {
   onClick: (id: number) => void;
 }
 
-function formatCardTime(dateStr: string | null): string {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - d.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  if (diffDays === 0) {
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
-    return `${hh}:${mm}`;
-  }
-  if (diffDays === 1) return '어제';
-  if (diffDays < 7) return `${diffDays}일 전`;
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  return `${mm}/${dd}`;
-}
 
 function getPreviewText(conversation: Conversation): string {
   const lm = conversation.last_message;
@@ -51,7 +35,7 @@ export default function DMConversationCard({
             </span>
           )}
           <span className="dm-conv-card__time">
-            {formatCardTime(c.last_message_at ?? c.created_at)}
+            {timeAgo(c.last_message_at ?? c.created_at)}
           </span>
         </div>
       </div>

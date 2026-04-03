@@ -1,3 +1,4 @@
+import { formatDate } from '../utils/formatters';
 import type { BadgeDefinition, UserBadge } from '../types/activity';
 
 interface Props {
@@ -14,7 +15,7 @@ export default function BadgeCard({ badge, earned }: Props) {
         <p className="badge-card__desc">{badge.description}</p>
         {earned ? (
           <span className="badge-card__date">
-            획득: {new Date(earned.earned_at).toLocaleDateString()}
+            획득: {formatDate(earned.earned_at)}
           </span>
         ) : (
           <span className="badge-card__threshold">
