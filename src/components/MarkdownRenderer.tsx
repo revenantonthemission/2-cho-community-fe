@@ -2,7 +2,7 @@ import { useMemo, useRef, useEffect } from 'react';
 import DOMPurify from 'dompurify';
 import { markedInstance } from '../utils/markdown';
 
-const PURIFY_CONFIG: DOMPurify.Config = {
+const PURIFY_CONFIG = {
   ALLOWED_TAGS: [
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'p', 'br', 'hr',
