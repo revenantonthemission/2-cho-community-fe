@@ -5,7 +5,6 @@ import { API_ENDPOINTS } from '../../constants/endpoints';
 import { ROUTES } from '../../constants/routes';
 import { UI_MESSAGES } from '../../constants/messages';
 import { showToast } from '../../utils/toast';
-import { useAuth } from '../../hooks/useAuth';
 import PackageCard from '../../components/packages/PackageCard';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import HeroSection from '../../components/HeroSection';
@@ -23,8 +22,6 @@ const PAGE_LIMIT = 10;
 
 export default function PackageListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const { isAuthenticated } = useAuth();
 
   const sort = searchParams.get('sort') ?? 'latest';
   const category = searchParams.get('category') ?? '';

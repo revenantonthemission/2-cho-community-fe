@@ -220,7 +220,7 @@
 /* 터미널 검색 프롬프트             */
 /* ============================= */
 .search-prompt {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   color: var(--color-primary);
   font-weight: var(--font-weight-semibold);
   margin-right: var(--spacing-xs);

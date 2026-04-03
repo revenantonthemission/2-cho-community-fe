@@ -13,7 +13,7 @@ const TYPE_CONFIG: Record<
   follow: { label: '팔로우', color: 'var(--color-success)' },
   bookmark: { label: '북마크', color: 'var(--color-info)' },
   reply: { label: '답글', color: 'var(--color-primary-accent)' },
-  badge_earned: { label: '뱃지', color: 'var(--color-warning)' },
+  badge_earned: { label: '배지', color: 'var(--color-warning)' },
   level_up: { label: '레벨업', color: 'var(--color-warning)' },
 };
 
@@ -24,7 +24,7 @@ const MESSAGE_MAP: Record<NotificationType, string> = {
   follow: '님이 팔로우합니다',
   bookmark: '님이 게시글을 북마크했습니다',
   reply: '님이 답글을 달았습니다',
-  badge_earned: '새 뱃지를 획득했습니다',
+  badge_earned: '새 배지를 획득했습니다',
   level_up: '레벨이 올랐습니다',
 };
 

@@ -11,7 +11,6 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import HeroSection from '../../components/HeroSection';
 import type { ApiResponse } from '../../types/common';
 import type { WikiListResponse, WikiTag } from '../../types/wiki';
-import { useAuth } from '../../hooks/useAuth';
 
 const SORT_OPTIONS = [
   { value: 'latest', label: '최신순' },
@@ -22,8 +21,6 @@ const PAGE_LIMIT = 10;
 
 export default function WikiListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const { isAuthenticated } = useAuth();
 
   const sort = searchParams.get('sort') ?? 'latest';
   const search = searchParams.get('search') ?? '';

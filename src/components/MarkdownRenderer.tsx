@@ -14,7 +14,8 @@ const PURIFY_CONFIG = {
   ],
   ALLOWED_ATTR: [
     'href', 'target', 'rel', 'src', 'alt', 'title',
-    'class', 'type', 'checked', 'disabled',
+    'class', 'id', 'loading', 'type', 'checked', 'disabled',
+    'start', 'width', 'height',
   ],
   FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form'],
   FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur'],

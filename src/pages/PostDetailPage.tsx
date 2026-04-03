@@ -18,6 +18,7 @@ import ReportModal from '../components/ReportModal';
 import PollView from '../components/PollView';
 import PostCard from '../components/PostCard';
 import BackButton from '../components/BackButton';
+import Modal from '../components/Modal';
 
 export default function PostDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -31,6 +32,7 @@ export default function PostDetailPage() {
   const [commentSort, setCommentSort] = useState<'oldest' | 'latest' | 'popular'>('oldest');
   const [reportOpen, setReportOpen] = useState(false);
   const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -111,7 +113,6 @@ export default function PostDetailPage() {
 
   async function handleDelete() {
     if (!post) return;
-    if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
       await api.delete(`${API_ENDPOINTS.POSTS.ROOT}/${post.post_id}`);
       showToast(UI_MESSAGES.POST_DELETE_SUCCESS);
@@ -274,7 +275,7 @@ export default function PostDetailPage() {
           {(isOwner || isAdmin) && (
             <div className="post-actions">
               {isOwner && <Link to={ROUTES.POST_EDIT(post.post_id)} className="btn btn-secondary btn-sm">수정</Link>}
-              <button className="btn btn-secondary btn-sm" onClick={handleDelete}>삭제</button>
+              <button className="btn btn-danger btn-sm" onClick={() => setDeleteConfirm(true)}>삭제</button>
             </div>
           )}
         </div>
@@ -373,6 +374,14 @@ export default function PostDetailPage() {
         targetType="post"
         targetId={post.post_id}
       />
+
+      <Modal isOpen={deleteConfirm} onClose={() => setDeleteConfirm(false)} title="게시글 삭제">
+        <p>정말 삭제하시겠습니까?</p>
+        <div className="modal-actions">
+          <button className="btn btn-danger btn-sm" onClick={() => { handleDelete(); setDeleteConfirm(false); }}>삭제</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => setDeleteConfirm(false)}>취소</button>
+        </div>
+      </Modal>
     </main>
   );
 }
