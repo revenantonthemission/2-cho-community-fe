@@ -100,7 +100,7 @@ export default function LoginPage() {
           <h2>로그인</h2>
           <form onSubmit={handleSubmit}>
             <div className="input-group">
-              <label htmlFor="email">이메일</label>
+              <label className="input-label" htmlFor="email">이메일</label>
               <input
                 id="email"
                 className="input-field"
@@ -115,7 +115,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="input-group">
-              <label htmlFor="password">비밀번호</label>
+              <label className="input-label" htmlFor="password">비밀번호</label>
               <input
                 id="password"
                 className="input-field"

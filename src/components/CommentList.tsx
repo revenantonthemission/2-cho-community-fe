@@ -97,6 +97,7 @@ function CommentItem({
       {editing ? (
         <div className="comment-edit">
           <textarea
+            className="input-field"
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
             rows={3}

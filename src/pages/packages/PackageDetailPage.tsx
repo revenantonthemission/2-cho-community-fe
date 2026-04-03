@@ -202,13 +202,14 @@ export default function PackageDetailPage() {
         {showReviewForm && (
           <form onSubmit={handleReviewSubmit} className="pkg-review-form">
             <div className="pkg-review-form__rating">
-              <label>별점</label>
+              <label className="input-label">별점</label>
               <StarRating value={reviewRating} onChange={setReviewRating} />
             </div>
             <div className="input-group">
-              <label htmlFor="review-title">제목</label>
+              <label className="input-label" htmlFor="review-title">제목</label>
               <input
                 id="review-title"
+                className="input-field"
                 type="text"
                 value={reviewTitle}
                 onChange={(e) => setReviewTitle(e.target.value)}
@@ -217,9 +218,10 @@ export default function PackageDetailPage() {
               />
             </div>
             <div className="input-group">
-              <label htmlFor="review-content">내용</label>
+              <label className="input-label" htmlFor="review-content">내용</label>
               <textarea
                 id="review-content"
+                className="input-field"
                 value={reviewContent}
                 onChange={(e) => setReviewContent(e.target.value)}
                 placeholder="리뷰 내용 (최소 10자)"

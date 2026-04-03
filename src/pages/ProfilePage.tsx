@@ -177,10 +177,11 @@ export default function ProfilePage() {
         <p>정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
         <form onSubmit={handleDeleteAccount}>
           <div className="input-group">
-            <label htmlFor="delete-pw">비밀번호 확인</label>
+            <label className="input-label" htmlFor="delete-pw">비밀번호 확인</label>
             <input
               id="delete-pw"
               type="password"
+              className="input-field"
               value={deletePassword}
               onChange={(e) => setDeletePassword(e.target.value)}
               placeholder="현재 비밀번호를 입력하세요"

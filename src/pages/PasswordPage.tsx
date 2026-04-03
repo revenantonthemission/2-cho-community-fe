@@ -57,7 +57,7 @@ export default function PasswordPage() {
       <h1 className="page-title">비밀번호 변경</h1>
       <form onSubmit={handleSubmit}>
         <div className="input-group">
-          <label htmlFor="current-pw">현재 비밀번호</label>
+          <label className="input-label" htmlFor="current-pw">현재 비밀번호</label>
           <input
             id="current-pw"
             type="password"
@@ -68,7 +68,7 @@ export default function PasswordPage() {
           />
         </div>
         <div className="input-group">
-          <label htmlFor="new-pw">새 비밀번호</label>
+          <label className="input-label" htmlFor="new-pw">새 비밀번호</label>
           <input
             id="new-pw"
             type="password"
@@ -79,7 +79,7 @@ export default function PasswordPage() {
           />
         </div>
         <div className="input-group">
-          <label htmlFor="confirm-pw">새 비밀번호 확인</label>
+          <label className="input-label" htmlFor="confirm-pw">새 비밀번호 확인</label>
           <input
             id="confirm-pw"
             type="password"
