@@ -121,7 +121,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="admin-dashboard">
-      <h1>관리자 대시보드</h1>
+      <h1 className="page-title">관리자 대시보드</h1>
 
       {/* 통계 카드 */}
       <div className="admin-stats">

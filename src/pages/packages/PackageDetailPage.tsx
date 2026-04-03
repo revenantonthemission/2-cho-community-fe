@@ -248,7 +248,7 @@ export default function PackageDetailPage() {
 
         {/* 리뷰 목록 */}
         {reviews.length === 0 ? (
-          <p className="pkg-reviews__empty">아직 리뷰가 없습니다.</p>
+          <div className="empty-state"><code>$ apt list --reviewed</code><p>아직 리뷰가 없습니다.</p></div>
         ) : (
           <div className="pkg-review-list">
             {reviews.map((review) => (

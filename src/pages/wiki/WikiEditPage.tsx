@@ -68,7 +68,7 @@ export default function WikiEditPage() {
 
   return (
     <div className="wiki-edit-page">
-      <h2>위키 페이지 수정</h2>
+      <h1 className="page-title">위키 페이지 수정</h1>
       <WikiForm initialData={initialData} onSubmit={handleSubmit} submitLabel="수정 완료" />
     </div>
   );

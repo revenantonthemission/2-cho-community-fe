@@ -71,7 +71,7 @@ export default function PackageEditPage() {
 
   return (
     <div className="pkg-edit-page">
-      <h2>패키지 수정</h2>
+      <h1 className="page-title">패키지 수정</h1>
       <PackageForm initialData={initialData} onSubmit={handleSubmit} submitLabel="수정 완료" />
     </div>
   );

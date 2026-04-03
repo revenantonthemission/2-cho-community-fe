@@ -48,7 +48,7 @@ export default function WikiWritePage() {
 
   return (
     <div className="wiki-write-page">
-      <h2>새 위키 페이지</h2>
+      <h1 className="page-title">새 위키 페이지</h1>
       <WikiForm showSlug onSubmit={handleSubmit} submitLabel="페이지 생성" />
     </div>
   );

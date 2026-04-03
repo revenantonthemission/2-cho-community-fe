@@ -54,7 +54,7 @@ export default function BadgesPage() {
 
   return (
     <div className="badges-page">
-      <h1>뱃지</h1>
+      <h1 className="page-title">배지</h1>
 
       {reputation && (
         <div className="badges-page__reputation">

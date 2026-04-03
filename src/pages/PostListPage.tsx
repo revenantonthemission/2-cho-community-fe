@@ -235,7 +235,7 @@ export default function PostListPage() {
 
       {/* Q&A 해결/미해결 필터 — categoryId가 있을 때만 표시 */}
       {categoryId && (
-        <div className="sort-buttons" style={{ marginBottom: 'var(--spacing-md)' }}>
+        <div className="sort-buttons mb-md">
           <button
             className={`sort-btn${solved === null ? ' active' : ''}`}
             onClick={() => { const n = new URLSearchParams(searchParams); n.delete('solved'); n.set('page', '1'); setSearchParams(n); }}

@@ -57,6 +57,7 @@ export default function UserProfilePage() {
   const [followList, setFollowList] = useState<FollowUser[]>([]);
   const [followListLoading, setFollowListLoading] = useState(false);
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const isSelf = currentUser?.id === Number(id);
 
@@ -81,7 +82,7 @@ export default function UserProfilePage() {
         setIsFollowing(!!profileRes.data?.is_following);
         setIsBlocked(!!profileRes.data?.is_blocked);
       } catch {
-        showToast('프로필을 불러오는 중 오류가 발생했습니다.', 'error');
+        setError('프로필을 불러오는 중 오류가 발생했습니다.');
       } finally {
         setIsLoading(false);
       }
@@ -157,7 +158,8 @@ export default function UserProfilePage() {
   const isAdmin = currentUser?.role === 'admin';
 
   if (isLoading) return <LoadingSpinner />;
-  if (!profile) return <div>사용자를 찾을 수 없습니다.</div>;
+  if (error) return (<div className="empty-state"><code>$ finger user</code><p>{error}</p></div>);
+  if (!profile) return (<div className="empty-state"><code>$ finger unknown_user</code><p>사용자를 찾을 수 없습니다.</p></div>);
 
   return (
     <div className="main-container">
@@ -184,7 +186,7 @@ export default function UserProfilePage() {
           <>
             <button
               type="button"
-              className={['follow-btn', isFollowing ? 'following' : ''].filter(Boolean).join(' ')}
+              className={`btn ${isFollowing ? 'btn-secondary' : 'btn-primary'} btn-sm`}
               onClick={handleFollow}
             >
               {isFollowing ? '언팔로우' : '팔로우'}
@@ -204,7 +206,7 @@ export default function UserProfilePage() {
             >
               쪽지 보내기
             </button>
-            <button type="button" className="block-btn" onClick={handleBlock}>
+            <button type="button" className="btn btn-danger btn-sm" onClick={handleBlock}>
               {isBlocked ? '차단 해제' : '차단'}
             </button>
           </>

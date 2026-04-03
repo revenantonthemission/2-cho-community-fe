@@ -69,7 +69,7 @@ export default function FindAccountPage() {
     <div className="login-page">
       <div className="login-form-section">
         <div className="login-container">
-          <h2>계정 찾기</h2>
+          <h1 className="page-title">계정 찾기</h1>
           <div className="tab-nav">
             <button
               className={`tab-btn${tab === 'email' ? ' active' : ''}`}
@@ -99,7 +99,7 @@ export default function FindAccountPage() {
                 autoComplete="username"
               />
             </div>
-            <button type="submit" className="btn btn-primary" disabled={!nickname.trim() || isSubmitting}>
+            <button type="submit" className="btn btn-primary btn-full" disabled={!nickname.trim() || isSubmitting}>
               {isSubmitting ? '검색 중...' : '이메일 찾기'}
             </button>
           </form>
@@ -117,7 +117,7 @@ export default function FindAccountPage() {
                 autoComplete="email"
               />
             </div>
-            <button type="submit" className="btn btn-primary" disabled={!email.trim() || isSubmitting}>
+            <button type="submit" className="btn btn-primary btn-full" disabled={!email.trim() || isSubmitting}>
               {isSubmitting ? '발송 중...' : '임시 비밀번호 발송'}
             </button>
           </form>

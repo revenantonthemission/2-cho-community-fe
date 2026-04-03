@@ -100,7 +100,7 @@ export default function AdminReportsPage() {
 
   return (
     <div className="admin-reports">
-      <h1>신고 관리</h1>
+      <h1 className="page-title">신고 관리</h1>
 
       <div className="admin-reports__tabs">
         {STATUS_TABS.map((tab) => (

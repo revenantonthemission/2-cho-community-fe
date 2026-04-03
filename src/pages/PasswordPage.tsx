@@ -90,7 +90,7 @@ export default function PasswordPage() {
           />
         </div>
         {error && <p className="error-msg">{error}</p>}
-        <button type="submit" className="btn btn-primary" disabled={!isValid || isSubmitting}>
+        <button type="submit" className="btn btn-primary btn-full" disabled={!isValid || isSubmitting}>
           {isSubmitting ? '변경 중...' : '비밀번호 변경'}
         </button>
       </form>

@@ -142,7 +142,7 @@ export default function MyActivityPage() {
 
   return (
     <div className="my-activity-page">
-      <h1>내 활동</h1>
+      <h1 className="page-title">내 활동</h1>
 
       <div className="activity-tabs">
         {TABS.map((t) => (

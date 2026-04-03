@@ -50,7 +50,7 @@ export default function WikiHistoryPage() {
   return (
     <div className="wiki-history">
       <div className="wiki-history__header">
-        <h2>편집 기록: {slug}</h2>
+        <h1 className="page-title">편집 기록: {slug}</h1>
         <Link to={ROUTES.WIKI_DETAIL(slug!)} className="btn btn-secondary btn-sm">
           ← 페이지로 돌아가기
         </Link>
@@ -58,10 +58,9 @@ export default function WikiHistoryPage() {
 
       {revisions.length >= 2 && (
         <button
-          className="btn btn-primary btn-sm"
+          className="btn btn-primary btn-sm mb-lg"
           onClick={handleCompare}
           disabled={fromRev === null || toRev === null || fromRev === toRev}
-          style={{ marginBottom: 'var(--spacing-lg)' }}
         >
           선택한 리비전 비교
         </button>

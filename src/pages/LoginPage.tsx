@@ -97,7 +97,7 @@ export default function LoginPage() {
       {/* 우측: 로그인 폼 */}
       <div className="login-form-section">
         <div className="login-container">
-          <h2>로그인</h2>
+          <h1 className="page-title">로그인</h1>
           <form onSubmit={handleSubmit}>
             <div className="input-group">
               <label className="input-label" htmlFor="email">이메일</label>

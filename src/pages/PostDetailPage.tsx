@@ -271,8 +271,8 @@ export default function PostDetailPage() {
 
           {isOwner && (
             <div className="post-actions">
-              <Link to={ROUTES.POST_EDIT(post.post_id)} className="action-btn">수정</Link>
-              <button className="action-btn" onClick={handleDelete}>삭제</button>
+              <Link to={ROUTES.POST_EDIT(post.post_id)} className="btn btn-secondary btn-sm">수정</Link>
+              <button className="btn btn-secondary btn-sm" onClick={handleDelete}>삭제</button>
             </div>
           )}
         </div>
@@ -307,22 +307,22 @@ export default function PostDetailPage() {
 
         {/* 액션 버튼 */}
         <div className="post-extra-actions">
-          <button className="action-btn" onClick={handleShare}>공유</button>
+          <button className="btn btn-secondary btn-sm" onClick={handleShare}>공유</button>
           {user && (
-            <button className="action-btn" onClick={handleSubscription}>
+            <button className="btn btn-secondary btn-sm" onClick={handleSubscription}>
               {post.is_watching ? '구독 해제' : '구독'}
             </button>
           )}
           {user && !isOwner && (
             <>
-              <button className="action-btn" onClick={handleReport}>신고</button>
-              <button className="action-btn" onClick={handleBlock}>
+              <button className="btn btn-secondary btn-sm" onClick={handleReport}>신고</button>
+              <button className="btn btn-secondary btn-sm" onClick={handleBlock}>
                 {post.is_blocked ? '차단 해제' : '차단'}
               </button>
             </>
           )}
           {isAdmin && (
-            <button className="action-btn" onClick={handlePin}>
+            <button className="btn btn-secondary btn-sm" onClick={handlePin}>
               {post.is_pinned ? '고정 해제' : '고정'}
             </button>
           )}

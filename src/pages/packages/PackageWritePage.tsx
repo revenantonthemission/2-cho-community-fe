@@ -45,7 +45,7 @@ export default function PackageWritePage() {
 
   return (
     <div className="pkg-write-page">
-      <h2>패키지 등록</h2>
+      <h1 className="page-title">패키지 등록</h1>
       <PackageForm showName onSubmit={handleSubmit} submitLabel="패키지 등록" />
     </div>
   );

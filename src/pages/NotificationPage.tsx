@@ -97,7 +97,7 @@ export default function NotificationPage() {
   return (
     <div className="notification-page">
       <div className="notification-page__header">
-        <h1>알림</h1>
+        <h1 className="page-title">알림</h1>
         <div className="notification-page__actions">
           {unreadCount > 0 && (
             <button

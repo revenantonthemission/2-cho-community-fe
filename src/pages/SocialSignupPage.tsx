@@ -96,7 +96,7 @@ export default function SocialSignupPage() {
             />
           </div>
           {error && <p className="error-msg">{error}</p>}
-          <button type="submit" className="btn btn-primary" disabled={!isValid || isSubmitting}>
+          <button type="submit" className="btn btn-primary btn-full" disabled={!isValid || isSubmitting}>
             {isSubmitting ? '설정 중...' : '시작하기'}
           </button>
           </form>

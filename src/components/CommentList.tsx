@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Heart } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import CommentForm from './CommentForm';
 import ReportModal from './ReportModal';
@@ -113,7 +114,7 @@ function CommentItem({
 
       <div className="comment-actions">
         <button type="button" className="comment-action-btn" onClick={handleLike}>
-          {isLiked ? '❤️' : '🤍'} {likeCount}
+          <Heart size={14} fill={isLiked ? 'currentColor' : 'none'} /> {likeCount}
         </button>
         {!isReply && (
           <button type="button" className="comment-action-btn" onClick={() => setReplyOpen(!replyOpen)}>
