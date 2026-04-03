@@ -10,7 +10,9 @@ import type { Category, CategoriesResponse } from '../types/post';
 import type { ApiResponse } from '../types/common';
 import { PACKAGE_CATEGORIES } from '../types/package';
 
-export default function Sidebar() {
+interface SidebarProps { isOpen?: boolean; onClose?: () => void; }
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { user, isAuthenticated } = useAuth();
   const { unreadCount } = useNotification();
   const { unreadCount: dmUnreadCount } = useDM();
@@ -63,12 +65,14 @@ export default function Sidebar() {
   }
 
   return (
-    <nav className="sidebar" id="app-sidebar">
+    <>
+    <nav className={`sidebar${isOpen ? ' open' : ''}`} id="app-sidebar">
+      {onClose && <button className="sidebar-close" onClick={onClose} aria-label="메뉴 닫기">×</button>}
       {/* navigate */}
       <SidebarSection title="navigate">
-        <SidebarLink to={ROUTES.HOME} active={isFeed}>피드</SidebarLink>
-        <SidebarLink to={ROUTES.WIKI} active={isWiki}>위키</SidebarLink>
-        <SidebarLink to={ROUTES.PACKAGES} active={isPackages}>패키지</SidebarLink>
+        <SidebarLink to={ROUTES.HOME} active={isFeed} onClose={onClose}>피드</SidebarLink>
+        <SidebarLink to={ROUTES.WIKI} active={isWiki} onClose={onClose}>위키</SidebarLink>
+        <SidebarLink to={ROUTES.PACKAGES} active={isPackages} onClose={onClose}>패키지</SidebarLink>
       </SidebarSection>
 
       {/* categories — 피드 페이지에서만 */}
@@ -77,7 +81,7 @@ export default function Sidebar() {
           <li className="sidebar__item">
             <button
               className={`sidebar__link sidebar__link--category${currentCategory === null ? ' active' : ''}`}
-              onClick={() => handleCategoryClick(null)}
+              onClick={() => { handleCategoryClick(null); onClose?.(); }}
             >
               전체
             </button>
@@ -86,7 +90,7 @@ export default function Sidebar() {
             <li key={cat.category_id} className="sidebar__item">
               <button
                 className={`sidebar__link sidebar__link--category${currentCategory === String(cat.category_id) ? ' active' : ''}`}
-                onClick={() => handleCategoryClick(cat.category_id)}
+                onClick={() => { handleCategoryClick(cat.category_id); onClose?.(); }}
               >
                 {cat.name}
               </button>
@@ -103,6 +107,7 @@ export default function Sidebar() {
               <Link
                 className={`sidebar__link sidebar__link--category${currentTag === tag.name ? ' active' : ''}`}
                 to={`${ROUTES.WIKI}?tag=${encodeURIComponent(tag.name)}`}
+                onClick={() => onClose?.()}
               >
                 {tag.name}
               </Link>
@@ -119,6 +124,7 @@ export default function Sidebar() {
               <Link
                 className={`sidebar__link sidebar__link--category${currentPkgCategory === value ? ' active' : ''}`}
                 to={`${ROUTES.PACKAGES}?category=${value}`}
+                onClick={() => onClose?.()}
               >
                 {label}
               </Link>
@@ -130,13 +136,13 @@ export default function Sidebar() {
       {/* social — 로그인 시 */}
       {isAuthenticated && (
         <SidebarSection title="social">
-          <SidebarLink to={ROUTES.NOTIFICATIONS} active={path === '/notifications'} badge={unreadCount}>
+          <SidebarLink to={ROUTES.NOTIFICATIONS} active={path === '/notifications'} badge={unreadCount} onClose={onClose}>
             알림
           </SidebarLink>
-          <SidebarLink to={ROUTES.DM} active={path === '/dm'} badge={dmUnreadCount}>
+          <SidebarLink to={ROUTES.DM} active={path === '/dm'} badge={dmUnreadCount} onClose={onClose}>
             메시지
           </SidebarLink>
-          <SidebarLink to={ROUTES.MY_ACTIVITY} active={path === '/my-activity'}>
+          <SidebarLink to={ROUTES.MY_ACTIVITY} active={path === '/my-activity'} onClose={onClose}>
             내 활동
           </SidebarLink>
         </SidebarSection>
@@ -145,11 +151,13 @@ export default function Sidebar() {
       {/* admin — 관리자만 */}
       {isAdmin && (
         <SidebarSection title="admin">
-          <SidebarLink to={ROUTES.ADMIN} active={path === '/admin'}>대시보드</SidebarLink>
-          <SidebarLink to={ROUTES.ADMIN_REPORTS} active={path === '/admin/reports'}>신고 관리</SidebarLink>
+          <SidebarLink to={ROUTES.ADMIN} active={path === '/admin'} onClose={onClose}>대시보드</SidebarLink>
+          <SidebarLink to={ROUTES.ADMIN_REPORTS} active={path === '/admin/reports'} onClose={onClose}>신고 관리</SidebarLink>
         </SidebarSection>
       )}
     </nav>
+    {isOpen && <div className="sidebar-overlay" onClick={onClose} />}
+    </>
   );
 }
 
@@ -175,15 +183,16 @@ function SidebarSection({ title, titleLink, children }: {
 }
 
 // 네비게이션 링크 컴포넌트
-function SidebarLink({ to, active, badge, children }: {
+function SidebarLink({ to, active, badge, onClose, children }: {
   to: string;
   active: boolean;
   badge?: number;
+  onClose?: () => void;
   children: React.ReactNode;
 }) {
   return (
     <li className="sidebar__item">
-      <Link className={`sidebar__link${active ? ' active' : ''}`} to={to}>
+      <Link className={`sidebar__link${active ? ' active' : ''}`} to={to} onClick={() => onClose?.()}>
         <span className="sidebar__item-label">{children}</span>
         {badge !== undefined && badge > 0 && (
           <span className="sidebar__badge">

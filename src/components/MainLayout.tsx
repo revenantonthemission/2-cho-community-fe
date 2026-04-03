@@ -11,6 +11,7 @@ import { showToast } from '../utils/toast';
 export default function MainLayout() {
   const { user, isAuthenticated } = useAuth();
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Sidebar가 있는 레이아웃에서 body 클래스 설정 (CSS가 header 너비 조정에 사용)
   useEffect(() => {
@@ -41,7 +42,7 @@ export default function MainLayout() {
   return (
     <>
       <a href="#main-content" className="skip-link">본문 바로가기</a>
-      <Header />
+      <Header onMenuToggle={() => setSidebarOpen(true)} />
       {showVerifyBanner && (
         <div className="email-verify-banner">
           <span>이메일 인증이 필요합니다. 받은 편지함을 확인해주세요.</span>
@@ -55,7 +56,7 @@ export default function MainLayout() {
         </div>
       )}
       <main id="main-content" className="main-container">
-        <Sidebar />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="content">
           <Outlet />
         </div>

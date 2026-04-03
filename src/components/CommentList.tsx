@@ -123,10 +123,10 @@ function CommentItem({
           </button>
         )}
         {isOwner && !editing && (
-          <>
-            <button type="button" className="comment-action-btn" onClick={() => setEditing(true)}>수정</button>
-            <button type="button" className="comment-action-btn" onClick={handleDelete}>삭제</button>
-          </>
+          <button type="button" className="comment-action-btn" onClick={() => setEditing(true)}>수정</button>
+        )}
+        {(isOwner || user?.role === 'admin') && !editing && (
+          <button type="button" className="comment-action-btn" onClick={handleDelete}>삭제</button>
         )}
         {isPostOwner && !isReply && onAcceptAnswer && (
           <button type="button" className="comment-action-btn" onClick={() => onAcceptAnswer(comment.id)}>

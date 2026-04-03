@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Menu } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../contexts/ThemeContext';
 import { ROUTES } from '../constants/routes';
@@ -9,7 +9,9 @@ import { UI_MESSAGES } from '../constants/messages';
 import NotificationBell from './NotificationBell';
 import DMBadge from './dm/DMBadge';
 
-export default function Header() {
+interface HeaderProps { onMenuToggle?: () => void; }
+
+export default function Header({ onMenuToggle }: HeaderProps) {
   const { user, isAuthenticated, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -88,6 +90,9 @@ export default function Header() {
   return (
     <header>
       <div className="header-title-wrapper">
+        <button className="sidebar-toggle" onClick={onMenuToggle} aria-label="메뉴">
+          <Menu size={20} />
+        </button>
         <Link to={ROUTES.HOME} className="header-home-link">
           <span className="header-brand">Camp Linux</span>
         </Link>

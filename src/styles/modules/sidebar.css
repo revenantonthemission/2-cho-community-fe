@@ -281,20 +281,6 @@ body.has-sidebar .email-verify-banner {
 /* 모바일 (768px 이하)             */
 /* ============================= */
 @media (max-width: 768px) {
-    /* 사이드바 완전 숨김 — 하단 탭 바로 대체 */
-    .sidebar {
-        display: none !important;
-    }
-
-    /* 햄버거 토글 숨김 — 하단 탭 바로 대체 */
-    .sidebar-toggle {
-        display: none !important;
-    }
-
-    .sidebar-overlay {
-        display: none !important;
-    }
-
     /* body padding 리셋 — 사이드바가 드로어로 전환 */
     body.has-sidebar {
         padding-left: 0;
@@ -315,29 +301,57 @@ body.has-sidebar .email-verify-banner {
 
     /* 사이드바 → 슬라이드 드로어 */
     .sidebar {
-        transform: translateX(-100%);
-        transition: transform var(--transition-normal);
-        width: 280px;
-        z-index: calc(var(--z-modal) + 1);
+        position: fixed;
         top: 0;
-        padding-top: var(--spacing-4xl);
-        box-shadow: var(--shadow-lg);
+        left: 0;
+        width: 280px;
+        height: 100vh;
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        background: var(--color-bg-primary);
+        overflow-y: auto;
+        padding-top: var(--spacing-3xl);
     }
 
     .sidebar.open {
         transform: translateX(0);
     }
 
-    .sidebar__close {
-        display: block;
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+        background: rgba(0, 0, 0, 0.5);
     }
 
     .sidebar-toggle {
         display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        color: var(--color-text-primary);
+        cursor: pointer;
     }
 
-    .sidebar-overlay {
-        display: block;
+    .sidebar-close {
+        position: absolute;
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--color-text-secondary);
+    }
+}
+
+@media (min-width: 769px) {
+    .sidebar-toggle,
+    .sidebar-overlay,
+    .sidebar-close {
+        display: none;
     }
 }
 

@@ -269,9 +269,9 @@ export default function PostDetailPage() {
             <span className="post-date">{formatDate(post.created_at)}</span>
           </div>
 
-          {isOwner && (
+          {(isOwner || isAdmin) && (
             <div className="post-actions">
-              <Link to={ROUTES.POST_EDIT(post.post_id)} className="btn btn-secondary btn-sm">수정</Link>
+              {isOwner && <Link to={ROUTES.POST_EDIT(post.post_id)} className="btn btn-secondary btn-sm">수정</Link>}
               <button className="btn btn-secondary btn-sm" onClick={handleDelete}>삭제</button>
             </div>
           )}
