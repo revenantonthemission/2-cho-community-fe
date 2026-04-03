@@ -20,7 +20,7 @@ export default function PostWritePage() {
   return (
     <div className="write-container">
       <h1 className="page-title">게시글 작성</h1>
-      <PostForm onSubmit={handleSubmit} enableDraft />
+      <PostForm onSubmit={handleSubmit} submitLabel="완료" enableDraft />
     </div>
   );
 }

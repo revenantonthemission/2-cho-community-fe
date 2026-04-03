@@ -15,7 +15,7 @@ import type { PackageListResponse } from '../../types/package';
 
 const SORT_OPTIONS = [
   { value: 'latest', label: '최신순' },
-  { value: 'rating', label: '별점순' },
+  { value: 'rating', label: '평점순' },
   { value: 'reviews', label: '리뷰순' },
   { value: 'name', label: '이름순' },
 ];

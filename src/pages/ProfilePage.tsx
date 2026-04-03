@@ -114,6 +114,11 @@ export default function ProfilePage() {
         </div>
 
         <div className="input-group">
+          <label className="input-label">이메일</label>
+          <input className="input-field" value={user?.email ?? ''} disabled />
+        </div>
+
+        <div className="input-group">
           <label className="input-label" htmlFor="nickname">닉네임</label>
           <input
             id="nickname"
@@ -121,6 +126,7 @@ export default function ProfilePage() {
             type="text"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
+            maxLength={10}
             aria-required="true"
           />
         </div>
@@ -174,7 +180,7 @@ export default function ProfilePage() {
         onClose={() => { setDeleteModalOpen(false); setDeletePassword(''); }}
         title="회원 탈퇴"
       >
-        <p>정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+        <p>정말 탈퇴하시겠습니까? 작성된 게시글과 댓글은 삭제됩니다.</p>
         <form onSubmit={handleDeleteAccount}>
           <div className="input-group">
             <label className="input-label" htmlFor="delete-pw">비밀번호 확인</label>

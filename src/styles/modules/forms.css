@@ -335,3 +335,12 @@
 .input-field::placeholder {
     color: var(--color-text-placeholder);
 }
+
+/* ============================= */
+/* 폼 보조 텍스트 (Form Helper Text) */
+/* ============================= */
+.form-helper {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin-top: var(--spacing-xs);
+}

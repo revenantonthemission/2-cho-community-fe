@@ -100,6 +100,16 @@ export default function MyActivityPage() {
     return () => observer.disconnect();
   }, [handleObserver]);
 
+  async function handleUnblock(userId: number) {
+    try {
+      await api.delete(API_ENDPOINTS.BLOCKS.BLOCK(userId));
+      showToast('차단이 해제되었습니다.');
+      fetchItems(true);
+    } catch {
+      showToast('차단 해제에 실패했습니다.', 'error');
+    }
+  }
+
   function renderItem(item: unknown, _index: number) {
     if (tab === 'comments') {
       const c = item as MyComment;
@@ -119,6 +129,12 @@ export default function MyActivityPage() {
         <div key={`blocks-${b.user_id}`} className="activity-card">
           <span className="activity-card__nickname">{b.nickname}</span>
           <span className="activity-card__date">{timeAgo(b.blocked_at)}</span>
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={() => handleUnblock(b.user_id)}
+          >
+            차단 해제
+          </button>
         </div>
       );
     }

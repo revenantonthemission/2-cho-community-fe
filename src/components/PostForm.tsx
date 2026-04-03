@@ -237,6 +237,7 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="제목을 입력하세요"
+          maxLength={26}
           required
         />
       </div>
@@ -362,6 +363,10 @@ export default function PostForm({ initialData, onSubmit, submitLabel = '게시'
         <label>내용</label>
         <MarkdownEditor value={content} onChange={setContent} />
       </div>
+
+      {(!title.trim() || !content.trim()) && (
+        <p className="form-helper">*제목, 내용을 모두 작성해주세요.</p>
+      )}
 
       <div className="write-form__actions">
         {enableDraft && (

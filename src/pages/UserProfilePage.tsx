@@ -189,7 +189,7 @@ export default function UserProfilePage() {
               className={`btn ${isFollowing ? 'btn-secondary' : 'btn-primary'} btn-sm`}
               onClick={handleFollow}
             >
-              {isFollowing ? '언팔로우' : '팔로우'}
+              {isFollowing ? '팔로잉' : '팔로우'}
             </button>
             <button
               type="button"
@@ -200,11 +200,11 @@ export default function UserProfilePage() {
                   await selectConversation(convId);
                   navigate(ROUTES.DM);
                 } catch {
-                  showToast('쪽지 보내기에 실패했습니다.', 'error');
+                  showToast('메시지 보내기에 실패했습니다.', 'error');
                 }
               }}
             >
-              쪽지 보내기
+              메시지 보내기
             </button>
             <button type="button" className="btn btn-danger btn-sm" onClick={handleBlock}>
               {isBlocked ? '차단 해제' : '차단'}
