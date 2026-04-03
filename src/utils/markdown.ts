@@ -52,24 +52,30 @@ hljs.registerLanguage('html', xml);
 hljs.registerLanguage('yaml', yaml);
 hljs.registerLanguage('yml', yaml);
 
-// 코드 블록 렌더러 — highlight.js 구문 강조 적용
+// heading renderer 및 코드 렌더러에서 XSS 방지
+export function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+}
+
+// 코드 블록 렌더러 — highlight.js 구문 강조 + 언어 레이블 + 복사 버튼 적용
 function codeRenderer({ text, lang }: { text: string; lang?: string }) {
   const language = lang && hljs.getLanguage(lang) ? lang : undefined;
   const highlighted = language
     ? hljs.highlight(text, { language }).value
     : hljs.highlightAuto(text).value;
-  return `<pre><code class="hljs${language ? ` language-${language}` : ''}">${highlighted}</code></pre>`;
+  const langLabel = language
+    ? `<span class="code-lang-label">${escapeHtml(language)}</span>`
+    : '';
+  const copyBtn = '<button class="code-copy-btn" type="button">복사</button>';
+  return `<div class="code-block-wrapper">${langLabel}${copyBtn}<pre class="hljs"><code class="hljs${language ? ` language-${language}` : ''}">${highlighted}</code></pre></div>`;
 }
 
-// 기본 Marked 인스턴스 — 코드 하이라이팅만 적용
+// 기본 Marked 인스턴스 — 줄바꿈(breaks) + GFM + 코드 하이라이팅 적용
 export const markedInstance = new Marked({
+  breaks: true,
+  gfm: true,
   renderer: { code: codeRenderer },
 });
-
-// heading renderer에서 XSS 방지
-export function escapeHtml(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
-}
 
 // Wiki용 Marked 인스턴스 — TOC 앵커 링크 heading ID 포함
 export const wikiMarkedInstance = new Marked({
