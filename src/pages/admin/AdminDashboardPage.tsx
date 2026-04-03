@@ -6,6 +6,7 @@ import { UI_MESSAGES } from '../../constants/messages';
 import { showToast } from '../../utils/toast';
 import SuspendModal from '../../components/admin/SuspendModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import BackButton from '../../components/BackButton';
 import type { ApiResponse } from '../../types/common';
 import type { DashboardResponse, AdminUser, AdminUserListResponse } from '../../types/admin';
 
@@ -121,6 +122,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="admin-dashboard">
+      <BackButton />
       <h1 className="page-title">관리자 대시보드</h1>
 
       {/* 통계 카드 */}

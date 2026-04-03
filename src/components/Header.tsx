@@ -50,7 +50,18 @@ export default function Header({ onMenuToggle }: HeaderProps) {
     }
   }, [activeMenuIndex]);
 
-  const MENU_ITEM_COUNT = 2; // 회원정보수정, 로그아웃
+  const isAdminUser = user?.role === 'admin';
+  const menuItems = [
+    { to: ROUTES.PROFILE, label: '회원정보수정' },
+    { to: ROUTES.PASSWORD, label: '비밀번호 변경' },
+    { to: ROUTES.MY_ACTIVITY, label: '내 활동' },
+    { to: ROUTES.BADGES, label: '배지' },
+    ...(isAdminUser ? [
+      { to: ROUTES.ADMIN, label: '대시보드' },
+      { to: ROUTES.ADMIN_REPORTS, label: '신고 관리' },
+    ] : []),
+  ];
+  const MENU_ITEM_COUNT = menuItems.length + 1; // +1 for 로그아웃
 
   const handleMenuKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -78,7 +89,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
           break;
       }
     },
-    [activeMenuIndex],
+    [activeMenuIndex, MENU_ITEM_COUNT],
   );
 
   async function handleLogout() {
@@ -126,12 +137,12 @@ export default function Header({ onMenuToggle }: HeaderProps) {
               {dropdownOpen && (
                 <div className="header-dropdown">
                   <ul role="menu" ref={menuRef} onKeyDown={handleMenuKeyDown}>
-                    <li role="menuitem" tabIndex={activeMenuIndex === 0 ? 0 : -1}>
-                      <Link to={ROUTES.PROFILE} onClick={() => setDropdownOpen(false)}>
-                        회원정보수정
-                      </Link>
-                    </li>
-                    <li role="menuitem" tabIndex={activeMenuIndex === 1 ? 0 : -1}>
+                    {menuItems.map((item, index) => (
+                      <li key={item.to} role="menuitem" tabIndex={activeMenuIndex === index ? 0 : -1}>
+                        <Link to={item.to} onClick={() => setDropdownOpen(false)}>{item.label}</Link>
+                      </li>
+                    ))}
+                    <li role="menuitem" tabIndex={activeMenuIndex === menuItems.length ? 0 : -1}>
                       <button onClick={handleLogout}>로그아웃</button>
                     </li>
                   </ul>

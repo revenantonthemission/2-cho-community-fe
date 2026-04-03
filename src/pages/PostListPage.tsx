@@ -144,6 +144,7 @@ export default function PostListPage() {
       />
       {/* 검색 */}
       <div className="search-bar" ref={searchBarRef}>
+        <span className="search-prompt">$</span>
         <input
           type="text"
           className="search-bar__input"
@@ -160,7 +161,7 @@ export default function PostListPage() {
           </button>
         )}
         <button className="search-bar__btn" onClick={() => { handleSearch(searchInput); setShowSuggestions(false); }}>
-          검색
+          실행
         </button>
         {showSuggestions && suggestions.length > 0 && (
           <ul className="search-suggestions">

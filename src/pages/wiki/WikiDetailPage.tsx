@@ -12,6 +12,7 @@ import WikiTOC from '../../components/wiki/WikiTOC';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { timeAgo } from '../../utils/formatters';
 import { wikiMarkedInstance } from '../../utils/markdown';
+import BackButton from '../../components/BackButton';
 import type { ApiResponse } from '../../types/common';
 import type { WikiDetailResponse } from '../../types/wiki';
 
@@ -74,6 +75,7 @@ export default function WikiDetailPage() {
 
   return (
     <div className="wiki-detail">
+      <BackButton />
       <div className="wiki-detail__header">
         <h1>{page.title}</h1>
         <div className="wiki-detail__meta">

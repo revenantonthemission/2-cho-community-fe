@@ -9,6 +9,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { timeAgo } from '../../utils/formatters';
 import StarRating from '../../components/packages/StarRating';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import BackButton from '../../components/BackButton';
 import type { ApiResponse } from '../../types/common';
 import type { PackageDetail, PackageReview, ReviewListResponse } from '../../types/package';
 
@@ -150,6 +151,7 @@ export default function PackageDetailPage() {
 
   return (
     <div className="pkg-detail">
+      <BackButton />
       {/* 패키지 정보 */}
       <div className="pkg-detail__header">
         <h1>{pkg.display_name}</h1>

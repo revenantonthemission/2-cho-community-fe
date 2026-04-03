@@ -17,6 +17,7 @@ import CommentList from '../components/CommentList';
 import ReportModal from '../components/ReportModal';
 import PollView from '../components/PollView';
 import PostCard from '../components/PostCard';
+import BackButton from '../components/BackButton';
 
 export default function PostDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -224,6 +225,7 @@ export default function PostDetailPage() {
 
   return (
     <main className="main-container post-detail-container">
+      <BackButton />
       <article className="post-content-wrapper">
         {/* 배지 영역 */}
         <div className="post-badges">

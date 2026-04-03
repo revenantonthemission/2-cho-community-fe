@@ -215,3 +215,13 @@
     color: var(--color-text-tertiary);
     flex-shrink: 0;
 }
+
+/* ============================= */
+/* 터미널 검색 프롬프트             */
+/* ============================= */
+.search-prompt {
+  font-family: var(--font-mono);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+  margin-right: var(--spacing-xs);
+}

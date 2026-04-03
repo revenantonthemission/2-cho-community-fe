@@ -132,6 +132,7 @@ export default function WikiListPage() {
       />
 
       <div className="wiki-list-page__controls">
+        <span className="search-prompt">$</span>
         <input
           type="text"
           className="wiki-list-page__search"

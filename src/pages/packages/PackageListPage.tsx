@@ -135,8 +135,9 @@ export default function PackageListPage() {
       </div>
 
       <div className="pkg-list-page__controls">
+        <span className="search-prompt">$</span>
         <input type="text" className="pkg-list-page__search" value={searchInput}
-          onChange={(e) => handleSearchChange(e.target.value)} placeholder="$ search packages..." />
+          onChange={(e) => handleSearchChange(e.target.value)} placeholder="search packages..." />
         <div className="sort-buttons">
           {SORT_OPTIONS.map((opt) => (
             <button key={opt.value}
