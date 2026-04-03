@@ -4,6 +4,7 @@ import { Heart } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import CommentForm from './CommentForm';
 import ReportModal from './ReportModal';
+import MarkdownRenderer from './MarkdownRenderer';
 import { api } from '../services/api';
 import { API_ENDPOINTS } from '../constants/endpoints';
 import { ROUTES } from '../constants/routes';
@@ -109,7 +110,7 @@ function CommentItem({
           </div>
         </div>
       ) : (
-        <div className="comment-body">{comment.content}</div>
+        <div className="comment-body"><MarkdownRenderer content={comment.content} /></div>
       )}
 
       <div className="comment-actions">
