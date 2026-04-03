@@ -281,7 +281,7 @@ export default function MarkdownEditor({
 
   return (
     <div className={`markdown-editor${compact ? ' markdown-editor--compact' : ''}`}>
-      <div className="markdown-editor__toolbar">
+      <div className="md-toolbar">
         {toolbar.map((item) => {
           if (item.separator) {
             return <span key={item.key} className="md-toolbar-sep" aria-hidden="true" />;
@@ -312,7 +312,7 @@ export default function MarkdownEditor({
         />
       </div>
       {showPreview ? (
-        <div className="markdown-preview">
+        <div className="md-preview">
           <button
             type="button"
             className="md-toolbar-btn"

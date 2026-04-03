@@ -296,7 +296,7 @@
 }
 
 /* 컴팩트 에디터 (BEM 클래스) */
-.markdown-editor--compact .markdown-editor__toolbar {
+.markdown-editor--compact .md-toolbar {
     gap: var(--spacing-xs);
 }
 .markdown-editor--compact .md-toolbar-btn {
